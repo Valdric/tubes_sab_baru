@@ -15,16 +15,16 @@ class _LoginScreenState extends State<LoginScreen> {
   bool _isPasswordVisible = false;
   bool _isLoading = false; // TAMBAHKAN LOADING STATE
 
-  final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _usernameController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   final ApiService _apiService = ApiService(); // INISIALISASI API SERVICE
 
   // FUNGSI LOGIKA LOGIN KE API
   void _handleLogin() async {
     // Validasi input kosong
-    if (_emailController.text.isEmpty || _passwordController.text.isEmpty) {
+    if (_usernameController.text.isEmpty || _passwordController.text.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Email dan Password wajib diisi!'), backgroundColor: AppColors.error),
+        const SnackBar(content: Text('Username dan Password wajib diisi!'), backgroundColor: AppColors.error),
       );
       return;
     }
@@ -34,7 +34,7 @@ class _LoginScreenState extends State<LoginScreen> {
     try {
       // Panggil fungsi login dari ApiService
       final result = await _apiService.login(
-        _emailController.text,
+        _usernameController.text,
         _passwordController.text,
       );
 
@@ -107,7 +107,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
                 // Form Login
                 Text(
-                  'Email Address',
+                  'Username',
                   style: GoogleFonts.inter(
                     fontSize: 14,
                     fontWeight: FontWeight.w600,
@@ -116,11 +116,12 @@ class _LoginScreenState extends State<LoginScreen> {
                 ),
                 const SizedBox(height: 8),
                 TextField(
-                  controller: _emailController,
-                  keyboardType: TextInputType.emailAddress,
+                  controller: _usernameController,
+                  keyboardType: TextInputType.text,
                   enabled: !_isLoading, // Disable input saat loading
                   decoration: InputDecoration(
-                    hintText: 'name@company.com',
+                    hintText: 'Enter your username',
+                    prefixIcon: const Icon(Icons.person_outline, color: AppColors.onSurfaceVariant),
                     filled: true,
                     fillColor: AppColors.surfaceContainerLowest,
                     border: OutlineInputBorder(
@@ -150,6 +151,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   enabled: !_isLoading, // Disable input saat loading
                   decoration: InputDecoration(
                     hintText: 'Enter your password',
+                    prefixIcon: const Icon(Icons.lock_outline, color: AppColors.onSurfaceVariant),
                     filled: true,
                     fillColor: AppColors.surfaceContainerLowest,
                     suffixIcon: IconButton(

@@ -18,24 +18,24 @@ class _InventoryFormScreenState extends State<InventoryFormScreen> {
   bool _isLoading = false;
 
   late TextEditingController _nameController;
-  late TextEditingController _categoryController;
-  late TextEditingController _qtyController;
-  String _selectedStatus = 'In Stock';
+  late TextEditingController _stockController;
+  late TextEditingController _thresholdController;
+  String _selectedUnit = 'GRAM';
 
   @override
   void initState() {
     super.initState();
     _nameController = TextEditingController(text: widget.item?['name'] ?? '');
-    _categoryController = TextEditingController(text: widget.item?['category'] ?? '');
-    _qtyController = TextEditingController(text: widget.item?['qty']?.toString() ?? '');
-    _selectedStatus = widget.item?['status'] ?? 'In Stock';
+    _stockController = TextEditingController(text: widget.item?['stock']?.toString() ?? '');
+    _thresholdController = TextEditingController(text: widget.item?['threshold']?.toString() ?? '0');
+    _selectedUnit = widget.item?['unit'] ?? 'GRAM';
   }
 
   @override
   void dispose() {
     _nameController.dispose();
-    _categoryController.dispose();
-    _qtyController.dispose();
+    _stockController.dispose();
+    _thresholdController.dispose();
     super.dispose();
   }
 
@@ -44,27 +44,28 @@ class _InventoryFormScreenState extends State<InventoryFormScreen> {
 
     setState(() => _isLoading = true);
 
+    // Sync with API requirements: name, stock, unit, threshold
     final data = {
       'name': _nameController.text.trim(),
-      'category': _categoryController.text.trim(),
-      'qty': _qtyController.text.trim(),
-      'status': _selectedStatus,
+      'stock': int.tryParse(_stockController.text.trim()) ?? 0,
+      'unit': _selectedUnit,
+      'threshold': int.tryParse(_thresholdController.text.trim()) ?? 0,
     };
 
     try {
       if (widget.item == null) {
-        // CREATE
-        await _api.post('/inventory', data);
+        // CREATE -> /ingredients
+        await _api.post('/ingredients', data);
       } else {
-        // UPDATE
-        await _api.put('/inventory/${widget.item!['id']}', data);
+        // UPDATE -> /ingredients/:id
+        await _api.put('/ingredients/${widget.item!['id']}', data);
       }
 
       if (mounted) {
-        Navigator.pop(context, true); // Return true to indicate refresh needed
+        Navigator.pop(context, true); // Refresh list
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(widget.item == null ? 'Item added!' : 'Item updated!'),
+            content: Text(widget.item == null ? 'Ingredient added!' : 'Ingredient updated!'),
             backgroundColor: Colors.green,
           ),
         );
@@ -92,7 +93,7 @@ class _InventoryFormScreenState extends State<InventoryFormScreen> {
         backgroundColor: bgColor,
         elevation: 0,
         title: Text(
-          widget.item == null ? 'Add New Item' : 'Edit Item',
+          widget.item == null ? 'Add Ingredient' : 'Edit Ingredient',
           style: GoogleFonts.hankenGrotesk(
               color: AppColors.primary, fontWeight: FontWeight.bold, fontSize: 18),
         ),
@@ -106,21 +107,12 @@ class _InventoryFormScreenState extends State<InventoryFormScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              _buildLabel('Item Name', textColor),
+              _buildLabel('Ingredient Name', textColor),
               TextFormField(
                 controller: _nameController,
                 style: TextStyle(color: textColor),
-                decoration: _buildInputDecoration('e.g. Almond Milk'),
+                decoration: _buildInputDecoration('e.g. Biji Kopi Arabica'),
                 validator: (val) => val!.isEmpty ? 'Name required' : null,
-              ),
-              const SizedBox(height: 20),
-              
-              _buildLabel('Category', textColor),
-              TextFormField(
-                controller: _categoryController,
-                style: TextStyle(color: textColor),
-                decoration: _buildInputDecoration('e.g. Dairy'),
-                validator: (val) => val!.isEmpty ? 'Category required' : null,
               ),
               const SizedBox(height: 20),
 
@@ -130,13 +122,13 @@ class _InventoryFormScreenState extends State<InventoryFormScreen> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        _buildLabel('Quantity', textColor),
+                        _buildLabel('Stock', textColor),
                         TextFormField(
-                          controller: _qtyController,
+                          controller: _stockController,
                           style: TextStyle(color: textColor),
-                          decoration: _buildInputDecoration('e.g. 10'),
-                          keyboardType: TextInputType.text,
-                          validator: (val) => val!.isEmpty ? 'Qty required' : null,
+                          decoration: _buildInputDecoration('e.g. 1000'),
+                          keyboardType: TextInputType.number,
+                          validator: (val) => val!.isEmpty ? 'Stock required' : null,
                         ),
                       ],
                     ),
@@ -146,24 +138,34 @@ class _InventoryFormScreenState extends State<InventoryFormScreen> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        _buildLabel('Status', textColor),
+                        _buildLabel('Unit', textColor),
                         DropdownButtonFormField<String>(
-                          value: _selectedStatus,
+                          value: _selectedUnit,
                           dropdownColor: isDark ? const Color(0xFF1E1E1E) : Colors.white,
                           style: TextStyle(color: textColor),
                           decoration: _buildInputDecoration(''),
-                          items: ['In Stock', 'Low Stock', 'Out of Stock']
+                          items: ['GRAM', 'ML', 'PCS']
                               .map((s) => DropdownMenuItem(value: s, child: Text(s)))
                               .toList(),
-                          onChanged: (val) => setState(() => _selectedStatus = val!),
+                          onChanged: (val) => setState(() => _selectedUnit = val!),
                         ),
                       ],
                     ),
                   ),
                 ],
               ),
+              const SizedBox(height: 20),
+
+              _buildLabel('Alert Threshold (Low Stock)', textColor),
+              TextFormField(
+                controller: _thresholdController,
+                style: TextStyle(color: textColor),
+                decoration: _buildInputDecoration('e.g. 500'),
+                keyboardType: TextInputType.number,
+                validator: (val) => val!.isEmpty ? 'Threshold required' : null,
+              ),
               const SizedBox(height: 48),
-              
+
               SizedBox(
                 width: double.infinity,
                 height: 54,
@@ -176,7 +178,7 @@ class _InventoryFormScreenState extends State<InventoryFormScreen> {
                   child: _isLoading
                       ? const CircularProgressIndicator(color: Colors.white)
                       : Text(
-                          widget.item == null ? 'Create Item' : 'Save Changes',
+                          widget.item == null ? 'Create Ingredient' : 'Save Changes',
                           style: const TextStyle(
                               color: Colors.white,
                               fontSize: 16,

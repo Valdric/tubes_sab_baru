@@ -28,15 +28,15 @@ class _InventoryScreenState extends State<InventoryScreen> {
   Future<void> _fetchInventory() async {
     setState(() => _isLoading = true);
     try {
-      final response = await _api.get('/inventory');
+      final response = await _api.get('/ingredients');
 
       if (mounted) {
         setState(() {
-          // Asumsi API return { "data": [...] } atau langsung [...]
-          if (response is List) {
+          // Sync with API structure: response['data']['items']
+          if (response is Map && response['data'] != null && response['data']['items'] != null) {
+            _inventoryItems = response['data']['items'];
+          } else if (response is List) {
             _inventoryItems = response;
-          } else if (response is Map && response['data'] != null) {
-            _inventoryItems = response['data'];
           }
           _isLoading = false;
         });
@@ -44,20 +44,19 @@ class _InventoryScreenState extends State<InventoryScreen> {
     } catch (e) {
       if (mounted) {
         setState(() => _isLoading = false);
-        // Tetap tampilkan list kosong jika error
         _inventoryItems = [];
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Failed to load inventory: $e')));
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Failed to load ingredients: $e')));
       }
     }
   }
 
   // FUNGSI DELETE DENGAN KONFIRMASI
-  Future<void> _deleteItem(int id) async {
+  Future<void> _deleteItem(String id) async { // ID is String in API
     final bool? confirm = await showDialog(
       context: context,
       builder: (context) => AlertDialog(
         title: const Text('Confirm Delete'),
-        content: const Text('Are you sure you want to delete this item?'),
+        content: const Text('Are you sure you want to delete this ingredient?'),
         actions: [
           TextButton(onPressed: () => Navigator.pop(context, false), child: const Text('Cancel')),
           TextButton(
@@ -72,10 +71,10 @@ class _InventoryScreenState extends State<InventoryScreen> {
     if (confirm != true) return;
 
     try {
-      await _api.delete('/inventory/$id');
+      await _api.delete('/ingredients/$id');
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Item deleted successfully')));
-        _fetchInventory(); // Refresh data
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Ingredient deleted!')));
+        _fetchInventory();
       }
     } catch (e) {
       if (mounted) {
@@ -140,15 +139,18 @@ class _InventoryScreenState extends State<InventoryScreen> {
                           itemCount: _inventoryItems.length,
                           itemBuilder: (context, index) {
                             final item = _inventoryItems[index];
-                            final isLowStock = item['status'] == 'Low Stock';
+                            final stockValue = double.tryParse(item['stock']?.toString() ?? '0') ?? 0;
+                            final thresholdValue = double.tryParse(item['threshold']?.toString() ?? '0') ?? 0;
+                            final isLowStock = stockValue <= thresholdValue;
+                            
                             return InkWell(
                               onTap: () => _navigateToForm(item), // Edit Item
                               child: _buildStockItem(
-                                id: item['id'],
+                                id: item['id'].toString(),
                                 name: item['name'],
-                                cat: item['category'],
-                                qty: item['qty'].toString(),
-                                status: item['status'],
+                                cat: item['unit'], // Using unit as category/label
+                                qty: '${item['stock']} ${item['unit']}',
+                                status: isLowStock ? 'Low Stock' : 'In Stock',
                                 statusColor: isLowStock ? AppColors.error : AppColors.primary,
                               ),
                             );
@@ -167,7 +169,7 @@ class _InventoryScreenState extends State<InventoryScreen> {
     );
   }
 
-  Widget _buildStockItem({required int id, required String name, required String cat, required String qty, required String status, required Color statusColor}) {
+  Widget _buildStockItem({required String id, required String name, required String cat, required String qty, required String status, required Color statusColor}) {
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
       padding: const EdgeInsets.all(16),

@@ -3,10 +3,21 @@ import 'package:http/http.dart' as http;
 
 class ApiService {
   static const String baseUrl = "https://bemobilepos-production.up.railway.app/api/v1";
+  static String? _token;
 
-  // ==========================================
-  // 1. FUNGSI KHUSUS: LOGIN
-  // ==========================================
+  // Set token after login
+  static void setToken(String token) => _token = token;
+  static String? get token => _token;
+
+  // Helper for common headers
+  Map<String, String> _getHeaders([bool isJson = true]) {
+    final Map<String, String> headers = {
+      'Accept': 'application/json',
+    };
+    if (isJson) headers['Content-Type'] = 'application/json';
+    if (_token != null) headers['Authorization'] = 'Bearer $_token';
+    return headers;
+  }
   Future<Map<String, dynamic>> login(String username, String password) async {
     try {
       final response = await http.post(
@@ -22,7 +33,11 @@ class ApiService {
       );
 
       if (response.statusCode == 200) {
-        return jsonDecode(response.body);
+        final data = jsonDecode(response.body);
+        if (data['data'] != null && data['data']['token'] != null) {
+          _token = data['data']['token'];
+        }
+        return data;
       } else if (response.statusCode == 401) {
         throw 'Username atau Password salah!';
       } else if (response.statusCode == 422) {
@@ -61,10 +76,7 @@ class ApiService {
     try {
       final response = await http.get(
         Uri.parse('$baseUrl$endpoint'),
-        headers: {
-          'Accept': 'application/json',
-          // Nanti tambahin 'Authorization': 'Bearer $token' di sini kalau API butuh token (Sanctum/JWT)
-        },
+        headers: _getHeaders(false),
       );
       return _handleResponse(response);
     } catch (e) {
@@ -77,10 +89,7 @@ class ApiService {
     try {
       final response = await http.post(
         Uri.parse('$baseUrl$endpoint'),
-        headers: {
-          'Content-Type': 'application/json',
-          'Accept': 'application/json',
-        },
+        headers: _getHeaders(),
         body: jsonEncode(data),
       );
       return _handleResponse(response);
@@ -94,10 +103,7 @@ class ApiService {
     try {
       final response = await http.put(
         Uri.parse('$baseUrl$endpoint'),
-        headers: {
-          'Content-Type': 'application/json',
-          'Accept': 'application/json',
-        },
+        headers: _getHeaders(),
         body: jsonEncode(data),
       );
       return _handleResponse(response);
@@ -111,9 +117,7 @@ class ApiService {
     try {
       final response = await http.delete(
         Uri.parse('$baseUrl$endpoint'),
-        headers: {
-          'Accept': 'application/json',
-        },
+        headers: _getHeaders(false),
       );
       return _handleResponse(response);
     } catch (e) {

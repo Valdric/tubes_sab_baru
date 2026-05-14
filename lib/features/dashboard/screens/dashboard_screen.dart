@@ -4,16 +4,29 @@ import 'package:tubes_ppm_sab/core/theme/app_colors.dart';
 import 'package:tubes_ppm_sab/shared/widgets/sidebar.dart';
 import 'package:tubes_ppm_sab/shared/widgets/mobile_bottom_nav.dart';
 import 'package:tubes_ppm_sab/features/profile/screens/profile_screen.dart';
-import 'package:tubes_ppm_sab/features/dashboard/widgets/dashboard_content.dart'; // Import konten dashboard
+import 'package:tubes_ppm_sab/features/dashboard/widgets/dashboard_content.dart';
 
-class DashboardScreen extends StatelessWidget {
+class DashboardScreen extends StatefulWidget {
   const DashboardScreen({super.key});
+
+  @override
+  State<DashboardScreen> createState() => _DashboardScreenState();
+}
+
+class _DashboardScreenState extends State<DashboardScreen> {
+  // Fungsi untuk navigasi ke profile dan refresh saat kembali
+  Future<void> _goToProfile() async {
+    await Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => const ProfileScreen()),
+    );
+    // Refresh UI dashboard (seperti nama user) saat kembali dari profile
+    if (mounted) setState(() {});
+  }
 
   @override
   Widget build(BuildContext context) {
     final bool isDesktop = MediaQuery.of(context).size.width >= 768;
-
-    // Cek status dark mode biar background nyesuain
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final bgColor = isDark ? const Color(0xFF121212) : AppColors.surface;
 
@@ -23,13 +36,13 @@ class DashboardScreen extends StatelessWidget {
       // 1. DRAWER (SIDEBAR KIRI UNTUK MOBILE)
       drawer: !isDesktop ? const Drawer(child: Sidebar(currentIndex: 0)) : null,
 
-      // 2. APPBAR SAMA KAYA CASHIER
+      // 2. APPBAR
       appBar: isDesktop ? null : AppBar(
         backgroundColor: bgColor,
         elevation: 0,
         scrolledUnderElevation: 1,
         title: Text(
-          'LumiPOS', // Atau lu bisa ganti jadi 'Dashboard'
+          'LumiPOS',
           style: GoogleFonts.hankenGrotesk(
             color: AppColors.primary,
             fontWeight: FontWeight.bold,
@@ -37,7 +50,6 @@ class DashboardScreen extends StatelessWidget {
           ),
         ),
         centerTitle: true,
-        // Tombol Hamburger Menu dibungkus Builder biar bisa manggil Drawer
         leading: Builder(
           builder: (context) => IconButton(
             icon: const Icon(Icons.menu_open, color: AppColors.primary),
@@ -48,29 +60,23 @@ class DashboardScreen extends StatelessWidget {
           Padding(
             padding: const EdgeInsets.only(right: 16.0),
             child: InkWell(
-              onTap: () => Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => const ProfileScreen())
-              ),
+              onTap: _goToProfile,
               borderRadius: BorderRadius.circular(20),
               child: const CircleAvatar(
                 radius: 18,
                 backgroundColor: AppColors.surfaceContainerHigh,
-                backgroundImage: NetworkImage('https://lh3.googleusercontent.com/aida-public/AB6AXuAebimc9BJtwloOpY4j3Hwdhm0j-EIy2iiW2CJ0maPC0ynBmA_zCVpSSjaDMuEHEOJcCN51Od4Hadfzzk_XFBW5sZ9g3S6NSfet_46wnnjChcC_agRNK38d5OIyXw7k-GcYERvIB3mG99bNXGtl7w6fbQO4vm6E41_3PyzbPBgY7hddAPSGq1TA8abykcXUvJDQrYjGHz6DpcACh4LwxiV7gMHlhVa1sTbnC9Po_RDVQ5amXn3dbVomw4pyhxCHJpaBLG3U9HmKvdqk'),
+                child: Icon(Icons.person, color: AppColors.primary, size: 20),
               ),
             ),
           ),
         ],
       ),
 
-      // 3. BODY (GABUNGAN SIDEBAR DESKTOP & KONTEN)
+      // 3. BODY
       body: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Sidebar tampil langsung kalau di Desktop/Tablet
           if (isDesktop) const Sidebar(currentIndex: 0),
-
-          // Konten Dashboard yang kemaren udah kita benerin dark mode-nya
           const Expanded(
             child: SingleChildScrollView(
               padding: EdgeInsets.all(24),
@@ -80,7 +86,7 @@ class DashboardScreen extends StatelessWidget {
         ],
       ),
 
-      // 4. BOTTOM NAVIGATION UNTUK MOBILE
+      // 4. BOTTOM NAVIGATION
       bottomNavigationBar: isDesktop ? null : const MobileBottomNav(currentIndex: 0),
     );
   }

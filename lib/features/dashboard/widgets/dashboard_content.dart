@@ -7,6 +7,7 @@ import 'package:tubes_ppm_sab/features/reports/screens/reports_screen.dart';
 import 'package:tubes_ppm_sab/features/history/screens/history_screen.dart';
 import 'package:tubes_ppm_sab/features/inventory/screens/inventory_screen.dart';
 import 'package:tubes_ppm_sab/features/cashier/screens/cashier_screen.dart';
+import 'package:tubes_ppm_sab/core/services/api_service.dart';
 
 // --- DATA SINKRONISASI ---
 // Data ini akan diisi setelah login berhasil
@@ -27,6 +28,7 @@ class _DashboardContentState extends State<DashboardContent> {
   String todaySales = "0.00";
   String openOrders = "0";
   String lowStockCount = "0";
+  List<String> lowStockNames = [];
 
   @override
   void initState() {
@@ -36,14 +38,25 @@ class _DashboardContentState extends State<DashboardContent> {
 
   Future<void> _fetchDashboardData() async {
     try {
-      // TODO: Panggil ApiService untuk mendapatkan statistik dashboard
-      // final response = await ApiService().get('/dashboard/stats');
-      
+      final response = await ApiService().get('/reports/dashboard');
+
       if (mounted) {
         setState(() {
-          // todaySales = response['today_sales'];
-          // openOrders = response['open_orders'];
-          // lowStockCount = response['low_stock'];
+          // Sync with API structure: response['data']['revenue']['value'], etc.
+          final data = response['data'];
+          if (data != null) {
+            todaySales = data['revenue']['value']?.toString() ?? "0.00";
+            openOrders = data['total_orders']['value']?.toString() ?? "0";
+            
+            final lowStockItems = data['low_stock_items'] as List?;
+            lowStockCount = (lowStockItems?.length ?? 0).toString();
+            lowStockNames = lowStockItems
+                    ?.map((item) => "${item['name']} (${item['stock']} ${item['unit']} remaining)")
+                    .take(2)
+                    .toList()
+                    .cast<String>() ??
+                [];
+          }
           _isLoading = false;
         });
       }
@@ -70,9 +83,9 @@ class _DashboardContentState extends State<DashboardContent> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         // SINKRON: Nama ambil dari UserData, bukan teks manual lagi
-        Text('Good morning, ${UserData.name}', style: textTheme.displayLarge),
+        Text('Good morning, ${UserData.name.isEmpty ? 'User' : UserData.name}', style: textTheme.displayLarge),
         const SizedBox(height: 4),
-        Text('Here\'s what\'s happening at Branch #402 today.', style: textTheme.bodyLarge),
+        Text('Manage your business at a glance.', style: textTheme.bodyLarge),
         const SizedBox(height: 16),
 
         // Bento Grid: Quick Stats (Dibuat lebih rapat/pipih sesuai request sebelumnya)
@@ -123,10 +136,14 @@ class _DashboardContentState extends State<DashboardContent> {
               bottomWidget: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisSize: MainAxisSize.min,
-                children: [
-                  Text('• Almond Milk (2L remaining)', style: TextStyle(color: subtitleColor, fontSize: 11)),
-                  Text('• Espresso Beans (1kg remaining)', style: TextStyle(color: subtitleColor, fontSize: 11)),
-                ],
+                children: lowStockNames.isEmpty
+                    ? [Text('All items in stock', style: TextStyle(color: subtitleColor, fontSize: 11))]
+                    : lowStockNames
+                        .map((name) => Text('• $name',
+                            style: TextStyle(color: subtitleColor, fontSize: 11),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis))
+                        .toList(),
               ),
               onTap: () => Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const InventoryScreen())),
             ),

@@ -4,6 +4,8 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:tubes_ppm_sab/core/theme/app_colors.dart';
 import 'package:tubes_ppm_sab/features/auth/screens/login_screen.dart';
 import 'package:tubes_ppm_sab/features/profile/screens/edit_profile_screen.dart';
+import 'package:tubes_ppm_sab/features/profile/screens/change_password_screen.dart';
+import 'package:tubes_ppm_sab/core/services/api_service.dart';
 import 'package:tubes_ppm_sab/main.dart';
 import 'package:tubes_ppm_sab/shared/widgets/sidebar.dart';
 import 'package:tubes_ppm_sab/shared/widgets/mobile_bottom_nav.dart';
@@ -17,12 +19,14 @@ class ProfileScreen extends StatefulWidget {
 }
 
 class _ProfileScreenState extends State<ProfileScreen> {
+  final ApiService _api = ApiService();
   bool _isDarkMode = false;
   bool _isLoading = true;
 
   // Variabel Penampung Data Profil
   String _fullName = "";
-  String _email = "";
+  String _username = "";
+  String _role = "";
 
   // Logic Gambar: Pake network image default kalau belum ada lokal path
   String _currentImagePath = "";
@@ -36,9 +40,29 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   Future<void> _fetchProfileData() async {
     setState(() => _isLoading = true);
-    // TODO: Ambil data profile dari API
-    // final response = await ApiService().get('/profile');
-    if (mounted) setState(() => _isLoading = false);
+    try {
+      final response = await _api.get('/profile');
+      if (mounted) {
+        final data = response['data'];
+        setState(() {
+          _fullName = data['name'] ?? "";
+          _username = data['username'] ?? "";
+          _role = data['role'] ?? "";
+          
+          // Update Global UserData biar Dashboard ikutan ganti
+          UserData.name = _fullName;
+          
+          _isLoading = false;
+        });
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() => _isLoading = false);
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Failed to load profile: $e')),
+        );
+      }
+    }
   }
 
   void _handleLogout(BuildContext context) {
@@ -111,12 +135,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       ),
                       const SizedBox(height: 16),
                       Text(_fullName, style: GoogleFonts.hankenGrotesk(fontSize: 22, fontWeight: FontWeight.bold, color: textColor)),
-                      Text(_email, style: const TextStyle(color: AppColors.onSurfaceVariant, fontSize: 13)),
+                      Text('@$_username', style: const TextStyle(color: AppColors.onSurfaceVariant, fontSize: 13)),
                       const SizedBox(height: 12),
                       Container(
                           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
                           decoration: BoxDecoration(color: Colors.green.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(20)),
-                          child: const Text('Active', style: TextStyle(color: Colors.green, fontWeight: FontWeight.bold, fontSize: 11))
+                          child: Text(_role, style: const TextStyle(color: Colors.green, fontWeight: FontWeight.bold, fontSize: 11))
                       ),
 
                       _buildSectionHeader('Account'),
@@ -133,30 +157,31 @@ class _ProfileScreenState extends State<ProfileScreen> {
                               MaterialPageRoute(
                                 builder: (context) => EditProfileScreen(
                                   currentName: _fullName,
-                                  currentEmail: _email,
+                                  currentEmail: _username, // We use username as the unique ID field in UI
                                   currentImagePath: _currentImagePath,
                                 ),
                               ),
                             );
 
-                            // JIKA USER KLIK SAVE, UPDATE DATA DI SINI
-                            if (result != null && result is Map<String, dynamic>) {
-                              setState(() {
-                                _fullName = result['name'];
-                                _email = result['email'];
-                                // Update Global UserData biar Dashboard ikutan ganti
-                                UserData.name = result['name'];
-
-                                // Update path gambar kalau ada yang baru
-                                if (result['newImagePath'] != null) {
-                                  _currentImagePath = result['newImagePath'];
-                                }
-                              });
+                            // JIKA USER KLIK SAVE, REFRESH DATA DARI API
+                            if (result == true) {
+                              _fetchProfileData();
                             }
                           }
                       ),
 
-                      _buildSettingsTile(Icons.lock_outline, 'Change Password', cardColor, textColor),
+                      _buildSettingsTile(
+                        Icons.lock_outline,
+                        'Change Password',
+                        cardColor,
+                        textColor,
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(builder: (context) => const ChangePasswordScreen()),
+                          );
+                        },
+                      ),
 
                       _buildSectionHeader('Appearance'),
                       _buildSwitchTile(icon: Icons.dark_mode_outlined, title: 'Dark Mode', value: _isDarkMode, cardColor: cardColor, textColor: textColor, onChanged: (val) {

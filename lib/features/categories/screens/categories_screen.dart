@@ -1,9 +1,122 @@
 import 'package:flutter/material.dart';
 import 'package:tubes_ppm_sab/core/theme/app_colors.dart';
 import 'package:tubes_ppm_sab/shared/widgets/sidebar.dart';
+import 'package:tubes_ppm_sab/core/services/api_service.dart';
 
-class CategoriesScreen extends StatelessWidget {
+class CategoriesScreen extends StatefulWidget {
   const CategoriesScreen({super.key});
+
+  @override
+  State<CategoriesScreen> createState() => _CategoriesScreenState();
+}
+
+class _CategoriesScreenState extends State<CategoriesScreen> {
+  final ApiService _api = ApiService();
+  List<dynamic> _categories = [];
+  bool _isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchCategories();
+  }
+
+  Future<void> _fetchCategories() async {
+    setState(() => _isLoading = true);
+    try {
+      final response = await _api.get('/categories');
+      if (mounted) {
+        setState(() {
+          if (response is List) {
+            _categories = response;
+          } else if (response is Map && response['data'] != null) {
+            // Check for items list or directly in data
+            _categories = response['data'] is List ? response['data'] : (response['data']['items'] ?? []);
+          }
+          _isLoading = false;
+        });
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() => _isLoading = false);
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Failed to load categories: $e')));
+      }
+    }
+  }
+
+  Future<void> _deleteCategory(String id) async {
+    final bool? confirm = await showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Confirm Delete'),
+        content: const Text('Are you sure you want to delete this category?'),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(context, false), child: const Text('Cancel')),
+          TextButton(
+            onPressed: () => Navigator.pop(context, true),
+            style: TextButton.styleFrom(foregroundColor: AppColors.error),
+            child: const Text('Delete'),
+          ),
+        ],
+      ),
+    );
+
+    if (confirm != true) return;
+
+    try {
+      await _api.delete('/categories/$id');
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Category deleted!')));
+        _fetchCategories();
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Delete failed: $e'), backgroundColor: AppColors.error));
+      }
+    }
+  }
+
+  void _showForm([Map<String, dynamic>? category]) {
+    final nameController = TextEditingController(text: category?['name'] ?? '');
+    
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text(category == null ? 'Add Category' : 'Edit Category'),
+        content: TextField(
+          controller: nameController,
+          decoration: const InputDecoration(hintText: 'Category Name'),
+        ),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(context), child: const Text('Cancel')),
+          ElevatedButton(
+            onPressed: () async {
+              if (nameController.text.trim().isEmpty) return;
+              Navigator.pop(context);
+              
+              setState(() => _isLoading = true);
+              try {
+                final data = {'name': nameController.text.trim()};
+                if (category == null) {
+                  await _api.post('/categories', data);
+                } else {
+                  await _api.put('/categories/${category['id']}', data);
+                }
+                _fetchCategories();
+              } catch (e) {
+                if (mounted) {
+                  setState(() => _isLoading = false);
+                  ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Operation failed: $e')));
+                }
+              }
+            },
+            style: ElevatedButton.styleFrom(backgroundColor: AppColors.primary),
+            child: const Text('Save', style: TextStyle(color: Colors.white)),
+          ),
+        ],
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -24,40 +137,67 @@ class CategoriesScreen extends StatelessWidget {
         children: [
           if (isDesktop) const Sidebar(currentIndex: 6),
           Expanded(
-            child: GridView.count(
-              padding: const EdgeInsets.all(24),
-              crossAxisCount: isDesktop ? 4 : 2,
-              mainAxisSpacing: 16,
-              crossAxisSpacing: 16,
-              children: [
-                _categoryCard('Coffee', Icons.coffee, '12 items'),
-                _categoryCard('Non-Coffee', Icons.local_drink, '8 items'),
-                _categoryCard('Bakery', Icons.bakery_dining, '15 items'),
-                _categoryCard('Dessert', Icons.cake, '6 items'),
-                _categoryCard('Main Course', Icons.restaurant, '10 items'),
-                _categoryCard('Merchandise', Icons.shopping_bag, '4 items'),
-              ],
-            ),
+            child: _isLoading 
+              ? const Center(child: CircularProgressIndicator(color: AppColors.primary))
+              : _categories.isEmpty 
+                ? const Center(child: Text('No categories found.'))
+                : GridView.builder(
+                    padding: const EdgeInsets.all(24),
+                    gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                      crossAxisCount: isDesktop ? 4 : 2,
+                      mainAxisSpacing: 16,
+                      crossAxisSpacing: 16,
+                    ),
+                    itemCount: _categories.length,
+                    itemBuilder: (context, index) {
+                      final cat = _categories[index];
+                      return _categoryCard(cat);
+                    },
+                  ),
           ),
         ],
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () => _showForm(),
+        backgroundColor: AppColors.primary,
+        child: const Icon(Icons.add, color: AppColors.onPrimary),
       ),
     );
   }
 
-  Widget _categoryCard(String title, IconData icon, String count) {
+  Widget _categoryCard(Map<String, dynamic> cat) {
     return Container(
       decoration: BoxDecoration(
         color: AppColors.surfaceContainerLowest,
         borderRadius: BorderRadius.circular(16),
         border: Border.all(color: AppColors.outlineVariant.withValues(alpha: 0.3)),
       ),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
+      child: Stack(
         children: [
-          Icon(icon, size: 40, color: AppColors.primary),
-          const SizedBox(height: 12),
-          Text(title, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
-          Text(count, style: const TextStyle(color: AppColors.onSurfaceVariant, fontSize: 12)),
+          Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const Icon(Icons.category, size: 40, color: AppColors.primary),
+                const SizedBox(height: 12),
+                Text(cat['name'] ?? 'No Name', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+              ],
+            ),
+          ),
+          Positioned(
+            top: 4,
+            right: 4,
+            child: PopupMenuButton<String>(
+              onSelected: (val) {
+                if (val == 'edit') _showForm(cat);
+                if (val == 'delete') _deleteCategory(cat['id'].toString());
+              },
+              itemBuilder: (context) => [
+                const PopupMenuItem(value: 'edit', child: Text('Edit')),
+                const PopupMenuItem(value: 'delete', child: Text('Delete', style: TextStyle(color: AppColors.error))),
+              ],
+            ),
+          ),
         ],
       ),
     );

@@ -2,9 +2,47 @@ import 'package:flutter/material.dart';
 import 'package:tubes_ppm_sab/core/theme/app_colors.dart';
 import 'package:tubes_ppm_sab/shared/widgets/sidebar.dart';
 import 'package:tubes_ppm_sab/shared/widgets/mobile_bottom_nav.dart';
+import 'package:tubes_ppm_sab/core/services/api_service.dart';
 
-class MenuRecipesScreen extends StatelessWidget {
+class MenuRecipesScreen extends StatefulWidget {
   const MenuRecipesScreen({super.key});
+
+  @override
+  State<MenuRecipesScreen> createState() => _MenuRecipesScreenState();
+}
+
+class _MenuRecipesScreenState extends State<MenuRecipesScreen> {
+  final ApiService _api = ApiService();
+  List<dynamic> _menus = [];
+  bool _isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchMenus();
+  }
+
+  Future<void> _fetchMenus() async {
+    setState(() => _isLoading = true);
+    try {
+      final response = await _api.get('/menus');
+      if (mounted) {
+        setState(() {
+          if (response is List) {
+            _menus = response;
+          } else if (response is Map && response['data'] != null) {
+            _menus = response['data'] is List ? response['data'] : (response['data']['items'] ?? []);
+          }
+          _isLoading = false;
+        });
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() => _isLoading = false);
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Failed to load menu: $e')));
+      }
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -25,17 +63,23 @@ class MenuRecipesScreen extends StatelessWidget {
         children: [
           if (isDesktop) const Sidebar(currentIndex: 5),
           Expanded(
-            child: ListView(
-              padding: const EdgeInsets.all(24),
-              children: [
-                if (isDesktop) const Text('Menu & Recipes', style: TextStyle(fontSize: 32, fontWeight: FontWeight.bold, color: AppColors.primary)),
-                if (isDesktop) const SizedBox(height: 24),
-                _recipeCard('Double Shot Espresso', 'Coffee', '4 mins', 'High intensity espresso with rich crema.'),
-                _recipeCard('Caramel Macchiato', 'Coffee', '6 mins', 'Vanilla-marked milk with espresso and caramel.'),
-                _recipeCard('Classic Croissant', 'Bakery', '2 mins', 'Buttery, flaky French pastry served warm.'),
-                _recipeCard('Matcha Latte', 'Non-Coffee', '5 mins', 'Premium ceremonial matcha with steamed milk.'),
-              ],
-            ),
+            child: _isLoading
+                ? const Center(child: CircularProgressIndicator(color: AppColors.primary))
+                : _menus.isEmpty
+                    ? const Center(child: Text('No menu items found.'))
+                    : ListView.builder(
+                        padding: const EdgeInsets.all(24),
+                        itemCount: _menus.length,
+                        itemBuilder: (context, index) {
+                          final menu = _menus[index];
+                          return _recipeCard(
+                            menu['name'] ?? 'No Name',
+                            menu['category']?['name'] ?? 'No Category',
+                            'N/A', // Time not usually in menu table
+                            menu['description'] ?? 'No description provided.',
+                          );
+                        },
+                      ),
           ),
         ],
       ),
@@ -63,7 +107,7 @@ class MenuRecipesScreen extends StatelessWidget {
           Expanded(
             child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
               Text(name, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
-              Text(desc, style: const TextStyle(color: AppColors.onSurfaceVariant, fontSize: 12)),
+              Text(desc, style: const TextStyle(color: AppColors.onSurfaceVariant, fontSize: 12), maxLines: 2, overflow: TextOverflow.ellipsis),
             ]),
           ),
           Column(crossAxisAlignment: CrossAxisAlignment.end, children: [

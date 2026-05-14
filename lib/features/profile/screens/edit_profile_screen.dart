@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:tubes_ppm_sab/core/theme/app_colors.dart';
+import 'package:tubes_ppm_sab/core/services/api_service.dart';
 
 class EditProfileScreen extends StatefulWidget {
   final String currentName;
@@ -23,22 +24,23 @@ class EditProfileScreen extends StatefulWidget {
 class _EditProfileScreenState extends State<EditProfileScreen> {
   bool _isLoading = false;
   late TextEditingController _nameController;
-  late TextEditingController _emailController;
+  late TextEditingController _usernameController;
   File? _pickedImage;
   final ImagePicker _picker = ImagePicker();
+  final ApiService _api = ApiService();
 
   @override
   void initState() {
     super.initState();
     // Initialize controllers with current values
     _nameController = TextEditingController(text: widget.currentName);
-    _emailController = TextEditingController(text: widget.currentEmail);
+    _usernameController = TextEditingController(text: widget.currentEmail);
   }
 
   @override
   void dispose() {
     _nameController.dispose();
-    _emailController.dispose();
+    _usernameController.dispose();
     super.dispose();
   }
 
@@ -107,7 +109,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   Future<void> _handleSave() async {
     // Validate inputs
     if (_nameController.text.trim().isEmpty ||
-        _emailController.text.trim().isEmpty) {
+        _usernameController.text.trim().isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Please fill all fields')),
       );
@@ -117,19 +119,20 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     setState(() => _isLoading = true);
 
     try {
-      // PROSES API DISINI (NANTI)
-      // If there is an image, upload it first and get the URL
-      await Future.delayed(const Duration(seconds: 1)); // Simulasi loading
+      bool nameChanged = _nameController.text.trim() != widget.currentName;
+      bool usernameChanged = _usernameController.text.trim() != widget.currentEmail;
+
+      if (nameChanged) {
+        await _api.patch('/profile/name', {'name': _nameController.text.trim()});
+      }
+
+      if (usernameChanged) {
+        await _api.put('/profile/username', {'username': _usernameController.text.trim()});
+      }
 
       if (mounted) {
-        setState(() => _isLoading = false);
-
-        // RETURN DATA BARU TERMASUK PATH GAMBAR JIKA DIUBAH
-        Navigator.pop(context, {
-          'name': _nameController.text,
-          'email': _emailController.text,
-          'newImagePath': _pickedImage?.path, // Send path of the picked image
-        });
+        // Return true to refresh profile screen
+        Navigator.pop(context, true);
 
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
@@ -227,13 +230,12 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
               ),
             ),
             const SizedBox(height: 24),
-            Text('Email Address',
+            Text('Username',
                 style: TextStyle(fontWeight: FontWeight.bold, color: textColor)),
             const SizedBox(height: 8),
             TextField(
-              controller: _emailController,
+              controller: _usernameController,
               style: TextStyle(color: textColor),
-              keyboardType: TextInputType.emailAddress,
               decoration: InputDecoration(
                 filled: true,
                 fillColor: isDark ? const Color(0xFF1E1E1E) : Colors.white,

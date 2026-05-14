@@ -12,6 +12,7 @@ import 'package:tubes_ppm_sab/features/profile/screens/profile_screen.dart';
 import 'package:tubes_ppm_sab/features/menu/screens/menu_recipes_screen.dart';
 import 'package:tubes_ppm_sab/features/categories/screens/categories_screen.dart';
 import 'package:tubes_ppm_sab/features/staff/screens/staff_management_screen.dart';
+import 'package:tubes_ppm_sab/features/dashboard/widgets/dashboard_content.dart';
 
 class Sidebar extends StatelessWidget {
   final int currentIndex;
@@ -37,21 +38,21 @@ class Sidebar extends StatelessWidget {
                   const CircleAvatar(
                     radius: 24,
                     backgroundColor: AppColors.surfaceContainerHigh,
-                    backgroundImage: NetworkImage('https://lh3.googleusercontent.com/aida-public/AB6AXuAiLvIgC4oqL022lsgqEF_u7vzMRmcEqGIW3VSUW9eDF6myqs7GGK19vZeJoXd8AjDQkWOqbK20Ot_zBBoIIIPs9xToIpJexqsarqtkN3bHCCbd9kalyVb_UrcNWTt7rqx-JrJ4WQeWDYmhbGpv3aUVKZGaF05DW3ETqV14mCa83SaZI7D7HnNXWd_ZSlup_lVEaPmHjqVO49s8FmcYRExD_zloybjYeXNxIQjliIgoy2GGuH01BRA2kPSh2-CO-QYxKdyhnSmabMqG'),
+                    child: Icon(Icons.person, color: AppColors.primary),
                   ),
                   const SizedBox(width: 16),
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text('Store Manager',
+                        Text(UserData.name.isEmpty ? 'User' : UserData.name,
                             style: Theme.of(context).textTheme.displayMedium?.copyWith(
                                 color: AppColors.primary,
                                 fontSize: 18,
                                 fontWeight: FontWeight.bold
                             )
                         ),
-                        const Text('Branch #402',
+                        const Text('Administrator',
                             style: TextStyle(color: AppColors.onSurfaceVariant, fontSize: 14)
                         ),
                       ],

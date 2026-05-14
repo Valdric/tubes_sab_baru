@@ -4,10 +4,55 @@ import 'package:tubes_ppm_sab/core/theme/app_colors.dart';
 import 'package:tubes_ppm_sab/shared/widgets/sidebar.dart';
 import 'package:tubes_ppm_sab/shared/widgets/mobile_bottom_nav.dart';
 import 'package:tubes_ppm_sab/features/profile/screens/profile_screen.dart';
-import 'package:tubes_ppm_sab/features/cashier/screens/cart_screen.dart'; // PASTIKAN IMPORT INI ADA
+import 'package:tubes_ppm_sab/features/cashier/screens/cart_screen.dart';
+import 'package:tubes_ppm_sab/core/services/api_service.dart';
+import 'package:tubes_ppm_sab/core/services/cart_service.dart'; // Manggil data keranjang
 
-class CashierScreen extends StatelessWidget {
+class CashierScreen extends StatefulWidget {
   const CashierScreen({super.key});
+
+  @override
+  State<CashierScreen> createState() => _CashierScreenState();
+}
+
+class _CashierScreenState extends State<CashierScreen> {
+  final ApiService _api = ApiService();
+  List<dynamic> _products = [];
+  bool _isLoading = true;
+  String? _errorMessage;
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchProducts();
+  }
+
+  Future<void> _fetchProducts() async {
+    setState(() {
+      _isLoading = true;
+      _errorMessage = null;
+    });
+
+    try {
+      // final response = await _api.get('/products');
+
+      if (mounted) {
+        setState(() {
+          // _products = response['data'];
+          _products = [];
+          _isLoading = false;
+        });
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() {
+          _errorMessage = e.toString();
+          _isLoading = false;
+        });
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error: $e')));
+      }
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -51,7 +96,7 @@ class CashierScreen extends StatelessWidget {
               child: const CircleAvatar(
                 radius: 18,
                 backgroundColor: AppColors.surfaceContainerHigh,
-                backgroundImage: NetworkImage('https://lh3.googleusercontent.com/aida-public/AB6AXuAebimc9BJtwloOpY4j3Hwdhm0j-EIy2iiW2CJ0maPC0ynBmA_zCVpSSjaDMuEHEOJcCN51Od4Hadfzzk_XFBW5sZ9g3S6NSfet_46wnnjChcC_agRNK38d5OIyXw7k-GcYERvIB3mG99bNXGtl7w6fbQO4vm6E41_3PyzbPBgY7hddAPSGq1TA8abykcXUvJDQrYjGHz6DpcACh4LwxiV7gMHlhVa1sTbnC9Po_RDVQ5amXn3dbVomw4pyhxCHJpaBLG3U9HmKvdqk'),
+                child: Icon(Icons.person, size: 20),
               ),
             ),
           ),
@@ -73,19 +118,31 @@ class CashierScreen extends StatelessWidget {
                     child: Column(
                       children: [
                         _buildSearchAndFilters(context),
+
                         Expanded(
-                          child: GridView.count(
+                          child: _isLoading
+                              ? const Center(child: CircularProgressIndicator(color: AppColors.primary))
+                              : _errorMessage != null
+                              ? Center(child: Text(_errorMessage!, style: const TextStyle(color: AppColors.error)))
+                              : GridView.builder(
                             padding: const EdgeInsets.fromLTRB(16, 16, 16, 80), // Tambah padding bawah biar gak ketutup FAB
-                            crossAxisCount: isDesktop ? 3 : 2,
-                            childAspectRatio: 0.75, // Disesuaikan biar lebih mobile-app style
-                            crossAxisSpacing: 12,
-                            mainAxisSpacing: 12,
-                            children: [
-                              _buildMenuCard(context, title: 'Artisan Latte', price: '\$4.50', desc: '12oz • Hot', icon: Icons.coffee),
-                              _buildMenuCard(context, title: 'Smashed Avo', price: '\$9.00', desc: 'Sourdough', icon: Icons.breakfast_dining),
-                              _buildMenuCard(context, title: 'Butter Croissant', price: '\$3.75', desc: 'Fresh Baked', icon: Icons.bakery_dining),
-                              _buildMenuCard(context, title: 'Nitro Cold Brew', price: '\$5.50', desc: '16oz • Iced', icon: Icons.coffee_maker),
-                            ],
+                            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                              crossAxisCount: isDesktop ? 3 : 2,
+                              childAspectRatio: 0.75, // Disesuaikan biar lebih mobile-app style
+                              crossAxisSpacing: 12,
+                              mainAxisSpacing: 12,
+                            ),
+                            itemCount: _products.length,
+                            itemBuilder: (context, index) {
+                              final item = _products[index];
+                              return _buildMenuCard(
+                                  context,
+                                  title: item['name'],
+                                  price: '\$${item['price']}',
+                                  desc: item['desc'],
+                                  icon: Icons.fastfood
+                              );
+                            },
                           ),
                         ),
                       ],
@@ -109,8 +166,8 @@ class CashierScreen extends StatelessWidget {
       ),
       bottomNavigationBar: isDesktop ? null : const MobileBottomNav(currentIndex: 1),
 
-      // 3. Floating Action Button: View Cart Mobile
-      floatingActionButton: !isDesktop
+      // 3. Floating Action Button: Cuma Muncul Kalau Keranjang Ada Isinya
+      floatingActionButton: (!isDesktop && CartService.instance.items.isNotEmpty)
           ? Padding(
         padding: const EdgeInsets.symmetric(horizontal: 16.0),
         child: SizedBox(
@@ -125,7 +182,10 @@ class CashierScreen extends StatelessWidget {
               Navigator.push(
                 context,
                 MaterialPageRoute(builder: (context) => const CartScreen()),
-              );
+              ).then((_) {
+                // REFRESH HALAMAN INI SAAT KEMBALI DARI CART SCREEN
+                setState(() {});
+              });
             },
             label: SizedBox(
               width: MediaQuery.of(context).size.width - 100,
@@ -140,13 +200,13 @@ class CashierScreen extends StatelessWidget {
                         mainAxisAlignment: MainAxisAlignment.center,
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          const Text('3 Items', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 14)),
+                          Text('${CartService.instance.totalItems} Items', style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 14)),
                           Text('View Cart', style: TextStyle(color: Colors.white.withOpacity(0.8), fontSize: 12)),
                         ],
                       ),
                     ],
                   ),
-                  const Text('\$24.84', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 18)),
+                  Text('\$${CartService.instance.total.toStringAsFixed(2)}', style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 18)),
                 ],
               ),
             ),
@@ -157,6 +217,8 @@ class CashierScreen extends StatelessWidget {
       floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
     );
   }
+
+  // --- WIDGET HELPER DI BAWAH SINI ---
 
   Widget _buildSearchAndFilters(BuildContext context) {
     return Container(
@@ -194,7 +256,18 @@ class CashierScreen extends StatelessWidget {
         boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.03), blurRadius: 10)],
       ),
       child: InkWell(
-        onTap: () {},
+        onTap: () {
+          // TAMBAH KE KERANJANG LALU SETSTATE BIAR FAB BAWAH MUNCUL & UPDATE ANGKANYA
+          setState(() {
+            CartService.instance.addToCart(title, price, desc);
+          });
+          ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text('$title ditambahkan!'),
+                duration: const Duration(milliseconds: 500),
+              )
+          );
+        },
         borderRadius: BorderRadius.circular(16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -249,7 +322,7 @@ class CashierScreen extends StatelessWidget {
           ),
           child: Column(
             children: [
-              Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [const Text('Total'), Text('\$24.84', style: GoogleFonts.hankenGrotesk(fontSize: 24, fontWeight: FontWeight.bold, color: AppColors.primary))]),
+              Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [const Text('Total'), Text('\$${CartService.instance.total.toStringAsFixed(2)}', style: GoogleFonts.hankenGrotesk(fontSize: 24, fontWeight: FontWeight.bold, color: AppColors.primary))]),
               const SizedBox(height: 16),
               SizedBox(
                   width: double.infinity,

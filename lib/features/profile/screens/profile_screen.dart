@@ -1,158 +1,188 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:tubes_ppm_sab/core/theme/app_colors.dart';
+import 'package:tubes_ppm_sab/features/auth/screens/login_screen.dart';
+import 'package:tubes_ppm_sab/features/profile/screens/edit_profile_screen.dart';
+import 'package:tubes_ppm_sab/main.dart';
 import 'package:tubes_ppm_sab/shared/widgets/sidebar.dart';
 import 'package:tubes_ppm_sab/shared/widgets/mobile_bottom_nav.dart';
-import 'package:tubes_ppm_sab/features/auth/screens/login_screen.dart';
+import 'package:tubes_ppm_sab/features/dashboard/widgets/dashboard_content.dart'; // Buat sinkron nama ke dashboard
 
-class ProfileScreen extends StatelessWidget {
+class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
+
+  @override
+  State<ProfileScreen> createState() => _ProfileScreenState();
+}
+
+class _ProfileScreenState extends State<ProfileScreen> {
+  bool _isDarkMode = false;
+  bool _isLoading = true;
+
+  // Variabel Penampung Data Profil
+  String _fullName = "";
+  String _email = "";
+
+  // Logic Gambar: Pake network image default kalau belum ada lokal path
+  String _currentImagePath = "";
+
+  @override
+  void initState() {
+    super.initState();
+    _isDarkMode = themeNotifier.value == ThemeMode.dark;
+    _fetchProfileData();
+  }
+
+  Future<void> _fetchProfileData() async {
+    setState(() => _isLoading = true);
+    // TODO: Ambil data profile dari API
+    // final response = await ApiService().get('/profile');
+    if (mounted) setState(() => _isLoading = false);
+  }
+
+  void _handleLogout(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Logout', style: TextStyle(fontWeight: FontWeight.bold)),
+        content: const Text('Are you sure you want to log out of LumiPOS?'),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(context), child: const Text('Cancel')),
+          ElevatedButton(
+            onPressed: () => Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context) => const LoginScreen()), (route) => false),
+            style: ElevatedButton.styleFrom(backgroundColor: AppColors.error),
+            child: const Text('Logout', style: TextStyle(color: Colors.white)),
+          ),
+        ],
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
     final bool isDesktop = MediaQuery.of(context).size.width >= 768;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final bgColor = isDark ? const Color(0xFF121212) : AppColors.surface;
+    final cardColor = isDark ? const Color(0xFF1E1E1E) : Colors.white;
+    final textColor = isDark ? Colors.white : AppColors.onSurface;
 
     return Scaffold(
-      // Drawer untuk HP agar sidebar bisa ditarik dari kiri
-      drawer: !isDesktop ? const Drawer(child: Sidebar(currentIndex: 8)) : null,
-
+      backgroundColor: bgColor,
+      drawer: !isDesktop ? const Drawer(child: Sidebar(currentIndex: -1)) : null,
       appBar: isDesktop ? null : AppBar(
-        backgroundColor: AppColors.surface,
+        backgroundColor: bgColor,
         elevation: 0,
-        title: Text(
-          'Profile Settings',
-          style: Theme.of(context).textTheme.displayMedium?.copyWith(
-            color: AppColors.primary,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
+        iconTheme: IconThemeData(color: isDark ? Colors.white : AppColors.onSurfaceVariant),
+        title: Text('Profile Settings', style: GoogleFonts.hankenGrotesk(color: AppColors.primary, fontWeight: FontWeight.bold, fontSize: 18)),
         centerTitle: true,
         leading: Builder(
-          builder: (context) => IconButton(
-            icon: const Icon(Icons.menu, color: AppColors.onSurfaceVariant),
-            onPressed: () => Scaffold.of(context).openDrawer(),
-          ),
+          builder: (context) => IconButton(icon: const Icon(Icons.menu), onPressed: () => Scaffold.of(context).openDrawer()),
         ),
       ),
-
       body: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          if (isDesktop) const Sidebar(currentIndex: 8),
+          if (isDesktop) const Sidebar(currentIndex: -1),
           Expanded(
-            child: SingleChildScrollView(
+            child: _isLoading
+                ? const Center(child: CircularProgressIndicator(color: AppColors.primary))
+                : SingleChildScrollView(
               padding: const EdgeInsets.all(24),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  if (isDesktop)
-                    const Text(
-                      'Profile Settings',
-                      style: TextStyle(
-                        fontSize: 32,
-                        fontWeight: FontWeight.bold,
-                        color: AppColors.primary,
+              child: Center(
+                child: ConstrainedBox(
+                  constraints: const BoxConstraints(maxWidth: 600),
+                  child: Column(
+                    children: [
+                      // FIXED: LOGIC TAMPILAN GAMBAR DARI LOKAL MAUPUN NETWORK
+                      CircleAvatar(
+                        radius: 46,
+                        backgroundColor: AppColors.surfaceContainerHigh,
+                        backgroundImage: _currentImagePath.isEmpty
+                            ? null
+                            : (_currentImagePath.startsWith('http')
+                                ? NetworkImage(_currentImagePath)
+                                : FileImage(File(_currentImagePath))
+                                    as ImageProvider),
+                        child: _currentImagePath.isEmpty
+                            ? const Icon(Icons.person, size: 40)
+                            : null,
                       ),
-                    ),
-                  if (isDesktop) const SizedBox(height: 32),
-
-                  // Profile Photo Section
-                  Center(
-                    child: Column(
-                      children: [
-                        const CircleAvatar(
-                          radius: 60,
-                          backgroundColor: AppColors.surfaceContainerHigh,
-                          backgroundImage: NetworkImage('https://lh3.googleusercontent.com/aida-public/AB6AXuAiLvIgC4oqL022lsgqEF_u7vzMRmcEqGIW3VSUW9eDF6myqs7GGK19vZeJoXd8AjDQkWOqbK20Ot_zBBoIIIPs9xToIpJexqsarqtkN3bHCCbd9kalyVb_UrcNWTt7rqx-JrJ4WQeWDYmhbGpv3aUVKZGaF05DW3ETqV14mCa83SaZI7D7HnNXWd_ZSlup_lVEaPmHjqVO49s8FmcYRExD_zloybjYeXNxIQjliIgoy2GGuH01BRA2kPSh2-CO-QYxKdyhnSmabMqG'),
-                        ),
-                        const SizedBox(height: 12),
-                        TextButton.icon(
-                          onPressed: () {},
-                          icon: const Icon(Icons.edit, size: 18),
-                          label: const Text('Change Photo'),
-                          style: TextButton.styleFrom(foregroundColor: AppColors.primary),
-                        ),
-                      ],
-                    ),
-                  ),
-
-                  const SizedBox(height: 32),
-                  const Text(
-                    'Account Information',
-                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppColors.onSurface),
-                  ),
-                  const Divider(),
-                  const SizedBox(height: 16),
-
-                  _buildProfileField('Full Name', 'Sarah Jenkins'),
-                  _buildProfileField('Email Address', 'sarah.j@lumipos.com'),
-                  _buildProfileField('Employee ID', 'EMP-402-08'),
-                  _buildProfileField('Role', 'Store Manager (Admin)'),
-                  _buildProfileField('Branch', 'Branch #402 - Downtown'),
-
-                  const SizedBox(height: 24),
-                  const Text(
-                    'Security',
-                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppColors.onSurface),
-                  ),
-                  const Divider(),
-                  const SizedBox(height: 16),
-
-                  SizedBox(
-                    width: double.infinity,
-                    child: OutlinedButton(
-                      style: OutlinedButton.styleFrom(
-                        padding: const EdgeInsets.symmetric(vertical: 16),
-                        side: const BorderSide(color: AppColors.outlineVariant),
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                      const SizedBox(height: 16),
+                      Text(_fullName, style: GoogleFonts.hankenGrotesk(fontSize: 22, fontWeight: FontWeight.bold, color: textColor)),
+                      Text(_email, style: const TextStyle(color: AppColors.onSurfaceVariant, fontSize: 13)),
+                      const SizedBox(height: 12),
+                      Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+                          decoration: BoxDecoration(color: Colors.green.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(20)),
+                          child: const Text('Active', style: TextStyle(color: Colors.green, fontWeight: FontWeight.bold, fontSize: 11))
                       ),
-                      onPressed: () {},
-                      child: const Text('Change Password', style: TextStyle(color: AppColors.onSurface)),
-                    ),
-                  ),
 
-                  const SizedBox(height: 16),
-                  SizedBox(
-                    width: double.infinity,
-                    child: ElevatedButton(
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: AppColors.primary,
-                        padding: const EdgeInsets.symmetric(vertical: 16),
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                      ),
-                      onPressed: () {},
-                      child: const Text('Save Changes', style: TextStyle(color: AppColors.onPrimary)),
-                    ),
-                  ),
+                      _buildSectionHeader('Account'),
 
-                  // BAGIAN LOGOUT YANG UDAH DIDEMPETIN
-                  const SizedBox(height: 24),
-                  const Divider(height: 1),
-                  const SizedBox(height: 8),
+                      _buildSettingsTile(
+                          Icons.person_outline,
+                          'Edit Profile',
+                          cardColor,
+                          textColor,
+                          onTap: () async {
+                            // NAVIGASI KE EDIT PROFILE DAN TUNGGU HASILNYA
+                            final result = await Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => EditProfileScreen(
+                                  currentName: _fullName,
+                                  currentEmail: _email,
+                                  currentImagePath: _currentImagePath,
+                                ),
+                              ),
+                            );
 
-                  Center(
-                    child: TextButton.icon(
-                      onPressed: () {
-                        Navigator.pushAndRemoveUntil(
-                          context,
-                          MaterialPageRoute(builder: (context) => const LoginScreen()),
-                              (route) => false,
-                        );
-                      },
-                      icon: const Icon(Icons.logout, color: AppColors.error, size: 20),
-                      label: const Text(
-                        'Logout Account',
-                        style: TextStyle(
-                          color: AppColors.error,
-                          fontWeight: FontWeight.bold,
-                        ),
+                            // JIKA USER KLIK SAVE, UPDATE DATA DI SINI
+                            if (result != null && result is Map<String, dynamic>) {
+                              setState(() {
+                                _fullName = result['name'];
+                                _email = result['email'];
+                                // Update Global UserData biar Dashboard ikutan ganti
+                                UserData.name = result['name'];
+
+                                // Update path gambar kalau ada yang baru
+                                if (result['newImagePath'] != null) {
+                                  _currentImagePath = result['newImagePath'];
+                                }
+                              });
+                            }
+                          }
                       ),
-                      style: TextButton.styleFrom(
-                        padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 24),
+
+                      _buildSettingsTile(Icons.lock_outline, 'Change Password', cardColor, textColor),
+
+                      _buildSectionHeader('Appearance'),
+                      _buildSwitchTile(icon: Icons.dark_mode_outlined, title: 'Dark Mode', value: _isDarkMode, cardColor: cardColor, textColor: textColor, onChanged: (val) {
+                        setState(() => _isDarkMode = val);
+                        themeNotifier.value = val ? ThemeMode.dark : ThemeMode.light;
+                      }),
+
+                      _buildSectionHeader('Store Options'),
+                      _buildSettingsTile(Icons.storefront, 'Branch Information', cardColor, textColor),
+                      _buildSettingsTile(Icons.print_outlined, 'Printer Setup', cardColor, textColor),
+
+                      const SizedBox(height: 32),
+                      SizedBox(
+                          width: double.infinity,
+                          height: 54,
+                          child: ElevatedButton.icon(
+                              onPressed: () => _handleLogout(context),
+                              icon: const Icon(Icons.logout, color: AppColors.error),
+                              label: const Text('Logout', style: TextStyle(color: AppColors.error, fontWeight: FontWeight.bold)),
+                              style: ElevatedButton.styleFrom(backgroundColor: AppColors.error.withValues(alpha: 0.1), elevation: 0, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)))
+                          )
                       ),
-                    ),
+                      const SizedBox(height: 40),
+                    ],
                   ),
-                  const SizedBox(height: 24),
-                ],
+                ),
               ),
             ),
           ),
@@ -162,26 +192,34 @@ class ProfileScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildProfileField(String label, String value) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 16),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(label, style: const TextStyle(color: AppColors.onSurfaceVariant, fontSize: 14)),
-          const SizedBox(height: 8),
-          Container(
-            width: double.infinity,
-            padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              color: AppColors.surfaceContainerLow,
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: AppColors.outlineVariant.withValues(alpha: 0.3)),
-            ),
-            child: Text(value, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500)),
-          ),
-        ],
-      ),
+  Widget _buildSectionHeader(String title) {
+    return Padding(padding: const EdgeInsets.only(top: 24, bottom: 12, left: 4), child: Align(alignment: Alignment.centerLeft, child: Text(title, style: const TextStyle(fontWeight: FontWeight.bold, color: AppColors.primary, fontSize: 13))));
+  }
+
+  Widget _buildSettingsTile(IconData icon, String title, Color cardColor, Color textColor, {VoidCallback? onTap}) {
+    return Container(
+        margin: const EdgeInsets.only(bottom: 8),
+        decoration: BoxDecoration(color: cardColor, borderRadius: BorderRadius.circular(12)),
+        child: ListTile(
+            leading: Icon(icon, color: AppColors.onSurface, size: 22),
+            title: Text(title, style: TextStyle(fontWeight: FontWeight.w600, color: textColor, fontSize: 14)),
+            trailing: const Icon(Icons.chevron_right, size: 20),
+            onTap: onTap
+        )
+    );
+  }
+
+  Widget _buildSwitchTile({required IconData icon, required String title, required bool value, required Color cardColor, required Color textColor, required ValueChanged<bool> onChanged}) {
+    return Container(
+        margin: const EdgeInsets.only(bottom: 8),
+        decoration: BoxDecoration(color: cardColor, borderRadius: BorderRadius.circular(12)),
+        child: SwitchListTile(
+            secondary: Icon(icon, color: AppColors.onSurface, size: 22),
+            title: Text(title, style: TextStyle(fontWeight: FontWeight.w600, color: textColor, fontSize: 14)),
+            value: value,
+            activeTrackColor: AppColors.primary,
+            onChanged: onChanged
+        )
     );
   }
 }

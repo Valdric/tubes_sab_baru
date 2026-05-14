@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:tubes_ppm_sab/core/theme/app_colors.dart';
+import 'package:tubes_ppm_sab/core/services/cart_service.dart'; // IMPORT CART SERVICE
 
 class CartScreen extends StatefulWidget {
   const CartScreen({super.key});
@@ -9,16 +10,8 @@ class CartScreen extends StatefulWidget {
 }
 
 class _CartScreenState extends State<CartScreen> {
-  // Dummy data keranjang
-  final List<Map<String, dynamic>> _cartItems = [
-    {'name': 'Artisan Latte', 'price': 4.50, 'qty': 2, 'desc': '12oz • Hot'},
-    {'name': 'Smashed Avo', 'price': 9.00, 'qty': 1, 'desc': 'Sourdough'},
-    {'name': 'Butter Croissant', 'price': 3.75, 'qty': 1, 'desc': 'Freshly Baked'},
-  ];
-
-  double get _subtotal => _cartItems.fold(0, (sum, item) => sum + (item['price'] * item['qty']));
-  double get _tax => _subtotal * 0.1; // Pajak 10%
-  double get _total => _subtotal + _tax;
+  // Panggil instance cart
+  final CartService _cart = CartService.instance;
 
   @override
   Widget build(BuildContext context) {
@@ -31,26 +24,30 @@ class _CartScreenState extends State<CartScreen> {
           icon: const Icon(Icons.arrow_back, color: AppColors.onSurface),
           onPressed: () => Navigator.pop(context),
         ),
-        title: const Text(
-          'Your Cart',
-          style: TextStyle(color: AppColors.primary, fontWeight: FontWeight.bold),
-        ),
+        title: const Text('Your Cart', style: TextStyle(color: AppColors.primary, fontWeight: FontWeight.bold)),
         centerTitle: true,
         actions: [
           IconButton(
             icon: const Icon(Icons.delete_sweep, color: AppColors.error),
-            onPressed: () {},
+            onPressed: () {
+              // FUNGSI HAPUS SEMUA ISI KERANJANG
+              setState(() {
+                _cart.clearCart();
+              });
+            },
           ),
         ],
       ),
-      body: Column(
+      body: _cart.items.isEmpty
+          ? const Center(child: Text('Keranjang masih kosong', style: TextStyle(fontSize: 16, color: AppColors.onSurfaceVariant)))
+          : Column(
         children: [
           Expanded(
             child: ListView.builder(
               padding: const EdgeInsets.all(16),
-              itemCount: _cartItems.length,
+              itemCount: _cart.items.length,
               itemBuilder: (context, index) {
-                final item = _cartItems[index];
+                final item = _cart.items[index];
                 return _buildCartItem(item, index);
               },
             ),
@@ -75,10 +72,7 @@ class _CartScreenState extends State<CartScreen> {
           Container(
             width: 60,
             height: 60,
-            decoration: BoxDecoration(
-              color: AppColors.primary.withValues(alpha: 0.05),
-              borderRadius: BorderRadius.circular(12),
-            ),
+            decoration: BoxDecoration(color: AppColors.primary.withValues(alpha: 0.05), borderRadius: BorderRadius.circular(12)),
             child: const Icon(Icons.restaurant, color: AppColors.primary),
           ),
           const SizedBox(width: 16),
@@ -93,12 +87,16 @@ class _CartScreenState extends State<CartScreen> {
               ],
             ),
           ),
-          // Pengatur Quantity
+          // Pengatur Quantity dinamis
           Row(
             children: [
               _qtyButton(Icons.remove, () {
                 setState(() {
-                  if (_cartItems[index]['qty'] > 1) _cartItems[index]['qty']--;
+                  if (_cart.items[index]['qty'] > 1) {
+                    _cart.items[index]['qty']--;
+                  } else {
+                    _cart.items.removeAt(index); // Hapus kalau qty jadi 0
+                  }
                 });
               }),
               Padding(
@@ -107,7 +105,7 @@ class _CartScreenState extends State<CartScreen> {
               ),
               _qtyButton(Icons.add, () {
                 setState(() {
-                  _cartItems[index]['qty']++;
+                  _cart.items[index]['qty']++;
                 });
               }),
             ],
@@ -122,10 +120,7 @@ class _CartScreenState extends State<CartScreen> {
       onTap: onTap,
       child: Container(
         padding: const EdgeInsets.all(4),
-        decoration: BoxDecoration(
-          shape: BoxShape.circle,
-          border: Border.all(color: AppColors.outlineVariant),
-        ),
+        decoration: BoxDecoration(shape: BoxShape.circle, border: Border.all(color: AppColors.outlineVariant)),
         child: Icon(icon, size: 16, color: AppColors.primary),
       ),
     );
@@ -141,21 +136,21 @@ class _CartScreenState extends State<CartScreen> {
       ),
       child: Column(
         children: [
-          _summaryRow('Subtotal', '\$${_subtotal.toStringAsFixed(2)}'),
+          _summaryRow('Subtotal', '\$${_cart.subtotal.toStringAsFixed(2)}'),
           const SizedBox(height: 8),
-          _summaryRow('Tax (10%)', '\$${_tax.toStringAsFixed(2)}'),
+          _summaryRow('Tax (10%)', '\$${_cart.tax.toStringAsFixed(2)}'),
           const Padding(padding: EdgeInsets.symmetric(vertical: 12), child: Divider()),
-          _summaryRow('Total Order', '\$${_total.toStringAsFixed(2)}', isTotal: true),
+          _summaryRow('Total Order', '\$${_cart.total.toStringAsFixed(2)}', isTotal: true),
           const SizedBox(height: 24),
           SizedBox(
             width: double.infinity,
             height: 56,
             child: ElevatedButton(
-              onPressed: () {},
-              style: ElevatedButton.styleFrom(
-                backgroundColor: AppColors.primary,
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-              ),
+              onPressed: () {
+                // FUNGSI CHECKOUT NANTI DI SINI
+                ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Processing Payment...')));
+              },
+              style: ElevatedButton.styleFrom(backgroundColor: AppColors.primary, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12))),
               child: const Text('Checkout Now', style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold)),
             ),
           ),

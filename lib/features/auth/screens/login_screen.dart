@@ -85,7 +85,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       ),
                       const SizedBox(height: 16),
                       Text(
-                        'LumiPOS',
+                        'GOSIR',
                         style: GoogleFonts.hankenGrotesk(
                           fontSize: 32,
                           fontWeight: FontWeight.bold,
@@ -94,7 +94,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       ),
                       const SizedBox(height: 8),
                       Text(
-                        'Smart Restaurant POS System',
+                        'come and cash',
                         style: GoogleFonts.hankenGrotesk(
                           fontSize: 16,
                           color: AppColors.onSurfaceVariant,

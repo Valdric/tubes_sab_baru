@@ -20,7 +20,7 @@ class LumiPOSApp extends StatelessWidget {
       // HINT BIRU SELESAI: Penamaan parameter udah bener
       builder: (context, ThemeMode currentMode, child) {
         return MaterialApp(
-          title: 'LumiPOS',
+          title: 'GoSir',
           debugShowCheckedModeBanner: false,
           themeMode: currentMode,
 

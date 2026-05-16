@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:tubes_ppm_sab/core/theme/app_colors.dart';
-import 'package:tubes_ppm_sab/features/dashboard/screens/dashboard_screen.dart';
-import 'package:tubes_ppm_sab/features/cashier/screens/cashier_screen.dart';
-import 'package:tubes_ppm_sab/features/history/screens/history_screen.dart';
-import 'package:tubes_ppm_sab/features/inventory/screens/inventory_screen.dart';
-import 'package:tubes_ppm_sab/features/reports/screens/reports_screen.dart';
+import 'package:gosir/core/theme/app_colors.dart';
+import 'package:gosir/features/dashboard/screens/dashboard_screen.dart';
+import 'package:gosir/features/cashier/screens/cashier_screen.dart';
+import 'package:gosir/features/history/screens/history_screen.dart';
+import 'package:gosir/features/inventory/screens/inventory_screen.dart';
+import 'package:gosir/features/reports/screens/reports_screen.dart';
 
 class MobileBottomNav extends StatelessWidget {
   final int currentIndex;

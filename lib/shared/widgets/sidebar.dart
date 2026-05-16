@@ -1,18 +1,18 @@
 import 'package:flutter/material.dart';
-import 'package:tubes_ppm_sab/core/theme/app_colors.dart';
-import 'package:tubes_ppm_sab/features/auth/screens/login_screen.dart';
-import 'package:tubes_ppm_sab/features/dashboard/screens/dashboard_screen.dart';
-import 'package:tubes_ppm_sab/features/cashier/screens/cashier_screen.dart';
-import 'package:tubes_ppm_sab/features/history/screens/history_screen.dart';
-import 'package:tubes_ppm_sab/features/inventory/screens/inventory_screen.dart';
-import 'package:tubes_ppm_sab/features/reports/screens/reports_screen.dart';
-import 'package:tubes_ppm_sab/features/profile/screens/profile_screen.dart';
+import 'package:gosir/core/theme/app_colors.dart';
+import 'package:gosir/features/auth/screens/login_screen.dart';
+import 'package:gosir/features/dashboard/screens/dashboard_screen.dart';
+import 'package:gosir/features/cashier/screens/cashier_screen.dart';
+import 'package:gosir/features/history/screens/history_screen.dart';
+import 'package:gosir/features/inventory/screens/inventory_screen.dart';
+import 'package:gosir/features/reports/screens/reports_screen.dart';
+import 'package:gosir/features/profile/screens/profile_screen.dart';
 
 // IMPORT MENU BARU YANG TADI DIBIKIN
-import 'package:tubes_ppm_sab/features/menu/screens/menu_recipes_screen.dart';
-import 'package:tubes_ppm_sab/features/categories/screens/categories_screen.dart';
-import 'package:tubes_ppm_sab/features/staff/screens/staff_management_screen.dart';
-import 'package:tubes_ppm_sab/features/dashboard/widgets/dashboard_content.dart';
+import 'package:gosir/features/menu/screens/menu_recipes_screen.dart';
+import 'package:gosir/features/categories/screens/categories_screen.dart';
+import 'package:gosir/features/staff/screens/staff_management_screen.dart';
+import 'package:gosir/features/dashboard/widgets/dashboard_content.dart';
 
 class Sidebar extends StatelessWidget {
   final int currentIndex;

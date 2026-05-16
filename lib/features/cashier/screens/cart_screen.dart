@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:tubes_ppm_sab/core/theme/app_colors.dart';
-import 'package:tubes_ppm_sab/core/services/cart_service.dart'; // IMPORT CART SERVICE
+import 'package:gosir/core/theme/app_colors.dart';
+import 'package:gosir/core/services/cart_service.dart'; // IMPORT CART SERVICE
 
 class CartScreen extends StatefulWidget {
   const CartScreen({super.key});

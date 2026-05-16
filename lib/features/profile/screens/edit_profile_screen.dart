@@ -2,8 +2,8 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:tubes_ppm_sab/core/theme/app_colors.dart';
-import 'package:tubes_ppm_sab/core/services/api_service.dart';
+import 'package:gosir/core/theme/app_colors.dart';
+import 'package:gosir/core/services/api_service.dart';
 
 class EditProfileScreen extends StatefulWidget {
   final String currentName;

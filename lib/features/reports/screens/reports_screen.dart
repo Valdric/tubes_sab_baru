@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:tubes_ppm_sab/core/theme/app_colors.dart';
-import 'package:tubes_ppm_sab/shared/widgets/sidebar.dart';
-import 'package:tubes_ppm_sab/shared/widgets/mobile_bottom_nav.dart';
-import 'package:tubes_ppm_sab/features/profile/screens/profile_screen.dart';
-import 'package:tubes_ppm_sab/core/services/api_service.dart';
+import 'package:gosir/core/theme/app_colors.dart';
+import 'package:gosir/shared/widgets/sidebar.dart';
+import 'package:gosir/shared/widgets/mobile_bottom_nav.dart';
+import 'package:gosir/features/profile/screens/profile_screen.dart';
+import 'package:gosir/core/services/api_service.dart';
 
 class ReportsScreen extends StatefulWidget {
   const ReportsScreen({super.key});

@@ -1,17 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:tubes_ppm_sab/core/theme/app_colors.dart';
-import 'package:tubes_ppm_sab/features/auth/screens/login_screen.dart';
+import 'package:gosir/core/theme/app_colors.dart';
+import 'package:gosir/features/auth/screens/login_screen.dart';
 
 // VARIABEL GLOBAL UNTUK MENGATUR TEMA
 final ValueNotifier<ThemeMode> themeNotifier = ValueNotifier(ThemeMode.light);
 
 void main() {
-  runApp(const LumiPOSApp());
+  runApp(const GoSirApp());
 }
 
-class LumiPOSApp extends StatelessWidget {
-  const LumiPOSApp({super.key});
+class GoSirApp extends StatelessWidget {
+  const GoSirApp({super.key});
 
   @override
   Widget build(BuildContext context) {

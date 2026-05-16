@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:tubes_ppm_sab/core/theme/app_colors.dart';
-import 'package:tubes_ppm_sab/features/dashboard/screens/dashboard_screen.dart';
-import 'package:tubes_ppm_sab/core/services/api_service.dart'; // IMPORT API SERVICE
+import 'package:gosir/core/theme/app_colors.dart';
+import 'package:gosir/features/dashboard/screens/dashboard_screen.dart';
+import 'package:gosir/core/services/api_service.dart'; // IMPORT API SERVICE
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});

@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:tubes_ppm_sab/core/theme/app_colors.dart';
-import 'package:tubes_ppm_sab/shared/widgets/sidebar.dart';
-import 'package:tubes_ppm_sab/shared/widgets/mobile_bottom_nav.dart';
-import 'package:tubes_ppm_sab/features/profile/screens/profile_screen.dart';
-import 'package:tubes_ppm_sab/core/services/api_service.dart';
-import 'package:tubes_ppm_sab/features/inventory/screens/inventory_form_screen.dart'; // Import Form
+import 'package:gosir/core/theme/app_colors.dart';
+import 'package:gosir/shared/widgets/sidebar.dart';
+import 'package:gosir/shared/widgets/mobile_bottom_nav.dart';
+import 'package:gosir/features/profile/screens/profile_screen.dart';
+import 'package:gosir/core/services/api_service.dart';
+import 'package:gosir/features/inventory/screens/inventory_form_screen.dart'; // Import Form
 
 class InventoryScreen extends StatefulWidget {
   const InventoryScreen({super.key});

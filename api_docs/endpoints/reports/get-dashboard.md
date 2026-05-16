@@ -36,6 +36,12 @@ Allowed Roles: `SUPERADMIN`, `ADMIN`, `CASHIER`, `KITCHEN`
     "value": 33333,
     "percentage_change": 0.2
   },
+  "nett_revenue": {
+    "value": 1450000,
+    "percentage_change": 0.12
+  },
+  "total_cash_income": 50000,
+  "total_cash_outcome": 100000,
   "revenue_trend": [
     { "date": "2024-03-01", "revenue": 500000 },
     { "date": "2024-03-02", "revenue": 1000000 }

@@ -28,7 +28,10 @@ Mengambil daftar menu dengan dukungan pencarian, pengurutan, dan filter kategori
 - Field Detail dalam `items`:
   - `id`: UUID.
   - `name`: String.
-  - `price`: Number.
+  - `price`: Number (Decimal).
+  - `hpp`: Number (Decimal) - Harga Pokok Penjualan.
+  - `image_url`: String (URL gambar, opsional).
+  - `public_id`: String (ID gambar di cloud storage, opsional).
   - `is_active`: Boolean.
   - `division`: Enum (`BAR`|`KITCHEN`).
   - `category`: Objek kategori (`id`, `name`).

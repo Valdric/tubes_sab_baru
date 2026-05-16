@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:tubes_ppm_sab/core/theme/app_colors.dart';
+import 'package:gosir/core/theme/app_colors.dart';
 
 // Import layar tujuan navigasi
-import 'package:tubes_ppm_sab/features/reports/screens/reports_screen.dart';
-import 'package:tubes_ppm_sab/features/history/screens/history_screen.dart';
-import 'package:tubes_ppm_sab/features/inventory/screens/inventory_screen.dart';
-import 'package:tubes_ppm_sab/features/cashier/screens/cashier_screen.dart';
-import 'package:tubes_ppm_sab/core/services/api_service.dart';
+import 'package:gosir/features/reports/screens/reports_screen.dart';
+import 'package:gosir/features/history/screens/history_screen.dart';
+import 'package:gosir/features/inventory/screens/inventory_screen.dart';
+import 'package:gosir/features/cashier/screens/cashier_screen.dart';
+import 'package:gosir/core/services/api_service.dart';
 
 // --- DATA SINKRONISASI ---
 // Data ini akan diisi setelah login berhasil

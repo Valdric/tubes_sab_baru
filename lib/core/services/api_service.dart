@@ -1,138 +1,141 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
 
 class ApiService {
   static const String baseUrl = "https://bemobilepos-production.up.railway.app/api/v1";
-  static String? _token;
 
-  // Set token after login
-  static void setToken(String token) => _token = token;
-  static String? get token => _token;
+  Future<void> saveToken(String token) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString('auth-token', token);
+  }
 
-  // Helper for common headers
-  Map<String, String> _getHeaders([bool isJson = true]) {
+  Future<String?> getToken() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getString('auth-token');
+  }
+
+  Future<void> logout() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.remove('auth-token');
+  }
+
+  Future<Map<String, String>> _getHeaders([bool isJson = true]) async {
+    final token = await getToken();
     final Map<String, String> headers = {
       'Accept': 'application/json',
+      if (token != null) 'Authorization': 'Bearer $token',
     };
     if (isJson) headers['Content-Type'] = 'application/json';
-    if (_token != null) headers['Authorization'] = 'Bearer $_token';
     return headers;
   }
-  Future<Map<String, dynamic>> login(String username, String password) async {
-    try {
-      final response = await http.post(
-        Uri.parse('$baseUrl/auth/login'),
-        headers: {
-          'Content-Type': 'application/json',
-          'Accept': 'application/json',
-        },
-        body: jsonEncode({
-          'username': username, // Pakai username sesuai API lu
-          'password': password,
-        }),
-      );
 
-      if (response.statusCode == 200) {
-        final data = jsonDecode(response.body);
-        if (data['data'] != null && data['data']['token'] != null) {
-          _token = data['data']['token'];
-        }
-        return data;
-      } else if (response.statusCode == 401) {
-        throw 'Username atau Password salah!';
-      } else if (response.statusCode == 422) {
-        throw 'Format data tidak valid (422)';
-      } else {
-        throw 'Gagal terhubung ke server (${response.statusCode})';
-      }
-    } catch (e) {
-      throw e.toString();
-    }
-  }
-
-  // ==========================================
-  // 2. FUNGSI UMUM: CRUD (Bisa dipakai di semua menu)
-  // ==========================================
-
-  // Helper: Fungsi internal untuk handle response CRUD biar kodingan gak berulang
   dynamic _handleResponse(http.Response response) {
-    if (response.statusCode >= 200 && response.statusCode < 300) {
-      return jsonDecode(response.body);
-    } else {
-      // Coba tangkap pesan error dari backend kalau ada
-      String errorMessage = 'API Error (${response.statusCode})';
-      try {
-        final errorData = jsonDecode(response.body);
-        if (errorData['message'] != null) {
-          errorMessage = errorData['message'];
-        }
-      } catch (_) {}
-      throw errorMessage;
+    final payload = jsonDecode(response.body);
+    final bool success = payload['success'] ?? (response.statusCode >= 200 && response.statusCode < 300);
+
+    if (!success) {
+      if (response.statusCode == 401) {
+        logout();
+        throw 'Sesi berakhir, silakan login kembali.';
+      }
+      throw payload['message'] ?? 'Permintaan gagal (Error ${response.statusCode})';
     }
+
+    return payload;
   }
 
-  // READ (GET)
-  Future<dynamic> get(String endpoint) async {
+  Future<dynamic> get(String endpoint, {Map<String, String>? params}) async {
     try {
+      String url = baseUrl + endpoint;
+      if (params != null && params.isNotEmpty) {
+        final query = params.entries
+            .where((e) => e.value.isNotEmpty)
+            .map((e) => '${e.key}=${Uri.encodeComponent(e.value)}')
+            .join('&');
+        if (query.isNotEmpty) url += '?$query';
+      }
+      
       final response = await http.get(
-        Uri.parse('$baseUrl$endpoint'),
-        headers: _getHeaders(false),
+        Uri.parse(url),
+        headers: await _getHeaders(false),
       );
       return _handleResponse(response);
     } catch (e) {
-      throw e.toString();
+      rethrow;
     }
   }
 
-  // CREATE (POST)
   Future<dynamic> post(String endpoint, Map<String, dynamic> data) async {
     try {
       final response = await http.post(
         Uri.parse('$baseUrl$endpoint'),
-        headers: _getHeaders(),
+        headers: await _getHeaders(),
         body: jsonEncode(data),
       );
       return _handleResponse(response);
     } catch (e) {
-      throw e.toString();
+      rethrow;
     }
   }
 
-  // UPDATE (PUT)
   Future<dynamic> put(String endpoint, Map<String, dynamic> data) async {
     try {
       final response = await http.put(
         Uri.parse('$baseUrl$endpoint'),
-        headers: _getHeaders(),
+        headers: await _getHeaders(),
         body: jsonEncode(data),
       );
       return _handleResponse(response);
     } catch (e) {
-      throw e.toString();
+      rethrow;
     }
   }
 
-  // UPDATE (PATCH)
   Future<dynamic> patch(String endpoint, Map<String, dynamic> data) async {
     try {
       final response = await http.patch(
         Uri.parse('$baseUrl$endpoint'),
-        headers: _getHeaders(),
+        headers: await _getHeaders(),
         body: jsonEncode(data),
       );
       return _handleResponse(response);
     } catch (e) {
-      throw e.toString();
+      rethrow;
     }
   }
 
-  // DELETE
   Future<dynamic> delete(String endpoint) async {
     try {
       final response = await http.delete(
         Uri.parse('$baseUrl$endpoint'),
-        headers: _getHeaders(false),
+        headers: await _getHeaders(false),
       );
+      return _handleResponse(response);
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  Future<dynamic> multipart(String endpoint, Map<String, String> fields, {String? filePath, String method = 'POST'}) async {
+    try {
+      final token = await getToken();
+      final request = http.MultipartRequest(method, Uri.parse('$baseUrl$endpoint'));
+      
+      request.headers.addAll({
+        'Accept': 'application/json',
+        if (token != null) 'Authorization': 'Bearer $token',
+      });
+
+      request.fields.addAll(fields);
+
+      if (filePath != null) {
+        request.files.add(await http.MultipartFile.fromPath('image', filePath));
+      }
+
+      final streamedResponse = await request.send();
+      final response = await http.Response.fromStream(streamedResponse);
+      
       return _handleResponse(response);
     } catch (e) {
       throw e.toString();

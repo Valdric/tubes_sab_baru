@@ -3,16 +3,16 @@ import 'package:gosir/core/theme/app_colors.dart';
 import 'package:gosir/shared/widgets/sidebar.dart';
 import 'package:gosir/shared/widgets/mobile_bottom_nav.dart';
 import 'package:gosir/core/services/api_service.dart';
-import 'package:intl/intl.dart';
+import 'package:gosir/core/utils/safe_parse.dart';
 
-class CategoriesScreen extends StatefulWidget {
-  const CategoriesScreen({super.key});
+class IngredientsScreen extends StatefulWidget {
+  const IngredientsScreen({super.key});
 
   @override
-  State<CategoriesScreen> createState() => _CategoriesScreenState();
+  State<IngredientsScreen> createState() => _IngredientsScreenState();
 }
 
-class _CategoriesScreenState extends State<CategoriesScreen> {
+class _IngredientsScreenState extends State<IngredientsScreen> {
   final ApiService _api = ApiService();
   List<dynamic> _items = [];
   bool _isLoading = true;
@@ -27,7 +27,7 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
   Future<void> _fetchData() async {
     setState(() => _isLoading = true);
     try {
-      final res = await _api.get('/categories');
+      final res = await _api.get('/ingredients');
       final me = await _api.get('/auth/me');
       if (mounted) {
         setState(() {
@@ -46,12 +46,12 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
     }
   }
 
-  Future<void> _deleteCategory(int id) async {
+  Future<void> _deleteIngredient(int id) async {
     try {
-      await _api.delete('/categories/$id');
+      await _api.delete('/ingredients/$id');
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Kategori berhasil dihapus'), backgroundColor: AppColors.success),
+          const SnackBar(content: Text('Bahan berhasil dihapus'), backgroundColor: AppColors.success),
         );
         _fetchData();
       }
@@ -66,22 +66,40 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
 
   void _showFormModal({Map<String, dynamic>? item}) {
     final nameController = TextEditingController(text: item?['name'] ?? '');
+    final stockController = TextEditingController(text: item?['stock']?.toString() ?? '0');
+    final unitController = TextEditingController(text: item?['unit'] ?? 'gr');
     final bool isEdit = item != null;
 
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: Text(isEdit ? 'Ubah Kategori' : 'Tambah Kategori'),
+        title: Text(isEdit ? 'Ubah Bahan' : 'Tambah Bahan'),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             TextFormField(
               controller: nameController,
-              decoration: const InputDecoration(
-                labelText: 'Nama Kategori',
-                hintText: 'Misal: Minuman',
-              ),
+              decoration: const InputDecoration(labelText: 'Nama Bahan'),
               autofocus: true,
+            ),
+            const SizedBox(height: 16),
+            Row(
+              children: [
+                Expanded(
+                  child: TextFormField(
+                    controller: stockController,
+                    decoration: const InputDecoration(labelText: 'Stok'),
+                    keyboardType: TextInputType.number,
+                  ),
+                ),
+                const SizedBox(width: 16),
+                Expanded(
+                  child: TextFormField(
+                    controller: unitController,
+                    decoration: const InputDecoration(labelText: 'Satuan'),
+                  ),
+                ),
+              ],
             ),
           ],
         ),
@@ -91,10 +109,15 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
             onPressed: () async {
               if (nameController.text.isEmpty) return;
               try {
+                final data = {
+                  'name': nameController.text,
+                  'stock': stockController.text,
+                  'unit': unitController.text,
+                };
                 if (isEdit) {
-                  await _api.put('/categories/${item['id']}', {'name': nameController.text});
+                  await _api.put('/ingredients/${item['id']}', data);
                 } else {
-                  await _api.post('/categories', {'name': nameController.text});
+                  await _api.post('/ingredients', data);
                 }
                 if (context.mounted) {
                   Navigator.pop(context);
@@ -122,22 +145,11 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
 
     return Scaffold(
       backgroundColor: AppColors.background,
-      drawer: !isDesktop ? const Drawer(child: Sidebar(currentIndex: 1)) : null,
-      appBar: isDesktop
-          ? null
-          : AppBar(
-              title: const Text('Kategori'),
-              actions: [
-                if (isAdmin)
-                  IconButton(
-                    icon: const Icon(Icons.add),
-                    onPressed: () => _showFormModal(),
-                  ),
-              ],
-            ),
+      drawer: !isDesktop ? const Drawer(child: Sidebar(currentIndex: 3)) : null,
+      appBar: isDesktop ? null : AppBar(title: const Text('Inventaris Bahan')),
       body: Row(
         children: [
-          if (isDesktop) const Sidebar(currentIndex: 1),
+          if (isDesktop) const Sidebar(currentIndex: 3),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -151,24 +163,17 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
                         Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text(
-                              'Manajemen Kategori',
-                              style: Theme.of(context).textTheme.displayMedium,
-                            ),
-                            const Text(
-                              'Kelola dan atur kategori menu Anda.',
-                              style: TextStyle(color: AppColors.mutedForeground),
-                            ),
+                            Text('Inventaris Bahan', style: Theme.of(context).textTheme.displayMedium),
+                            const Text('Kelola stok bahan baku untuk menu Anda.',
+                                style: TextStyle(color: AppColors.mutedForeground)),
                           ],
                         ),
                         if (isAdmin)
                           ElevatedButton.icon(
                             onPressed: () => _showFormModal(),
                             icon: const Icon(Icons.add),
-                            label: const Text('Tambah Kategori'),
-                            style: ElevatedButton.styleFrom(
-                              minimumSize: const Size(200, 45),
-                            ),
+                            label: const Text('Tambah Bahan'),
+                            style: ElevatedButton.styleFrom(minimumSize: const Size(200, 45)),
                           ),
                       ],
                     ),
@@ -181,7 +186,7 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
                           itemCount: _items.length,
                           itemBuilder: (context, index) {
                             final item = _items[index];
-                            return _categoryCard(item, isAdmin);
+                            return _ingredientCard(item, isAdmin);
                           },
                         ),
                 ),
@@ -190,11 +195,14 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
           ),
         ],
       ),
-      bottomNavigationBar: isDesktop ? null : const MobileBottomNav(currentIndex: 1),
+      bottomNavigationBar: isDesktop ? null : const MobileBottomNav(currentIndex: 3),
     );
   }
 
-  Widget _categoryCard(Map<String, dynamic> item, bool isAdmin) {
+  Widget _ingredientCard(Map<String, dynamic> item, bool isAdmin) {
+    final double stock = parseDouble(item['stock']);
+    final bool isLowStock = stock < 10; // Threshold example
+
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
       decoration: BoxDecoration(
@@ -203,23 +211,19 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
         border: Border.all(color: AppColors.border),
       ),
       child: ListTile(
-        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
         leading: Container(
           padding: const EdgeInsets.all(8),
           decoration: BoxDecoration(
-            color: AppColors.primary.withValues(alpha: 0.1),
+            color: (isLowStock ? Colors.red : Colors.green).withValues(alpha: 0.1),
             borderRadius: BorderRadius.circular(8),
           ),
-          child: const Icon(Icons.label, color: AppColors.primary),
+          child: Icon(
+            Icons.inventory_2,
+            color: isLowStock ? Colors.red : Colors.green,
+          ),
         ),
-        title: Text(
-          item['name'] ?? '-',
-          style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-        ),
-        subtitle: Text(
-          'Dibuat pada: ${item['created_at'] != null ? DateFormat('dd MMM yyyy').format(DateTime.parse(item['created_at'])) : '-'}',
-          style: const TextStyle(fontSize: 12, color: AppColors.mutedForeground),
-        ),
+        title: Text(item['name'] ?? '-', style: const TextStyle(fontWeight: FontWeight.bold)),
+        subtitle: Text('Tersedia: $stock ${item['unit'] ?? ''}'),
         trailing: isAdmin
             ? PopupMenuButton<String>(
                 onSelected: (val) {
@@ -243,14 +247,14 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Hapus Kategori'),
-        content: Text('Apakah Anda yakin ingin menghapus kategori "${item['name']}"?'),
+        title: const Text('Hapus Bahan'),
+        content: Text('Apakah Anda yakin ingin menghapus bahan "${item['name']}"?'),
         actions: [
           TextButton(onPressed: () => Navigator.pop(context), child: const Text('Batal')),
           ElevatedButton(
             onPressed: () {
               Navigator.pop(context);
-              _deleteCategory(item['id']);
+              _deleteIngredient(item['id']);
             },
             style: ElevatedButton.styleFrom(backgroundColor: AppColors.destructive),
             child: const Text('Hapus'),

@@ -1,159 +1,249 @@
 import 'package:flutter/material.dart';
 import 'package:gosir/core/theme/app_colors.dart';
+import 'package:gosir/core/services/api_service.dart';
 import 'package:gosir/features/auth/screens/login_screen.dart';
 import 'package:gosir/features/dashboard/screens/dashboard_screen.dart';
-import 'package:gosir/features/cashier/screens/cashier_screen.dart';
-import 'package:gosir/features/history/screens/history_screen.dart';
-import 'package:gosir/features/inventory/screens/inventory_screen.dart';
-import 'package:gosir/features/reports/screens/reports_screen.dart';
-import 'package:gosir/features/profile/screens/profile_screen.dart';
-
-// IMPORT MENU BARU YANG TADI DIBIKIN
-import 'package:gosir/features/menu/screens/menu_recipes_screen.dart';
 import 'package:gosir/features/categories/screens/categories_screen.dart';
-import 'package:gosir/features/staff/screens/staff_management_screen.dart';
-import 'package:gosir/features/dashboard/widgets/dashboard_content.dart';
+import 'package:gosir/features/menus/screens/menus_screen.dart';
+import 'package:gosir/features/ingredients/screens/ingredients_screen.dart';
+import 'package:gosir/features/orders/screens/orders_screen.dart';
+import 'package:gosir/features/reports/screens/reports_screen.dart';
+import 'package:gosir/features/cashes/screens/cashes_screen.dart';
+import 'package:gosir/features/staff/screens/staff_screen.dart';
+import 'package:gosir/features/cashier/screens/cashier_screen.dart';
 
-class Sidebar extends StatelessWidget {
+class Sidebar extends StatefulWidget {
   final int currentIndex;
-  const Sidebar({super.key, this.currentIndex = 0});
+  const Sidebar({super.key, required this.currentIndex});
+
+  @override
+  State<Sidebar> createState() => _SidebarState();
+}
+
+class _SidebarState extends State<Sidebar> {
+  final ApiService _api = ApiService();
+  String _role = 'CASHIER'; // Default role
+
+  @override
+  void initState() {
+    super.initState();
+    _loadUser();
+  }
+
+  Future<void> _loadUser() async {
+    try {
+      final res = await _api.get('/auth/me');
+      if (mounted) {
+        setState(() {
+          _role = res['data']['role'] ?? 'CASHIER';
+        });
+      }
+    } catch (e) {
+      // Ignore error
+    }
+  }
+
+  void _navigateTo(BuildContext context, Widget screen) {
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(builder: (context) => screen),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
+    final isSuperAdmin = _role.toUpperCase() == 'SUPERADMIN';
+    final isAdmin = _role.toUpperCase() == 'ADMIN';
+    final isStaff = isSuperAdmin || isAdmin;
+
     return Container(
-      width: 288,
-      color: AppColors.surfaceBright,
-      padding: const EdgeInsets.all(24),
+      width: 280,
+      height: double.infinity,
+      decoration: BoxDecoration(
+        color: AppColors.background,
+        border: const Border(right: BorderSide(color: AppColors.border)),
+      ),
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Header Profil - Klik untuk ke Profile
-          InkWell(
-            onTap: () => _navigate(context, const ProfileScreen(), 8),
-            borderRadius: BorderRadius.circular(12),
-            child: Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: Row(
-                children: [
-                  const CircleAvatar(
-                    radius: 24,
-                    backgroundColor: AppColors.surfaceContainerHigh,
-                    child: Icon(Icons.person, color: AppColors.primary),
-                  ),
-                  const SizedBox(width: 16),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(UserData.name.isEmpty ? 'User' : UserData.name,
-                            style: Theme.of(context).textTheme.displayMedium?.copyWith(
-                                color: AppColors.primary,
-                                fontSize: 18,
-                                fontWeight: FontWeight.bold
-                            )
-                        ),
-                        const Text('Administrator',
-                            style: TextStyle(color: AppColors.onSurfaceVariant, fontSize: 14)
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-          const SizedBox(height: 32),
-
-          // Menu List
-          Expanded(
-            child: ListView(
-              padding: EdgeInsets.zero,
+          // Header
+          Padding(
+            padding: const EdgeInsets.all(24.0),
+            child: Row(
               children: [
-                _navItem(context, Icons.dashboard, 'Dashboard', 0, const DashboardScreen()),
-                _navItem(context, Icons.point_of_sale, 'Cashier', 1, const CashierScreen()),
-                _navItem(context, Icons.history, 'History', 2, const HistoryScreen()),
-                _navItem(context, Icons.inventory_2, 'Inventory', 3, const InventoryScreen()),
-                _navItem(context, Icons.analytics, 'Reports', 4, const ReportsScreen()),
-
-                const Padding(
-                    padding: EdgeInsets.symmetric(vertical: 8),
-                    child: Divider(color: AppColors.outlineVariant)
+                Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: AppColors.primary,
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: const Icon(Icons.store, color: Colors.white, size: 24),
                 ),
-
-                _navItem(context, Icons.restaurant_menu, 'Menu & Recipes', 5, const MenuRecipesScreen()),
-                _navItem(context, Icons.category, 'Categories', 6, const CategoriesScreen()),
-                _navItem(context, Icons.people, 'Staff Management', 7, const StaffManagementScreen()),
-                _navItem(context, Icons.settings, 'Profile Settings', 8, const ProfileScreen()),
+                const SizedBox(width: 12),
+                const Expanded(
+                  child: Text(
+                    'GoSir',
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                      letterSpacing: -0.5,
+                    ),
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
               ],
             ),
           ),
 
-          // Tombol Logout
-          _navItem(
-            context,
-            Icons.logout,
-            'Logout',
-            -1,
-            null,
-            isError: true,
-            onTap: () => _handleLogout(context),
+          // Menu Items
+          Expanded(
+            child: ListView(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              children: [
+                const Padding(
+                  padding: EdgeInsets.only(left: 12, bottom: 8, top: 8),
+                  child: Text(
+                    'MANAGEMENT',
+                    style: TextStyle(
+                      fontSize: 11,
+                      fontWeight: FontWeight.bold,
+                      color: AppColors.mutedForeground,
+                    ),
+                  ),
+                ),
+                _navItem(
+                  icon: Icons.dashboard_outlined,
+                  label: 'Dashboard',
+                  index: 0,
+                  onTap: () => _navigateTo(context, const DashboardScreen()),
+                ),
+                _navItem(
+                  icon: Icons.label_outline,
+                  label: 'Kategori',
+                  index: 1,
+                  onTap: () => _navigateTo(context, const CategoriesScreen()),
+                ),
+                _navItem(
+                  icon: Icons.restaurant_menu,
+                  label: 'Menu',
+                  index: 2,
+                  onTap: () => _navigateTo(context, const MenusScreen()),
+                ),
+                _navItem(
+                  icon: Icons.inventory_2_outlined,
+                  label: 'Bahan Baku',
+                  index: 3,
+                  onTap: () => _navigateTo(context, const IngredientsScreen()),
+                ),
+                _navItem(
+                  icon: Icons.receipt_long_outlined,
+                  label: 'Pesanan',
+                  index: 4,
+                  onTap: () => _navigateTo(context, const OrdersScreen()),
+                ),
+                _navItem(
+                  icon: Icons.account_balance_wallet_outlined,
+                  label: 'Catatan Kas',
+                  index: 5,
+                  onTap: () => _navigateTo(context, const CashesScreen()),
+                ),
+                if (isStaff)
+                  _navItem(
+                    icon: Icons.people_outline,
+                    label: 'Staff Pegawai',
+                    index: 6,
+                    onTap: () => _navigateTo(context, const StaffScreen()),
+                  ),
+                _navItem(
+                  icon: Icons.bar_chart_outlined,
+                  label: 'Laporan',
+                  index: 7,
+                  onTap: () => _navigateTo(context, const ReportsScreen()),
+                ),
+              ],
+            ),
+          ),
+
+          // Footer
+          Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Column(
+              children: [
+                ElevatedButton.icon(
+                  onPressed: () {
+                    Navigator.pushReplacement(
+                      context,
+                      MaterialPageRoute(builder: (context) => const CashierScreen()),
+                    );
+                  },
+                  icon: const Icon(Icons.storefront, size: 20),
+                  label: const Text('Mode Kasir'),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppColors.primary,
+                    foregroundColor: Colors.white,
+                    minimumSize: const Size(double.infinity, 45),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 8),
+                TextButton.icon(
+                  onPressed: () async {
+                    await _api.logout();
+                    if (context.mounted) {
+                      Navigator.of(context).pushAndRemoveUntil(
+                        MaterialPageRoute(builder: (context) => const LoginScreen()),
+                        (route) => false,
+                      );
+                    }
+                  },
+                  icon: const Icon(Icons.logout, size: 20, color: AppColors.destructive),
+                  label: const Text(
+                    'Keluar',
+                    style: TextStyle(color: AppColors.destructive),
+                  ),
+                  style: TextButton.styleFrom(
+                    minimumSize: const Size(double.infinity, 45),
+                    alignment: Alignment.centerLeft,
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                  ),
+                ),
+              ],
+            ),
           ),
         ],
       ),
     );
   }
 
-  void _handleLogout(BuildContext context) {
-    Navigator.pushAndRemoveUntil(
-      context,
-      MaterialPageRoute(builder: (context) => const LoginScreen()),
-          (route) => false,
-    );
-  }
-
-  void _navigate(BuildContext context, Widget target, int index) {
-    if (currentIndex != index) {
-      // Tutup drawer dulu kalau di mobile sebelum pindah page
-      if (Scaffold.of(context).isDrawerOpen) {
-        Navigator.pop(context);
-      }
-      Navigator.pushReplacement(
-        context,
-        PageRouteBuilder(
-          pageBuilder: (context, anim1, anim2) => target,
-          transitionDuration: Duration.zero, // Biar transisi antar menu instan & smooth
-        ),
-      );
-    }
-  }
-
-  Widget _navItem(BuildContext context, IconData icon, String label, int index, Widget? target, {bool isError = false, VoidCallback? onTap}) {
-    bool isActive = currentIndex == index;
-    Color color = isError ? AppColors.error : (isActive ? AppColors.onPrimary : AppColors.onSurfaceVariant);
-
+  Widget _navItem({
+    required IconData icon,
+    required String label,
+    required int index,
+    required VoidCallback onTap,
+  }) {
+    final isSelected = widget.currentIndex == index;
     return Container(
       margin: const EdgeInsets.only(bottom: 4),
-      decoration: BoxDecoration(
-          color: isActive ? AppColors.primary : Colors.transparent,
-          borderRadius: BorderRadius.circular(8)
-      ),
       child: ListTile(
-        leading: Icon(icon, color: color, size: 22),
-        title: Text(
-            label,
-            style: TextStyle(
-                color: color,
-                fontWeight: isActive ? FontWeight.bold : FontWeight.normal,
-                fontSize: 14
-            )
-        ),
-        onTap: onTap ?? () {
-          if (target != null) {
-            _navigate(context, target, index);
-          }
-        },
+        onTap: onTap,
         dense: true,
+        visualDensity: VisualDensity.compact,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+        leading: Icon(
+          icon,
+          color: isSelected ? AppColors.primary : AppColors.mutedForeground,
+          size: 20,
+        ),
+        title: Text(
+          label,
+          style: TextStyle(
+            color: isSelected ? AppColors.primary : AppColors.foreground,
+            fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
+            fontSize: 14,
+          ),
+        ),
+        tileColor: isSelected ? AppColors.primary.withValues(alpha: 0.08) : null,
       ),
     );
   }

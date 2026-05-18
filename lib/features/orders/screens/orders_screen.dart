@@ -106,53 +106,118 @@ class _OrdersScreenState extends State<OrdersScreen> {
                 ),
                 Padding(
                   padding: EdgeInsets.symmetric(horizontal: isDesktop ? 24.0 : 16.0, vertical: 8.0),
-                  child: Row(
-                    children: [
-                      Expanded(
-                        child: DropdownButtonFormField<String>(
-                          value: _selectedType,
-                          decoration: InputDecoration(
-                            hintText: 'Semua Tipe',
-                            contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 0),
-                            border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
-                            filled: true,
-                            fillColor: Colors.white,
-                          ),
-                          items: const [
-                            DropdownMenuItem(value: null, child: Text('Semua Tipe')),
-                            DropdownMenuItem(value: 'DINE_IN', child: Text('Dine In')),
-                            DropdownMenuItem(value: 'TAKE_AWAY', child: Text('Take Away')),
+                  child: LayoutBuilder(
+                    builder: (context, constraints) {
+                      final double itemWidth = (constraints.maxWidth - 8) / 2;
+                      final bool useWrap = itemWidth < 160;
+                      
+                      if (useWrap) {
+                        return Wrap(
+                          spacing: 8,
+                          runSpacing: 8,
+                          children: [
+                            SizedBox(
+                              width: double.infinity,
+                              child: DropdownButtonFormField<String>(
+                                value: _selectedType,
+                                decoration: InputDecoration(
+                                  hintText: 'Semua Tipe',
+                                  isDense: true,
+                                  contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+                                  filled: true,
+                                  fillColor: Colors.white,
+                                ),
+                                items: const [
+                                  DropdownMenuItem(value: null, child: Text('Semua Tipe')),
+                                  DropdownMenuItem(value: 'DINE_IN', child: Text('Dine In')),
+                                  DropdownMenuItem(value: 'TAKE_AWAY', child: Text('Take Away')),
+                                ],
+                                onChanged: (v) {
+                                  setState(() => _selectedType = v);
+                                  _fetchData();
+                                },
+                              ),
+                            ),
+                            SizedBox(
+                              width: double.infinity,
+                              child: DropdownButtonFormField<String>(
+                                value: _selectedPayment,
+                                decoration: InputDecoration(
+                                  hintText: 'Pembayaran',
+                                  isDense: true,
+                                  contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+                                  filled: true,
+                                  fillColor: Colors.white,
+                                ),
+                                items: const [
+                                  DropdownMenuItem(value: null, child: Text('Semua Pembayaran')),
+                                  DropdownMenuItem(value: 'CASH', child: Text('Tunai')),
+                                  DropdownMenuItem(value: 'QRIS', child: Text('QRIS')),
+                                  DropdownMenuItem(value: 'TRANSFER', child: Text('Transfer')),
+                                ],
+                                onChanged: (v) {
+                                  setState(() => _selectedPayment = v);
+                                  _fetchData();
+                                },
+                              ),
+                            ),
                           ],
-                          onChanged: (v) {
-                            setState(() => _selectedType = v);
-                            _fetchData();
-                          },
-                        ),
-                      ),
-                      const SizedBox(width: 8),
-                      Expanded(
-                        child: DropdownButtonFormField<String>(
-                          value: _selectedPayment,
-                          decoration: InputDecoration(
-                            hintText: 'Pembayaran',
-                            contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 0),
-                            border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
-                            filled: true,
-                            fillColor: Colors.white,
-                          ),
-                          items: const [
-                            DropdownMenuItem(value: null, child: Text('Semua Pembayaran')),
-                            DropdownMenuItem(value: 'CASH', child: Text('Tunai')),
-                            DropdownMenuItem(value: 'QRIS', child: Text('QRIS')),
-                            DropdownMenuItem(value: 'TRANSFER', child: Text('Transfer')),
+                        );
+                      } else {
+                        return Row(
+                          children: [
+                            Expanded(
+                              child: DropdownButtonFormField<String>(
+                                value: _selectedType,
+                                decoration: InputDecoration(
+                                  hintText: 'Semua Tipe',
+                                  isDense: true,
+                                  contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+                                  filled: true,
+                                  fillColor: Colors.white,
+                                ),
+                                items: const [
+                                  DropdownMenuItem(value: null, child: Text('Semua Tipe')),
+                                  DropdownMenuItem(value: 'DINE_IN', child: Text('Dine In')),
+                                  DropdownMenuItem(value: 'TAKE_AWAY', child: Text('Take Away')),
+                                ],
+                                onChanged: (v) {
+                                  setState(() => _selectedType = v);
+                                  _fetchData();
+                                },
+                              ),
+                            ),
+                            const SizedBox(width: 8),
+                            Expanded(
+                              child: DropdownButtonFormField<String>(
+                                value: _selectedPayment,
+                                decoration: InputDecoration(
+                                  hintText: 'Pembayaran',
+                                  isDense: true,
+                                  contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+                                  filled: true,
+                                  fillColor: Colors.white,
+                                ),
+                                items: const [
+                                  DropdownMenuItem(value: null, child: Text('Semua Pembayaran')),
+                                  DropdownMenuItem(value: 'CASH', child: Text('Tunai')),
+                                  DropdownMenuItem(value: 'QRIS', child: Text('QRIS')),
+                                  DropdownMenuItem(value: 'TRANSFER', child: Text('Transfer')),
+                                ],
+                                onChanged: (v) {
+                                  setState(() => _selectedPayment = v);
+                                  _fetchData();
+                                },
+                              ),
+                            ),
                           ],
-                          onChanged: (v) {
-                            setState(() => _selectedPayment = v);
-                            _fetchData();
-                          },
-                        ),
-                      ),
-                    ],
+                        );
+                      }
+                    },
                   ),
                 ),
                 Expanded(

@@ -181,8 +181,11 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
                 if (isDesktop)
                   Padding(
                     padding: const EdgeInsets.all(32.0),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    child: Wrap(
+                      alignment: WrapAlignment.spaceBetween,
+                      crossAxisAlignment: WrapCrossAlignment.center,
+                      spacing: 16,
+                      runSpacing: 16,
                       children: [
                         Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
@@ -233,69 +236,58 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
                         ),
                       ),
                       const SizedBox(height: 12),
-                      Row(
-                        children: [
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
+                      LayoutBuilder(
+                        builder: (context, constraints) {
+                          final double itemWidth = (constraints.maxWidth - 12) / 2;
+                          final bool useWrap = itemWidth < 180; // Wrap if columns get narrower than 180px
+                          
+                          if (useWrap) {
+                            return Wrap(
+                              spacing: 12,
+                              runSpacing: 12,
                               children: [
-                                const Text('Berdasarkan', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Colors.grey)),
-                                const SizedBox(height: 4),
-                                DropdownButtonFormField<String>(
-                                  value: _sortBy,
-                                  decoration: InputDecoration(
-                                    hintText: 'Pilih berdasarkan',
-                                    filled: true,
-                                    fillColor: Colors.grey.shade50,
-                                    contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: Colors.grey.shade300)),
-                                    enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: Colors.grey.shade300)),
-                                  ),
-                                  items: const [
+                                SizedBox(
+                                  width: 200,
+                                  child: _buildFilterItem('Berdasarkan', _sortBy, const [
                                     DropdownMenuItem(value: null, child: Text('Pilih berdasarkan', style: TextStyle(color: Colors.grey))),
                                     DropdownMenuItem(value: 'name', child: Text('Nama')),
                                     DropdownMenuItem(value: 'created_at', child: Text('Waktu Dibuat')),
                                     DropdownMenuItem(value: 'updated_at', child: Text('Waktu Diperbarui')),
-                                  ],
-                                  onChanged: (v) {
-                                    setState(() => _sortBy = v);
-                                    _fetchData();
-                                  },
+                                  ], (v) => setState(() => _sortBy = v)),
                                 ),
-                              ],
-                            ),
-                          ),
-                          const SizedBox(width: 12),
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                const Text('Urutan', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Colors.grey)),
-                                const SizedBox(height: 4),
-                                DropdownButtonFormField<String>(
-                                  value: _sortDirection,
-                                  decoration: InputDecoration(
-                                    hintText: 'A-Z / Kecil-Besar',
-                                    filled: true,
-                                    fillColor: Colors.grey.shade50,
-                                    contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: Colors.grey.shade300)),
-                                    enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: Colors.grey.shade300)),
-                                  ),
-                                  items: const [
+                                SizedBox(
+                                  width: 200,
+                                  child: _buildFilterItem('Urutan', _sortDirection, const [
                                     DropdownMenuItem(value: null, child: Text('Pilih urutan', style: TextStyle(color: Colors.grey))),
                                     DropdownMenuItem(value: 'asc', child: Text('A-Z / Kecil-Besar')),
                                     DropdownMenuItem(value: 'desc', child: Text('Z-A / Besar-Kecil')),
-                                  ],
-                                  onChanged: (v) {
-                                    setState(() => _sortDirection = v);
-                                    _fetchData();
-                                  },
+                                  ], (v) => setState(() => _sortDirection = v)),
                                 ),
                               ],
-                            ),
-                          ),
-                        ],
+                            );
+                          } else {
+                            return Row(
+                              children: [
+                                Expanded(
+                                  child: _buildFilterItem('Berdasarkan', _sortBy, const [
+                                    DropdownMenuItem(value: null, child: Text('Pilih berdasarkan', style: TextStyle(color: Colors.grey))),
+                                    DropdownMenuItem(value: 'name', child: Text('Nama')),
+                                    DropdownMenuItem(value: 'created_at', child: Text('Waktu Dibuat')),
+                                    DropdownMenuItem(value: 'updated_at', child: Text('Waktu Diperbarui')),
+                                  ], (v) => setState(() => _sortBy = v)),
+                                ),
+                                const SizedBox(width: 12),
+                                Expanded(
+                                  child: _buildFilterItem('Urutan', _sortDirection, const [
+                                    DropdownMenuItem(value: null, child: Text('Pilih urutan', style: TextStyle(color: Colors.grey))),
+                                    DropdownMenuItem(value: 'asc', child: Text('A-Z / Kecil-Besar')),
+                                    DropdownMenuItem(value: 'desc', child: Text('Z-A / Besar-Kecil')),
+                                  ], (v) => setState(() => _sortDirection = v)),
+                                ),
+                              ],
+                            );
+                          }
+                        },
                       ),
                     ],
                   ),
@@ -404,6 +396,34 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
           ),
         ],
       ),
+    );
+  }
+
+  Widget _buildFilterItem(String title, String? value, List<DropdownMenuItem<String>> items, Function(String?) onChanged) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Text(title, style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Colors.grey)),
+        const SizedBox(height: 4),
+        DropdownButtonFormField<String>(
+          value: value,
+          isExpanded: true,
+          decoration: InputDecoration(
+            filled: true,
+            fillColor: Colors.grey.shade50,
+            isDense: true,
+            contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+            border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: Colors.grey.shade300)),
+            enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: Colors.grey.shade300)),
+          ),
+          items: items,
+          onChanged: (v) {
+            onChanged(v);
+            _fetchData();
+          },
+        ),
+      ],
     );
   }
 }

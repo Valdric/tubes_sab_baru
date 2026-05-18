@@ -489,26 +489,29 @@ class _DashboardContentState extends State<DashboardContent> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    children: const [
-                      Icon(Icons.local_fire_department, color: Color(0xFFF97316), size: 20),
-                      SizedBox(width: 8),
-                      Text(
-                        "Analisis Jam Sibuk",
-                        style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 4),
-                  const Text(
-                    "Pola sebaran pesanan harian berdasarkan jam harian.",
-                    style: TextStyle(color: AppColors.mutedForeground, fontSize: 12),
-                  ),
-                ],
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: const [
+                        Icon(Icons.local_fire_department, color: Color(0xFFF97316), size: 20),
+                        SizedBox(width: 8),
+                        Text(
+                          "Analisis Jam Sibuk",
+                          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 4),
+                    const Text(
+                      "Pola sebaran pesanan harian berdasarkan jam harian.",
+                      style: TextStyle(color: AppColors.mutedForeground, fontSize: 12),
+                    ),
+                  ],
+                ),
               ),
+              const SizedBox(width: 8),
               _buildCustomDropdown(
                 label: _getPeakLabel(_peakDate),
                 onSelected: (preset) async {

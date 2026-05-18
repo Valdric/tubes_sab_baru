@@ -135,7 +135,16 @@ class ApiService {
       request.fields.addAll(fields);
 
       if (fileBytes != null && fileName != null) {
-        request.files.add(http.MultipartFile.fromBytes('image', fileBytes, filename: fileName));
+        String safeFileName = fileName;
+        final lower = fileName.toLowerCase();
+        if (!lower.endsWith('.jpg') && 
+            !lower.endsWith('.jpeg') && 
+            !lower.endsWith('.png') && 
+            !lower.endsWith('.webp') && 
+            !lower.endsWith('.gif')) {
+          safeFileName = '$fileName.jpg';
+        }
+        request.files.add(http.MultipartFile.fromBytes('image', fileBytes, filename: safeFileName));
       } else if (filePath != null) {
         request.files.add(await http.MultipartFile.fromPath('image', filePath));
       }

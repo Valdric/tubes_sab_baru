@@ -356,26 +356,29 @@ class _DashboardContentState extends State<DashboardContent> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    children: const [
-                      Icon(Icons.trending_up, color: Color(0xFF10B981), size: 20),
-                      SizedBox(width: 8),
-                      Text(
-                        "Tren Pendapatan Harian",
-                        style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 4),
-                  const Text(
-                    "Visualisasi pergerakan pendapatan dngn rentang maksimal 7 hari.",
-                    style: TextStyle(color: AppColors.mutedForeground, fontSize: 12),
-                  ),
-                ],
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: const [
+                        Icon(Icons.trending_up, color: Color(0xFF10B981), size: 20),
+                        SizedBox(width: 8),
+                        Text(
+                          "Tren Pendapatan Harian",
+                          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 4),
+                    const Text(
+                      "Visualisasi pergerakan pendapatan dngn rentang maksimal 7 hari.",
+                      style: TextStyle(color: AppColors.mutedForeground, fontSize: 12),
+                    ),
+                  ],
+                ),
               ),
+              const SizedBox(width: 8),
               _buildCustomDropdown(
                 label: _getPresetLabel(_trendDateRange!),
                 onSelected: (preset) async {

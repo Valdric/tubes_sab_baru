@@ -25,6 +25,10 @@ class _MenusScreenState extends State<MenusScreen> {
   String? _selectedCategory;
   List<dynamic> _categories = [];
   final Map<int, bool> _expandedItems = {};
+  String? _sortBy;
+  String? _sortDirection;
+  String? _division;
+  String? _isActive;
 
   @override
   void initState() {
@@ -38,8 +42,12 @@ class _MenusScreenState extends State<MenusScreen> {
       final Map<String, String> params = {};
       if (_searchQuery.isNotEmpty) params['search'] = _searchQuery;
       if (_selectedCategory != null) params['category_id'] = _selectedCategory!;
+      if (_sortBy != null) params['sort_by'] = _sortBy!;
+      if (_sortDirection != null) params['sort_direction'] = _sortDirection!;
+      if (_division != null) params['division'] = _division!;
+      if (_isActive != null) params['is_active'] = _isActive!;
 
-      final res = await _api.get('/menus', params: params);
+      final res = await _api.get('/menus', params: params.isNotEmpty ? params : null);
       final catRes = await _api.get('/categories');
       final me = await _api.get('/auth/me');
       if (mounted) {
@@ -91,21 +99,150 @@ class _MenusScreenState extends State<MenusScreen> {
           : AppBar(
               title: const Text('Manajemen Menu'),
               bottom: PreferredSize(
-                preferredSize: const Size.fromHeight(60),
+                preferredSize: const Size.fromHeight(130),
                 child: Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                  child: TextField(
-                    onChanged: (v) {
-                      setState(() => _searchQuery = v);
-                      _fetchData();
-                    },
-                    decoration: InputDecoration(
-                      hintText: 'Cari menu...',
-                      prefixIcon: const Icon(Icons.search),
-                      fillColor: Colors.white,
-                      filled: true,
-                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
-                    ),
+                  child: Column(
+                    children: [
+                      TextField(
+                        onChanged: (v) {
+                          setState(() => _searchQuery = v);
+                          _fetchData();
+                        },
+                        decoration: InputDecoration(
+                          hintText: 'Cari menu...',
+                          prefixIcon: const Icon(Icons.search),
+                          fillColor: Colors.white,
+                          filled: true,
+                          border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+                          contentPadding: const EdgeInsets.symmetric(vertical: 0),
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      SizedBox(
+                        height: 50,
+                        child: ListView(
+                          scrollDirection: Axis.horizontal,
+                          children: [
+                            SizedBox(
+                              width: 140,
+                              child: DropdownButtonFormField<String>(
+                                value: _sortBy,
+                                decoration: InputDecoration(
+                                  hintText: 'Berdasarkan',
+                                  fillColor: Colors.white,
+                                  filled: true,
+                                  contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 0),
+                                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+                                ),
+                                items: const [
+                                  DropdownMenuItem(value: null, child: Text('Berdasarkan')),
+                                  DropdownMenuItem(value: 'name', child: Text('Nama')),
+                                  DropdownMenuItem(value: 'price', child: Text('Harga')),
+                                  DropdownMenuItem(value: 'created_at', child: Text('Dibuat')),
+                                  DropdownMenuItem(value: 'updated_at', child: Text('Diperbarui')),
+                                ],
+                                onChanged: (v) {
+                                  setState(() => _sortBy = v);
+                                  _fetchData();
+                                },
+                              ),
+                            ),
+                            const SizedBox(width: 8),
+                            SizedBox(
+                              width: 140,
+                              child: DropdownButtonFormField<String>(
+                                value: _sortDirection,
+                                decoration: InputDecoration(
+                                  hintText: 'Urutan',
+                                  fillColor: Colors.white,
+                                  filled: true,
+                                  contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 0),
+                                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+                                ),
+                                items: const [
+                                  DropdownMenuItem(value: null, child: Text('Urutan')),
+                                  DropdownMenuItem(value: 'asc', child: Text('A-Z / Kecil-Besar')),
+                                  DropdownMenuItem(value: 'desc', child: Text('Z-A / Besar-Kecil')),
+                                ],
+                                onChanged: (v) {
+                                  setState(() => _sortDirection = v);
+                                  _fetchData();
+                                },
+                              ),
+                            ),
+                            const SizedBox(width: 8),
+                            SizedBox(
+                              width: 140,
+                              child: DropdownButtonFormField<String>(
+                                value: _selectedCategory,
+                                decoration: InputDecoration(
+                                  hintText: 'Kategori',
+                                  fillColor: Colors.white,
+                                  filled: true,
+                                  contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 0),
+                                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+                                ),
+                                items: [
+                                  const DropdownMenuItem(value: null, child: Text('Semua Kategori')),
+                                  ..._categories.map((c) => DropdownMenuItem(value: c['id'].toString(), child: Text(c['name'] ?? '-'))),
+                                ],
+                                onChanged: (v) {
+                                  setState(() => _selectedCategory = v);
+                                  _fetchData();
+                                },
+                              ),
+                            ),
+                            const SizedBox(width: 8),
+                            SizedBox(
+                              width: 140,
+                              child: DropdownButtonFormField<String>(
+                                value: _division,
+                                decoration: InputDecoration(
+                                  hintText: 'Divisi',
+                                  fillColor: Colors.white,
+                                  filled: true,
+                                  contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 0),
+                                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+                                ),
+                                items: const [
+                                  DropdownMenuItem(value: null, child: Text('Semua Divisi')),
+                                  DropdownMenuItem(value: 'KITCHEN', child: Text('KITCHEN')),
+                                  DropdownMenuItem(value: 'BAR', child: Text('BAR')),
+                                ],
+                                onChanged: (v) {
+                                  setState(() => _division = v);
+                                  _fetchData();
+                                },
+                              ),
+                            ),
+                            const SizedBox(width: 8),
+                            SizedBox(
+                              width: 140,
+                              child: DropdownButtonFormField<String>(
+                                value: _isActive,
+                                decoration: InputDecoration(
+                                  hintText: 'Status',
+                                  fillColor: Colors.white,
+                                  filled: true,
+                                  contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 0),
+                                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+                                ),
+                                items: const [
+                                  DropdownMenuItem(value: null, child: Text('Semua Status')),
+                                  DropdownMenuItem(value: 'true', child: Text('Aktif')),
+                                  DropdownMenuItem(value: 'false', child: Text('Nonaktif')),
+                                ],
+                                onChanged: (v) {
+                                  setState(() => _isActive = v);
+                                  _fetchData();
+                                },
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
                   ),
                 ),
               ),
@@ -157,38 +294,139 @@ class _MenusScreenState extends State<MenusScreen> {
                 if (isDesktop)
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 8.0),
-                    child: Row(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Expanded(
-                          flex: 2,
-                          child: TextField(
-                            onChanged: (v) {
-                              setState(() => _searchQuery = v);
-                              _fetchData();
-                            },
-                            decoration: const InputDecoration(
-                              hintText: 'Cari menu...',
-                              prefixIcon: Icon(Icons.search),
+                        TextField(
+                          onChanged: (v) {
+                            setState(() => _searchQuery = v);
+                            _fetchData();
+                          },
+                          decoration: const InputDecoration(
+                            hintText: 'Cari menu...',
+                            prefixIcon: Icon(Icons.search),
+                          ),
+                        ),
+                        const SizedBox(height: 12),
+                        Row(
+                          children: [
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  const Text('Berdasarkan', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Colors.grey)),
+                                  const SizedBox(height: 4),
+                                  DropdownButtonFormField<String>(
+                                    value: _sortBy,
+                                    decoration: const InputDecoration(hintText: 'Pilih berdasarkan'),
+                                    items: const [
+                                      DropdownMenuItem(value: null, child: Text('Pilih berdasarkan', style: TextStyle(color: Colors.grey))),
+                                      DropdownMenuItem(value: 'name', child: Text('Nama')),
+                                      DropdownMenuItem(value: 'price', child: Text('Harga')),
+                                      DropdownMenuItem(value: 'created_at', child: Text('Waktu Dibuat')),
+                                      DropdownMenuItem(value: 'updated_at', child: Text('Waktu Diperbarui')),
+                                    ],
+                                    onChanged: (v) {
+                                      setState(() => _sortBy = v);
+                                      _fetchData();
+                                    },
+                                  ),
+                                ],
+                              ),
                             ),
-                          ),
+                            const SizedBox(width: 12),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  const Text('Urutan', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Colors.grey)),
+                                  const SizedBox(height: 4),
+                                  DropdownButtonFormField<String>(
+                                    value: _sortDirection,
+                                    decoration: const InputDecoration(hintText: 'Pilih urutan'),
+                                    items: const [
+                                      DropdownMenuItem(value: null, child: Text('Pilih urutan', style: TextStyle(color: Colors.grey))),
+                                      DropdownMenuItem(value: 'asc', child: Text('A-Z / Kecil-Besar')),
+                                      DropdownMenuItem(value: 'desc', child: Text('Z-A / Besar-Kecil')),
+                                    ],
+                                    onChanged: (v) {
+                                      setState(() => _sortDirection = v);
+                                      _fetchData();
+                                    },
+                                  ),
+                                ],
+                              ),
+                            ),
+                            const SizedBox(width: 12),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  const Text('Kategori', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Colors.grey)),
+                                  const SizedBox(height: 4),
+                                  DropdownButtonFormField<String>(
+                                    value: _selectedCategory,
+                                    decoration: const InputDecoration(hintText: 'Semua Kategori'),
+                                    items: [
+                                      const DropdownMenuItem(value: null, child: Text('Semua Kategori', style: TextStyle(color: Colors.grey))),
+                                      ..._categories.map((c) => DropdownMenuItem(value: c['id'].toString(), child: Text(c['name'] ?? '-'))),
+                                    ],
+                                    onChanged: (v) {
+                                      setState(() => _selectedCategory = v);
+                                      _fetchData();
+                                    },
+                                  ),
+                                ],
+                              ),
+                            ),
+                            const SizedBox(width: 12),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  const Text('Divisi', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Colors.grey)),
+                                  const SizedBox(height: 4),
+                                  DropdownButtonFormField<String>(
+                                    value: _division,
+                                    decoration: const InputDecoration(hintText: 'Semua Divisi'),
+                                    items: const [
+                                      DropdownMenuItem(value: null, child: Text('Semua Divisi', style: TextStyle(color: Colors.grey))),
+                                      DropdownMenuItem(value: 'KITCHEN', child: Text('KITCHEN')),
+                                      DropdownMenuItem(value: 'BAR', child: Text('BAR')),
+                                    ],
+                                    onChanged: (v) {
+                                      setState(() => _division = v);
+                                      _fetchData();
+                                    },
+                                  ),
+                                ],
+                              ),
+                            ),
+                            const SizedBox(width: 12),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  const Text('Status', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Colors.grey)),
+                                  const SizedBox(height: 4),
+                                  DropdownButtonFormField<String>(
+                                    value: _isActive,
+                                    decoration: const InputDecoration(hintText: 'Semua Status'),
+                                    items: const [
+                                      DropdownMenuItem(value: null, child: Text('Semua Status', style: TextStyle(color: Colors.grey))),
+                                      DropdownMenuItem(value: 'true', child: Text('Aktif')),
+                                      DropdownMenuItem(value: 'false', child: Text('Nonaktif')),
+                                    ],
+                                    onChanged: (v) {
+                                      setState(() => _isActive = v);
+                                      _fetchData();
+                                    },
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
                         ),
-                        const SizedBox(width: 16),
-                        Expanded(
-                          flex: 1,
-                          child: DropdownButtonFormField<String>(
-                            initialValue: _selectedCategory,
-                            decoration: const InputDecoration(hintText: 'Kategori'),
-                            items: [
-                              const DropdownMenuItem(value: null, child: Text('Semua Kategori')),
-                              ..._categories.map((c) => DropdownMenuItem(value: c['id'].toString(), child: Text(c['name']))),
-                            ],
-                            onChanged: (v) {
-                              setState(() => _selectedCategory = v);
-                              _fetchData();
-                            },
-                          ),
-                        ),
-                        const Spacer(flex: 1),
                       ],
                     ),
                   ),

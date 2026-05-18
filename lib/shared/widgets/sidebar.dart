@@ -9,7 +9,7 @@ import 'package:gosir/features/ingredients/screens/ingredients_screen.dart';
 import 'package:gosir/features/orders/screens/orders_screen.dart';
 import 'package:gosir/features/reports/screens/reports_screen.dart';
 import 'package:gosir/features/cashes/screens/cashes_screen.dart';
-import 'package:gosir/features/staff/screens/staff_screen.dart';
+import 'package:gosir/features/staff/screens/staff_management_screen.dart';
 import 'package:gosir/features/cashier/screens/cashier_screen.dart';
 
 class Sidebar extends StatefulWidget {
@@ -151,7 +151,7 @@ class _SidebarState extends State<Sidebar> {
                     icon: Icons.people_outline,
                     label: 'Staff Pegawai',
                     index: 6,
-                    onTap: () => _navigateTo(context, const StaffScreen()),
+                    onTap: () => _navigateTo(context, const StaffManagementScreen()),
                   ),
                 _navItem(
                   icon: Icons.bar_chart_outlined,

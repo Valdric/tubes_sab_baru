@@ -117,7 +117,12 @@ class ApiService {
     }
   }
 
-  Future<dynamic> multipart(String endpoint, Map<String, String> fields, {String? filePath, String method = 'POST'}) async {
+  Future<dynamic> multipart(String endpoint, Map<String, String> fields, {
+    String? filePath, 
+    List<int>? fileBytes, 
+    String? fileName, 
+    String method = 'POST'
+  }) async {
     try {
       final token = await getToken();
       final request = http.MultipartRequest(method, Uri.parse('$baseUrl$endpoint'));
@@ -129,7 +134,9 @@ class ApiService {
 
       request.fields.addAll(fields);
 
-      if (filePath != null) {
+      if (fileBytes != null && fileName != null) {
+        request.files.add(http.MultipartFile.fromBytes('image', fileBytes, filename: fileName));
+      } else if (filePath != null) {
         request.files.add(await http.MultipartFile.fromPath('image', filePath));
       }
 

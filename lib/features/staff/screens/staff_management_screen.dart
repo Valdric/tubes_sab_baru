@@ -3,20 +3,19 @@ import 'package:gosir/core/theme/app_colors.dart';
 import 'package:gosir/shared/widgets/sidebar.dart';
 import 'package:gosir/shared/widgets/mobile_bottom_nav.dart';
 import 'package:gosir/core/services/api_service.dart';
-import 'package:gosir/core/utils/safe_parse.dart';
 
-class IngredientsScreen extends StatefulWidget {
-  const IngredientsScreen({super.key});
+class StaffManagementScreen extends StatefulWidget {
+  const StaffManagementScreen({super.key});
 
   @override
-  State<IngredientsScreen> createState() => _IngredientsScreenState();
+  State<StaffManagementScreen> createState() => _StaffManagementScreenState();
 }
 
-class _IngredientsScreenState extends State<IngredientsScreen> {
+class _StaffManagementScreenState extends State<StaffManagementScreen> {
   final ApiService _api = ApiService();
-  List<dynamic> _items = [];
+  List<dynamic> _staff = [];
   bool _isLoading = true;
-  String _role = '';
+  String _myRole = '';
   String _searchQuery = '';
 
   @override
@@ -28,12 +27,12 @@ class _IngredientsScreenState extends State<IngredientsScreen> {
   Future<void> _fetchData() async {
     setState(() => _isLoading = true);
     try {
-      final res = await _api.get('/ingredients', params: _searchQuery.isNotEmpty ? {'search': _searchQuery} : null);
+      final res = await _api.get('/users', params: _searchQuery.isNotEmpty ? {'search': _searchQuery} : null);
       final me = await _api.get('/auth/me');
       if (mounted) {
         setState(() {
-          _items = res['data']['items'] ?? [];
-          _role = me['data']['role'] ?? '';
+          _staff = res['data']['items'] ?? [];
+          _myRole = me['data']['role'] ?? '';
           _isLoading = false;
         });
       }
@@ -47,12 +46,12 @@ class _IngredientsScreenState extends State<IngredientsScreen> {
     }
   }
 
-  Future<void> _deleteIngredient(int id) async {
+  Future<void> _deleteStaff(int id) async {
     try {
-      await _api.delete('/ingredients/$id');
+      await _api.delete('/users/$id');
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Bahan berhasil dihapus'), backgroundColor: Colors.green),
+          const SnackBar(content: Text('Staff berhasil dihapus'), backgroundColor: Colors.green),
         );
         _fetchData();
       }
@@ -67,9 +66,9 @@ class _IngredientsScreenState extends State<IngredientsScreen> {
 
   void _showFormModal({Map<String, dynamic>? item}) {
     final nameController = TextEditingController(text: item?['name'] ?? '');
-    final stockController = TextEditingController(text: item?['stock']?.toString() ?? '0');
-    final thresholdController = TextEditingController(text: item?['threshold']?.toString() ?? '10');
-    String selectedUnit = item?['unit'] ?? 'GRAM';
+    final usernameController = TextEditingController(text: item?['username'] ?? '');
+    final passwordController = TextEditingController();
+    String selectedRole = item?['role'] ?? 'CASHIER';
     final bool isEdit = item != null;
     String? errorText;
 
@@ -78,62 +77,46 @@ class _IngredientsScreenState extends State<IngredientsScreen> {
       builder: (context) => StatefulBuilder(
         builder: (context, setModalState) => AlertDialog(
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-          title: Text(isEdit ? 'Ubah Bahan Baku' : 'Tambah Bahan Baru', style: const TextStyle(fontWeight: FontWeight.bold)),
+          title: Text(isEdit ? 'Ubah Data Staff' : 'Tambah Staff Baru', style: const TextStyle(fontWeight: FontWeight.bold)),
           content: SingleChildScrollView(
             child: Column(
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text('Nama Bahan', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 13)),
+                const Text('Nama Lengkap', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 13)),
                 const SizedBox(height: 8),
                 TextFormField(
                   controller: nameController,
-                  decoration: _inputDecoration('Misal: Kopi Arabica'),
+                  decoration: _inputDecoration('Misal: Andi Wijaya'),
                 ),
                 const SizedBox(height: 16),
-                Row(
-                  children: [
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          const Text('Stok', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 13)),
-                          const SizedBox(height: 8),
-                          TextFormField(
-                            controller: stockController,
-                            keyboardType: TextInputType.number,
-                            decoration: _inputDecoration('0'),
-                          ),
-                        ],
-                      ),
-                    ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          const Text('Satuan', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 13)),
-                          const SizedBox(height: 8),
-                          DropdownButtonFormField<String>(
-                            value: selectedUnit,
-                            items: ['GRAM', 'ML', 'PCS']
-                                .map((u) => DropdownMenuItem(value: u, child: Text(u)))
-                                .toList(),
-                            onChanged: (val) => setModalState(() => selectedUnit = val!),
-                            decoration: _inputDecoration(''),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 16),
-                const Text('Batas Minimal (Threshold)', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 13)),
+                const Text('Username', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 13)),
                 const SizedBox(height: 8),
                 TextFormField(
-                  controller: thresholdController,
-                  keyboardType: TextInputType.number,
-                  decoration: _inputDecoration('10'),
+                  controller: usernameController,
+                  decoration: _inputDecoration('andi_wijaya'),
+                  enabled: !isEdit,
+                ),
+                if (!isEdit) ...[
+                  const SizedBox(height: 16),
+                  const Text('Password', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 13)),
+                  const SizedBox(height: 8),
+                  TextFormField(
+                    controller: passwordController,
+                    decoration: _inputDecoration('Min. 6 Karakter'),
+                    obscureText: true,
+                  ),
+                ],
+                const SizedBox(height: 16),
+                const Text('Role', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 13)),
+                const SizedBox(height: 8),
+                DropdownButtonFormField<String>(
+                  value: selectedRole,
+                  items: ['SUPERADMIN', 'ADMIN', 'CASHIER', 'KITCHEN']
+                      .map((r) => DropdownMenuItem(value: r, child: Text(r)))
+                      .toList(),
+                  onChanged: (val) => setModalState(() => selectedRole = val!),
+                  decoration: _inputDecoration(''),
                 ),
                 if (errorText != null) ...[
                   const SizedBox(height: 8),
@@ -146,18 +129,27 @@ class _IngredientsScreenState extends State<IngredientsScreen> {
             TextButton(onPressed: () => Navigator.pop(context), child: const Text('Batal', style: TextStyle(color: Colors.grey))),
             ElevatedButton(
               onPressed: () async {
-                if (nameController.text.isEmpty) return;
+                if (nameController.text.isEmpty || usernameController.text.isEmpty) {
+                  setModalState(() => errorText = 'Harap isi semua field');
+                  return;
+                }
+                if (!isEdit && passwordController.text.length < 6) {
+                  setModalState(() => errorText = 'Password minimal 6 karakter');
+                  return;
+                }
+
                 try {
                   final data = {
                     'name': nameController.text.trim(),
-                    'stock': double.tryParse(stockController.text) ?? 0,
-                    'unit': selectedUnit,
-                    'threshold': double.tryParse(thresholdController.text) ?? 10,
+                    'username': usernameController.text.trim(),
+                    'role': selectedRole,
                   };
+                  if (!isEdit) data['password'] = passwordController.text;
+
                   if (isEdit) {
-                    await _api.put('/ingredients/${item['id']}', data);
+                    await _api.put('/users/${item['id']}', data);
                   } else {
-                    await _api.post('/ingredients', data);
+                    await _api.post('/users', data);
                   }
                   if (context.mounted) {
                     Navigator.pop(context);
@@ -190,22 +182,22 @@ class _IngredientsScreenState extends State<IngredientsScreen> {
   @override
   Widget build(BuildContext context) {
     final bool isDesktop = MediaQuery.of(context).size.width >= 768;
-    final bool isAdmin = _role.toUpperCase() == 'ADMIN' || _role.toUpperCase() == 'SUPERADMIN';
+    final bool isAdmin = _myRole.toUpperCase() == 'ADMIN' || _myRole.toUpperCase() == 'SUPERADMIN';
 
     return Scaffold(
       backgroundColor: const Color(0xFFF9FAFB),
-      drawer: !isDesktop ? const Drawer(child: Sidebar(currentIndex: 3)) : null,
+      drawer: !isDesktop ? const Drawer(child: Sidebar(currentIndex: 6)) : null,
       appBar: isDesktop
           ? null
           : AppBar(
               backgroundColor: Colors.white,
-              title: const Text('Bahan Baku', style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold)),
+              title: const Text('Manajemen Staff', style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold)),
               iconTheme: const IconThemeData(color: Colors.black),
             ),
       body: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          if (isDesktop) const Sidebar(currentIndex: 3),
+          if (isDesktop) const Sidebar(currentIndex: 6),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -219,16 +211,16 @@ class _IngredientsScreenState extends State<IngredientsScreen> {
                         Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text('Stok Bahan Baku', style: Theme.of(context).textTheme.displayMedium?.copyWith(fontWeight: FontWeight.bold, color: Colors.black)),
+                            Text('Daftar Staff & Pegawai', style: Theme.of(context).textTheme.displayMedium?.copyWith(fontWeight: FontWeight.bold, color: Colors.black)),
                             const SizedBox(height: 4),
-                            const Text('Pantau dan kelola ketersediaan bahan baku produksi Anda.', style: TextStyle(color: Colors.grey)),
+                            const Text('Kelola hak akses dan informasi pegawai toko Anda.', style: TextStyle(color: Colors.grey)),
                           ],
                         ),
                         if (isAdmin)
                           ElevatedButton.icon(
                             onPressed: () => _showFormModal(),
-                            icon: const Icon(Icons.add_box_outlined),
-                            label: const Text('Tambah Bahan'),
+                            icon: const Icon(Icons.person_add_alt_1),
+                            label: const Text('Tambah Pegawai'),
                             style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF065F46), foregroundColor: Colors.white, minimumSize: const Size(200, 50), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8))),
                           ),
                       ],
@@ -242,7 +234,7 @@ class _IngredientsScreenState extends State<IngredientsScreen> {
                       _fetchData();
                     },
                     decoration: InputDecoration(
-                      hintText: 'Cari bahan baku...',
+                      hintText: 'Cari staff...',
                       prefixIcon: const Icon(Icons.search),
                       filled: true,
                       fillColor: Colors.grey.shade50,
@@ -255,14 +247,12 @@ class _IngredientsScreenState extends State<IngredientsScreen> {
                 Expanded(
                   child: _isLoading
                       ? const Center(child: CircularProgressIndicator(color: Color(0xFF065F46)))
-                      : _items.isEmpty
-                        ? const Center(child: Text("Belum ada bahan baku"))
-                        : ListView.builder(
-                          padding: EdgeInsets.symmetric(horizontal: isDesktop ? 32 : 16, vertical: 8),
-                          itemCount: _items.length,
+                      : ListView.builder(
+                          padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 8),
+                          itemCount: _staff.length,
                           itemBuilder: (context, index) {
-                            final item = _items[index];
-                            return _ingredientTile(item, isAdmin);
+                            final item = _staff[index];
+                            return _staffTile(item, isAdmin);
                           },
                         ),
                 ),
@@ -271,15 +261,11 @@ class _IngredientsScreenState extends State<IngredientsScreen> {
           ),
         ],
       ),
-      bottomNavigationBar: isDesktop ? null : const MobileBottomNav(currentIndex: 3),
+      bottomNavigationBar: null,
     );
   }
 
-  Widget _ingredientTile(Map<String, dynamic> item, bool isAdmin) {
-    final double stock = parseDouble(item['stock']);
-    final double threshold = parseDouble(item['threshold'] ?? 10);
-    final bool isLowStock = stock <= threshold;
-
+  Widget _staffTile(Map<String, dynamic> item, bool isAdmin) {
     return Container(
       margin: const EdgeInsets.only(bottom: 16),
       decoration: BoxDecoration(
@@ -289,25 +275,23 @@ class _IngredientsScreenState extends State<IngredientsScreen> {
       ),
       child: ListTile(
         contentPadding: const EdgeInsets.all(16),
-        leading: Container(
-          padding: const EdgeInsets.all(12),
-          decoration: BoxDecoration(
-            color: (isLowStock ? Colors.red : const Color(0xFF065F46)).withOpacity(0.1),
-            shape: BoxShape.circle,
-          ),
-          child: Icon(
-            isLowStock ? Icons.warning_amber_rounded : Icons.inventory_2_outlined,
-            color: isLowStock ? Colors.red : const Color(0xFF065F46),
-          ),
+        leading: CircleAvatar(
+          radius: 24,
+          backgroundColor: const Color(0xFF065F46).withOpacity(0.1),
+          child: Text(item['name']?[0].toUpperCase() ?? '?', style: const TextStyle(color: Color(0xFF065F46), fontWeight: FontWeight.bold, fontSize: 18)),
         ),
         title: Text(item['name'] ?? '-', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
         subtitle: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             const SizedBox(height: 4),
-            Text('Tersedia: $stock ${item['unit'] ?? ''}', style: TextStyle(color: isLowStock ? Colors.red : Colors.grey, fontWeight: isLowStock ? FontWeight.bold : FontWeight.normal)),
-            if (isLowStock)
-              const Text('Stok hampir habis!', style: TextStyle(color: Colors.red, fontSize: 11, fontWeight: FontWeight.bold)),
+            Text('@${item['username']}', style: const TextStyle(color: Colors.grey, fontSize: 13)),
+            const SizedBox(height: 8),
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+              decoration: BoxDecoration(color: Colors.blue.withOpacity(0.1), borderRadius: BorderRadius.circular(20)),
+              child: Text(item['role'] ?? '-', style: const TextStyle(color: Colors.blue, fontWeight: FontWeight.bold, fontSize: 11)),
+            ),
           ],
         ),
         trailing: isAdmin
@@ -327,14 +311,14 @@ class _IngredientsScreenState extends State<IngredientsScreen> {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Hapus Bahan'),
-        content: Text('Apakah Anda yakin ingin menghapus "${item['name']}"? Stok akan hilang dari sistem.'),
+        title: const Text('Hapus Pegawai'),
+        content: Text('Apakah Anda yakin ingin menghapus "${item['name']}"? User ini tidak akan bisa login lagi.'),
         actions: [
           TextButton(onPressed: () => Navigator.pop(context), child: const Text('Batal')),
           ElevatedButton(
             onPressed: () {
               Navigator.pop(context);
-              _deleteIngredient(item['id']);
+              _deleteStaff(item['id']);
             },
             style: ElevatedButton.styleFrom(backgroundColor: Colors.red, foregroundColor: Colors.white),
             child: const Text('Hapus'),

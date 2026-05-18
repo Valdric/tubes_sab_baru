@@ -19,6 +19,8 @@ class _CashesScreenState extends State<CashesScreen> {
   
   List<dynamic> _items = [];
   bool _isLoading = true;
+  String _searchQuery = '';
+  String? _selectedType;
 
   @override
   void initState() {
@@ -29,7 +31,11 @@ class _CashesScreenState extends State<CashesScreen> {
   Future<void> _fetchData() async {
     setState(() => _isLoading = true);
     try {
-      final res = await _api.get('/cashes');
+      final Map<String, String> params = {};
+      if (_searchQuery.isNotEmpty) params['search'] = _searchQuery;
+      if (_selectedType != null) params['type'] = _selectedType!;
+
+      final res = await _api.get('/cashes', params: params.isNotEmpty ? params : null);
       if (mounted) {
         setState(() {
           _items = res['data']['items'] ?? [];
@@ -157,6 +163,53 @@ class _CashesScreenState extends State<CashesScreen> {
                       ],
                     ),
                   ),
+                Padding(
+                  padding: EdgeInsets.symmetric(horizontal: isDesktop ? 24.0 : 16.0, vertical: 8.0),
+                  child: Row(
+                    children: [
+                      Expanded(
+                        flex: 2,
+                        child: TextField(
+                          onChanged: (v) {
+                            setState(() => _searchQuery = v);
+                            _fetchData();
+                          },
+                          decoration: InputDecoration(
+                            hintText: 'Cari catatan...',
+                            prefixIcon: const Icon(Icons.search),
+                            filled: true,
+                            fillColor: Colors.white,
+                            contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 0),
+                            border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        flex: 1,
+                        child: DropdownButtonFormField<String>(
+                          value: _selectedType,
+                          decoration: InputDecoration(
+                            hintText: 'Semua Tipe',
+                            filled: true,
+                            fillColor: Colors.white,
+                            contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 0),
+                            border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+                          ),
+                          items: const [
+                            DropdownMenuItem(value: null, child: Text('Semua Tipe')),
+                            DropdownMenuItem(value: 'INCOME', child: Text('Pemasukan')),
+                            DropdownMenuItem(value: 'OUTCOME', child: Text('Pengeluaran')),
+                          ],
+                          onChanged: (v) {
+                            setState(() => _selectedType = v);
+                            _fetchData();
+                          },
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
                 Expanded(
                   child: _isLoading
                       ? const Center(child: CircularProgressIndicator())

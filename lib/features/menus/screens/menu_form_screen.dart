@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:gosir/core/services/api_service.dart';
 
@@ -28,7 +29,7 @@ class _MenuFormScreenState extends State<MenuFormScreen> {
   List<dynamic> _ingredients = [];
   List<Map<String, dynamic>> _recipeRows = [];
 
-  File? _pickedImage;
+  XFile? _pickedImage;
   final ImagePicker _picker = ImagePicker();
 
   @override
@@ -90,11 +91,18 @@ class _MenuFormScreenState extends State<MenuFormScreen> {
       }
     }
 
+    List<int>? fileBytes;
+    String? fileName;
+    if (_pickedImage != null) {
+      fileBytes = await _pickedImage!.readAsBytes();
+      fileName = _pickedImage!.name;
+    }
+
     try {
       if (widget.menu == null) {
-        await _api.multipart('/menus', fields, filePath: _pickedImage?.path);
+        await _api.multipart('/menus', fields, fileBytes: fileBytes, fileName: fileName);
       } else {
-        await _api.multipart('/menus/${widget.menu!['id']}', fields, filePath: _pickedImage?.path, method: 'PUT');
+        await _api.multipart('/menus/${widget.menu!['id']}', fields, fileBytes: fileBytes, fileName: fileName, method: 'PUT');
       }
       if (mounted) Navigator.pop(context, true);
     } catch (e) {
@@ -158,13 +166,18 @@ class _MenuFormScreenState extends State<MenuFormScreen> {
       child: InkWell(
         onTap: () async {
           final XFile? img = await _picker.pickImage(source: ImageSource.gallery);
-          if (img != null) setState(() => _pickedImage = File(img.path));
+          if (img != null) setState(() => _pickedImage = img);
         },
         child: Container(
           width: double.infinity, height: 160,
           decoration: BoxDecoration(color: Colors.grey.shade50, borderRadius: BorderRadius.circular(12), border: Border.all(color: Colors.grey.shade200)),
           child: _pickedImage != null 
-            ? ClipRRect(borderRadius: BorderRadius.circular(12), child: Image.file(_pickedImage!, fit: BoxFit.cover))
+            ? ClipRRect(
+                borderRadius: BorderRadius.circular(12), 
+                child: kIsWeb 
+                    ? Image.network(_pickedImage!.path, fit: BoxFit.cover)
+                    : Image.file(File(_pickedImage!.path), fit: BoxFit.cover),
+              )
             : (widget.menu?['image_url'] != null ? ClipRRect(borderRadius: BorderRadius.circular(12), child: Image.network(widget.menu!['image_url'], fit: BoxFit.cover)) : const Icon(Icons.add_a_photo_outlined, size: 40)),
         ),
       ),

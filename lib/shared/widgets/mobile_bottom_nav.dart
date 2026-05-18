@@ -19,8 +19,39 @@ class MobileBottomNav extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final items = const [
+      BottomNavigationBarItem(
+        icon: Icon(Icons.dashboard_outlined),
+        activeIcon: Icon(Icons.dashboard),
+        label: 'Dashboard',
+      ),
+      BottomNavigationBarItem(
+        icon: Icon(Icons.label_outline),
+        activeIcon: Icon(Icons.label),
+        label: 'Kategori',
+      ),
+      BottomNavigationBarItem(
+        icon: Icon(Icons.restaurant_menu),
+        activeIcon: Icon(Icons.restaurant_menu),
+        label: 'Menu',
+      ),
+      BottomNavigationBarItem(
+        icon: Icon(Icons.inventory_2_outlined),
+        activeIcon: Icon(Icons.inventory_2),
+        label: 'Inventaris',
+      ),
+      BottomNavigationBarItem(
+        icon: Icon(Icons.receipt_long_outlined),
+        activeIcon: Icon(Icons.receipt_long),
+        label: 'Pesanan',
+      ),
+    ];
+
+    // Ensure index is always within valid range to prevent crashes
+    final int safeIndex = (currentIndex >= 0 && currentIndex < items.length) ? currentIndex : 0;
+
     return BottomNavigationBar(
-      currentIndex: currentIndex,
+      currentIndex: safeIndex,
       onTap: (index) {
         if (index == currentIndex) return;
         switch (index) {
@@ -47,33 +78,7 @@ class MobileBottomNav extends StatelessWidget {
       showUnselectedLabels: true,
       selectedFontSize: 12,
       unselectedFontSize: 12,
-      items: const [
-        BottomNavigationBarItem(
-          icon: Icon(Icons.dashboard_outlined),
-          activeIcon: Icon(Icons.dashboard),
-          label: 'Dashboard',
-        ),
-        BottomNavigationBarItem(
-          icon: Icon(Icons.label_outline),
-          activeIcon: Icon(Icons.label),
-          label: 'Kategori',
-        ),
-        BottomNavigationBarItem(
-          icon: Icon(Icons.restaurant_menu),
-          activeIcon: Icon(Icons.restaurant_menu),
-          label: 'Menu',
-        ),
-        BottomNavigationBarItem(
-          icon: Icon(Icons.inventory_2_outlined),
-          activeIcon: Icon(Icons.inventory_2),
-          label: 'Inventaris',
-        ),
-        BottomNavigationBarItem(
-          icon: Icon(Icons.receipt_long_outlined),
-          activeIcon: Icon(Icons.receipt_long),
-          label: 'Pesanan',
-        ),
-      ],
+      items: items,
     );
   }
 }

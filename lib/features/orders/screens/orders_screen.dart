@@ -21,6 +21,8 @@ class _OrdersScreenState extends State<OrdersScreen> {
   List<dynamic> _items = [];
   bool _isLoading = true;
   String _searchQuery = '';
+  String? _selectedType;
+  String? _selectedPayment;
 
   @override
   void initState() {
@@ -31,7 +33,12 @@ class _OrdersScreenState extends State<OrdersScreen> {
   Future<void> _fetchData() async {
     setState(() => _isLoading = true);
     try {
-      final res = await _api.get('/orders', params: _searchQuery.isNotEmpty ? {'search': _searchQuery} : null);
+      final Map<String, String> params = {};
+      if (_searchQuery.isNotEmpty) params['search'] = _searchQuery;
+      if (_selectedType != null) params['type'] = _selectedType!;
+      if (_selectedPayment != null) params['payment_method'] = _selectedPayment!;
+
+      final res = await _api.get('/orders', params: params.isNotEmpty ? params : null);
       if (mounted) {
         setState(() {
           _items = res['data']['items'] ?? [];
@@ -95,6 +102,57 @@ class _OrdersScreenState extends State<OrdersScreen> {
                       hintText: 'Cari pesanan (Nama Pelanggan / ID)...',
                       prefixIcon: Icon(Icons.search),
                     ),
+                  ),
+                ),
+                Padding(
+                  padding: EdgeInsets.symmetric(horizontal: isDesktop ? 24.0 : 16.0, vertical: 8.0),
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: DropdownButtonFormField<String>(
+                          value: _selectedType,
+                          decoration: InputDecoration(
+                            hintText: 'Semua Tipe',
+                            contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 0),
+                            border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+                            filled: true,
+                            fillColor: Colors.white,
+                          ),
+                          items: const [
+                            DropdownMenuItem(value: null, child: Text('Semua Tipe')),
+                            DropdownMenuItem(value: 'DINE_IN', child: Text('Dine In')),
+                            DropdownMenuItem(value: 'TAKE_AWAY', child: Text('Take Away')),
+                          ],
+                          onChanged: (v) {
+                            setState(() => _selectedType = v);
+                            _fetchData();
+                          },
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: DropdownButtonFormField<String>(
+                          value: _selectedPayment,
+                          decoration: InputDecoration(
+                            hintText: 'Pembayaran',
+                            contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 0),
+                            border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+                            filled: true,
+                            fillColor: Colors.white,
+                          ),
+                          items: const [
+                            DropdownMenuItem(value: null, child: Text('Semua Pembayaran')),
+                            DropdownMenuItem(value: 'CASH', child: Text('Tunai')),
+                            DropdownMenuItem(value: 'QRIS', child: Text('QRIS')),
+                            DropdownMenuItem(value: 'TRANSFER', child: Text('Transfer')),
+                          ],
+                          onChanged: (v) {
+                            setState(() => _selectedPayment = v);
+                            _fetchData();
+                          },
+                        ),
+                      ),
+                    ],
                   ),
                 ),
                 Expanded(

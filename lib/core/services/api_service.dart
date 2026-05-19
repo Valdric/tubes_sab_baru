@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:http_parser/http_parser.dart';
 
 class ApiService {
   static const String baseUrl = "https://bemobilepos-production.up.railway.app/api/v1";
@@ -137,16 +138,41 @@ class ApiService {
       if (fileBytes != null && fileName != null) {
         String safeFileName = fileName;
         final lower = fileName.toLowerCase();
-        if (!lower.endsWith('.jpg') && 
-            !lower.endsWith('.jpeg') && 
-            !lower.endsWith('.png') && 
-            !lower.endsWith('.webp') && 
-            !lower.endsWith('.gif')) {
+        String ext = 'jpeg';
+        if (lower.endsWith('.png')) {
+          ext = 'png';
+        } else if (lower.endsWith('.webp')) {
+          ext = 'webp';
+        } else if (lower.endsWith('.gif')) {
+          ext = 'gif';
+        } else if (lower.endsWith('.jpg') || lower.endsWith('.jpeg')) {
+          ext = 'jpeg';
+        } else {
           safeFileName = '$fileName.jpg';
         }
-        request.files.add(http.MultipartFile.fromBytes('image', fileBytes, filename: safeFileName));
+        request.files.add(http.MultipartFile.fromBytes(
+          'image', 
+          fileBytes, 
+          filename: safeFileName,
+          contentType: MediaType('image', ext),
+        ));
       } else if (filePath != null) {
-        request.files.add(await http.MultipartFile.fromPath('image', filePath));
+        final lower = filePath.toLowerCase();
+        String ext = 'jpeg';
+        if (lower.endsWith('.png')) {
+          ext = 'png';
+        } else if (lower.endsWith('.webp')) {
+          ext = 'webp';
+        } else if (lower.endsWith('.gif')) {
+          ext = 'gif';
+        } else if (lower.endsWith('.jpg') || lower.endsWith('.jpeg')) {
+          ext = 'jpeg';
+        }
+        request.files.add(await http.MultipartFile.fromPath(
+          'image', 
+          filePath,
+          contentType: MediaType('image', ext),
+        ));
       }
 
       final streamedResponse = await request.send();

@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
 import 'package:image_picker/image_picker.dart';
@@ -84,11 +85,17 @@ class _MenuFormScreenState extends State<MenuFormScreen> {
       'is_active': _isActive.toString(),
     };
 
-    for (int i = 0; i < _recipeRows.length; i++) {
-      if (_recipeRows[i]['ingredient_id'] != null) {
-        fields['recipes[$i][ingredient_id]'] = _recipeRows[i]['ingredient_id']!;
-        fields['recipes[$i][quantity]'] = _recipeRows[i]['quantity']!;
+    final List<Map<String, dynamic>> recipesList = [];
+    for (var row in _recipeRows) {
+      if (row['ingredient_id'] != null) {
+        recipesList.add({
+          'ingredient_id': row['ingredient_id'],
+          'quantity': double.tryParse(row['quantity']?.toString() ?? '') ?? 0.0,
+        });
       }
+    }
+    if (recipesList.isNotEmpty) {
+      fields['recipes'] = jsonEncode(recipesList);
     }
 
     List<int>? fileBytes;

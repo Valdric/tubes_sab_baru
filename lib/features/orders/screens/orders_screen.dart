@@ -1,5 +1,5 @@
+import 'package:gosir/main.dart';
 import 'package:flutter/material.dart';
-import 'package:gosir/core/theme/app_colors.dart';
 import 'package:gosir/shared/widgets/sidebar.dart';
 import 'package:gosir/shared/widgets/mobile_bottom_nav.dart';
 import 'package:gosir/core/services/api_service.dart';
@@ -49,7 +49,7 @@ class _OrdersScreenState extends State<OrdersScreen> {
       if (mounted) {
         setState(() => _isLoading = false);
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(e.toString()), backgroundColor: AppColors.destructive),
+          SnackBar(content: Text(e.toString()), backgroundColor: Theme.of(context).colorScheme.error),
         );
       }
     }
@@ -60,13 +60,11 @@ class _OrdersScreenState extends State<OrdersScreen> {
     final bool isDesktop = MediaQuery.of(context).size.width >= 768;
 
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       drawer: !isDesktop ? const Drawer(child: Sidebar(currentIndex: 4)) : null,
       appBar: isDesktop
           ? null
-          : AppBar(
-              title: const Text('Riwayat Pesanan'),
-            ),
+          : AppBar(title: const Text('Riwayat Pesanan'), actions: const [ThemeToggle()]),
       body: Row(
         children: [
           if (isDesktop) const Sidebar(currentIndex: 4),
@@ -76,7 +74,7 @@ class _OrdersScreenState extends State<OrdersScreen> {
               children: [
                 if (isDesktop)
                   Padding(
-                    padding: const EdgeInsets.all(24.0),
+                    padding: EdgeInsets.all(24.0),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
@@ -84,9 +82,9 @@ class _OrdersScreenState extends State<OrdersScreen> {
                           'Riwayat Pesanan',
                           style: Theme.of(context).textTheme.displayMedium,
                         ),
-                        const Text(
+                        Text(
                           'Pantau dan lihat kembali transaksi yang telah dilakukan.',
-                          style: TextStyle(color: AppColors.mutedForeground),
+                          style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant),
                         ),
                       ],
                     ),
@@ -98,7 +96,7 @@ class _OrdersScreenState extends State<OrdersScreen> {
                       setState(() => _searchQuery = v);
                       _fetchData();
                     },
-                    decoration: const InputDecoration(
+                    decoration: InputDecoration(
                       hintText: 'Cari pesanan (Nama Pelanggan / ID)...',
                       prefixIcon: Icon(Icons.search),
                     ),
@@ -119,14 +117,14 @@ class _OrdersScreenState extends State<OrdersScreen> {
                             SizedBox(
                               width: double.infinity,
                               child: DropdownButtonFormField<String>(
-                                value: _selectedType,
+                                initialValue: _selectedType,
                                 decoration: InputDecoration(
                                   hintText: 'Semua Tipe',
                                   isDense: true,
-                                  contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                                  contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                                   border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
                                   filled: true,
-                                  fillColor: Colors.white,
+                                  fillColor: Theme.of(context).cardColor,
                                 ),
                                 items: const [
                                   DropdownMenuItem(value: null, child: Text('Semua Tipe')),
@@ -142,14 +140,14 @@ class _OrdersScreenState extends State<OrdersScreen> {
                             SizedBox(
                               width: double.infinity,
                               child: DropdownButtonFormField<String>(
-                                value: _selectedPayment,
+                                initialValue: _selectedPayment,
                                 decoration: InputDecoration(
                                   hintText: 'Pembayaran',
                                   isDense: true,
-                                  contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                                  contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                                   border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
                                   filled: true,
-                                  fillColor: Colors.white,
+                                  fillColor: Theme.of(context).cardColor,
                                 ),
                                 items: const [
                                   DropdownMenuItem(value: null, child: Text('Semua Pembayaran')),
@@ -170,14 +168,14 @@ class _OrdersScreenState extends State<OrdersScreen> {
                           children: [
                             Expanded(
                               child: DropdownButtonFormField<String>(
-                                value: _selectedType,
+                                initialValue: _selectedType,
                                 decoration: InputDecoration(
                                   hintText: 'Semua Tipe',
                                   isDense: true,
-                                  contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                                  contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                                   border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
                                   filled: true,
-                                  fillColor: Colors.white,
+                                  fillColor: Theme.of(context).cardColor,
                                 ),
                                 items: const [
                                   DropdownMenuItem(value: null, child: Text('Semua Tipe')),
@@ -190,17 +188,17 @@ class _OrdersScreenState extends State<OrdersScreen> {
                                 },
                               ),
                             ),
-                            const SizedBox(width: 8),
+                            SizedBox(width: 8),
                             Expanded(
                               child: DropdownButtonFormField<String>(
-                                value: _selectedPayment,
+                                initialValue: _selectedPayment,
                                 decoration: InputDecoration(
                                   hintText: 'Pembayaran',
                                   isDense: true,
-                                  contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                                  contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                                   border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
                                   filled: true,
-                                  fillColor: Colors.white,
+                                  fillColor: Theme.of(context).cardColor,
                                 ),
                                 items: const [
                                   DropdownMenuItem(value: null, child: Text('Semua Pembayaran')),
@@ -222,9 +220,9 @@ class _OrdersScreenState extends State<OrdersScreen> {
                 ),
                 Expanded(
                   child: _isLoading
-                      ? const Center(child: CircularProgressIndicator())
+                      ? Center(child: CircularProgressIndicator())
                       : _items.isEmpty
-                          ? const Center(child: Text('Belum ada pesanan.'))
+                          ? Center(child: Text('Belum ada pesanan.'))
                           : ListView.builder(
                               padding: EdgeInsets.all(isDesktop ? 24 : 16),
                               itemCount: _items.length,
@@ -250,62 +248,62 @@ class _OrdersScreenState extends State<OrdersScreen> {
     final orderItems = item['order_items'] as List? ?? [];
 
     return Container(
-      margin: const EdgeInsets.only(bottom: 12),
+      margin: EdgeInsets.only(bottom: 12),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: Theme.of(context).cardColor,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: AppColors.border),
+        border: Border.all(color: Theme.of(context).colorScheme.outline),
       ),
       child: ExpansionTile(
-        tilePadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+        tilePadding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
         leading: Container(
-          padding: const EdgeInsets.all(8),
+          padding: EdgeInsets.all(8),
           decoration: BoxDecoration(
-            color: AppColors.primary.withValues(alpha: 0.1),
+            color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.1),
             borderRadius: BorderRadius.circular(8),
           ),
-          child: const Icon(Icons.receipt_long, color: AppColors.primary),
+          child: Icon(Icons.receipt_long, color: Theme.of(context).colorScheme.primary),
         ),
         title: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Text(
               item['customer_name'] ?? 'Pelanggan Umum',
-              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
             ),
             Text(
               currency.format(totalPrice),
-              style: const TextStyle(fontWeight: FontWeight.bold, color: AppColors.primary),
+              style: TextStyle(fontWeight: FontWeight.bold, color: Theme.of(context).colorScheme.primary),
             ),
           ],
         ),
         subtitle: Padding(
-          padding: const EdgeInsets.only(top: 4.0),
+          padding: EdgeInsets.only(top: 4.0),
           child: Row(
             children: [
               Text(
                 dateFormat.format(date),
-                style: const TextStyle(fontSize: 12, color: AppColors.mutedForeground),
+                style: TextStyle(fontSize: 12, color: Theme.of(context).colorScheme.onSurfaceVariant),
               ),
-              const SizedBox(width: 8),
+              SizedBox(width: 8),
               _typeChip(item['type'] ?? 'DINE_IN'),
             ],
           ),
         ),
         children: [
-          const Divider(height: 1),
+          Divider(height: 1),
           Padding(
-            padding: const EdgeInsets.all(16.0),
+            padding: EdgeInsets.all(16.0),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text(
+                Text(
                   'Detail Pesanan:',
                   style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
                 ),
-                const SizedBox(height: 8),
+                SizedBox(height: 8),
                 ...orderItems.map((oi) => Padding(
-                      padding: const EdgeInsets.only(bottom: 4.0),
+                      padding: EdgeInsets.only(bottom: 4.0),
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
@@ -314,20 +312,20 @@ class _OrdersScreenState extends State<OrdersScreen> {
                         ],
                       ),
                     )),
-                const Divider(),
+                Divider(),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    const Text('Metode Pembayaran', style: TextStyle(color: AppColors.mutedForeground)),
-                    Text(item['payment_method'] ?? 'CASH', style: const TextStyle(fontWeight: FontWeight.bold)),
+                    Text('Metode Pembayaran', style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant)),
+                    Text(item['payment_method'] ?? 'CASH', style: TextStyle(fontWeight: FontWeight.bold)),
                   ],
                 ),
-                const SizedBox(height: 4),
+                SizedBox(height: 4),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    const Text('Kasir', style: TextStyle(color: AppColors.mutedForeground)),
-                    Text(item['user']?['name'] ?? '-', style: const TextStyle(fontWeight: FontWeight.bold)),
+                    Text('Kasir', style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant)),
+                    Text(item['user']?['name'] ?? '-', style: TextStyle(fontWeight: FontWeight.bold)),
                   ],
                 ),
               ],
@@ -340,14 +338,14 @@ class _OrdersScreenState extends State<OrdersScreen> {
 
   Widget _typeChip(String type) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+      padding: EdgeInsets.symmetric(horizontal: 8, vertical: 2),
       decoration: BoxDecoration(
-        color: AppColors.secondary,
+        color: Theme.of(context).colorScheme.secondary,
         borderRadius: BorderRadius.circular(12),
       ),
       child: Text(
         type,
-        style: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: AppColors.secondaryForeground),
+        style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Theme.of(context).colorScheme.onSecondary),
       ),
     );
   }

@@ -1,3 +1,4 @@
+import 'package:gosir/main.dart';
 import 'dart:io';
 import 'dart:convert';
 import 'package:flutter/material.dart';
@@ -122,45 +123,45 @@ class _MenuFormScreenState extends State<MenuFormScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
-      appBar: AppBar(title: Text(widget.menu == null ? 'Tambah Menu' : 'Edit Menu')),
+      backgroundColor: Theme.of(context).cardColor,
+      appBar: AppBar(title: Text(widget.menu == null ? 'Tambah Menu' : 'Edit Menu'), actions: [const ThemeToggle()],),
       body: SingleChildScrollView(
-        padding: const EdgeInsets.all(24),
+        padding: EdgeInsets.all(24),
         child: Form(
           key: _formKey,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               _buildImagePicker(),
-              const SizedBox(height: 24),
+              SizedBox(height: 24),
               _buildLabel('Nama Menu'),
-              TextFormField(controller: _nameController, decoration: const InputDecoration(hintText: 'Nama')),
-              const SizedBox(height: 16),
+              TextFormField(controller: _nameController, decoration: InputDecoration(hintText: 'Nama')),
+              SizedBox(height: 16),
               Row(children: [
                 Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [_buildLabel('Harga'), TextFormField(controller: _priceController, keyboardType: TextInputType.number)])),
-                const SizedBox(width: 16),
+                SizedBox(width: 16),
                 Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [_buildLabel('HPP'), TextFormField(controller: _hppController, keyboardType: TextInputType.number)])),
               ]),
-              const SizedBox(height: 16),
+              SizedBox(height: 16),
               _buildLabel('Kategori'),
               DropdownButtonFormField<String>(
                 initialValue: _selectedCategoryId,
                 items: _categories.map((c) => DropdownMenuItem(value: c['id'].toString(), child: Text(c['name']))).toList(),
                 onChanged: (v) => setState(() => _selectedCategoryId = v),
               ),
-              const SizedBox(height: 16),
+              SizedBox(height: 16),
               _buildLabel('Divisi'),
               DropdownButtonFormField<String>(
                 initialValue: _selectedDivision,
                 items: ['BAR', 'KITCHEN'].map((s) => DropdownMenuItem(value: s, child: Text(s))).toList(),
                 onChanged: (v) => setState(() => _selectedDivision = v!),
               ),
-              const SizedBox(height: 16),
-              SwitchListTile(title: const Text('Status Aktif'), value: _isActive, onChanged: (v) => setState(() => _isActive = v)),
-              const Divider(height: 40),
+              SizedBox(height: 16),
+              SwitchListTile(title: Text('Status Aktif'), value: _isActive, onChanged: (v) => setState(() => _isActive = v)),
+              Divider(height: 40),
               _buildRecipes(),
-              const SizedBox(height: 40),
-              ElevatedButton(onPressed: _isLoading ? null : _save, child: _isLoading ? const CircularProgressIndicator() : const Text('Simpan')),
+              SizedBox(height: 40),
+              ElevatedButton(onPressed: _isLoading ? null : _save, child: _isLoading ? const CircularProgressIndicator() : Text('Simpan')),
             ],
           ),
         ),
@@ -177,7 +178,7 @@ class _MenuFormScreenState extends State<MenuFormScreen> {
         },
         child: Container(
           width: double.infinity, height: 160,
-          decoration: BoxDecoration(color: Colors.grey.shade50, borderRadius: BorderRadius.circular(12), border: Border.all(color: Colors.grey.shade200)),
+          decoration: BoxDecoration(color: Theme.of(context).colorScheme.surfaceContainerLowest, borderRadius: BorderRadius.circular(12), border: Border.all(color: Theme.of(context).colorScheme.outlineVariant)),
           child: _pickedImage != null 
             ? ClipRRect(
                 borderRadius: BorderRadius.circular(12), 
@@ -185,7 +186,7 @@ class _MenuFormScreenState extends State<MenuFormScreen> {
                     ? Image.network(_pickedImage!.path, fit: BoxFit.cover)
                     : Image.file(File(_pickedImage!.path), fit: BoxFit.cover),
               )
-            : (widget.menu?['image_url'] != null ? ClipRRect(borderRadius: BorderRadius.circular(12), child: Image.network(widget.menu!['image_url'], fit: BoxFit.cover)) : const Icon(Icons.add_a_photo_outlined, size: 40)),
+            : (widget.menu?['image_url'] != null ? ClipRRect(borderRadius: BorderRadius.circular(12), child: Image.network(widget.menu!['image_url'], fit: BoxFit.cover)) : Icon(Icons.add_a_photo_outlined, size: 40)),
         ),
       ),
     );
@@ -193,16 +194,16 @@ class _MenuFormScreenState extends State<MenuFormScreen> {
 
   Widget _buildRecipes() {
     return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-      const Text('Resep / Komposisi', style: TextStyle(fontWeight: FontWeight.bold)),
+      Text('Resep / Komposisi', style: TextStyle(fontWeight: FontWeight.bold)),
       ...List.generate(_recipeRows.length, (i) => Row(children: [
         Expanded(child: DropdownButtonFormField<String>(initialValue: _recipeRows[i]['ingredient_id'], items: _ingredients.map((ing) => DropdownMenuItem(value: ing['id'].toString(), child: Text(ing['name']))).toList(), onChanged: (v) => setState(() => _recipeRows[i]['ingredient_id'] = v))),
-        const SizedBox(width: 8),
+        SizedBox(width: 8),
         Expanded(child: TextFormField(initialValue: _recipeRows[i]['quantity'], onChanged: (v) => _recipeRows[i]['quantity'] = v, keyboardType: TextInputType.number)),
-        IconButton(icon: const Icon(Icons.remove_circle_outline, color: Colors.red), onPressed: () => setState(() => _recipeRows.removeAt(i))),
+        IconButton(icon: Icon(Icons.remove_circle_outline, color: Colors.red), onPressed: () => setState(() => _recipeRows.removeAt(i))),
       ])),
-      TextButton.icon(onPressed: () => setState(() => _recipeRows.add({'ingredient_id': null, 'quantity': '0'})), icon: const Icon(Icons.add), label: const Text('Tambah Bahan')),
+      TextButton.icon(onPressed: () => setState(() => _recipeRows.add({'ingredient_id': null, 'quantity': '0'})), icon: Icon(Icons.add), label: Text('Tambah Bahan')),
     ]);
   }
 
-  Widget _buildLabel(String t) => Padding(padding: const EdgeInsets.only(bottom: 6), child: Text(t, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13)));
+  Widget _buildLabel(String t) => Padding(padding: EdgeInsets.only(bottom: 6), child: Text(t, style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13)));
 }

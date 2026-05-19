@@ -1,3 +1,4 @@
+import 'package:gosir/main.dart';
 import 'package:flutter/material.dart';
 import 'package:gosir/core/services/api_service.dart';
 
@@ -54,28 +55,28 @@ class _IngredientFormScreenState extends State<IngredientFormScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
-      appBar: AppBar(title: Text(widget.item == null ? 'Tambah Bahan' : 'Edit Bahan')),
+      backgroundColor: Theme.of(context).cardColor,
+      appBar: AppBar(title: Text(widget.item == null ? 'Tambah Bahan' : 'Edit Bahan'), actions: [const ThemeToggle()],),
       body: SingleChildScrollView(
-        padding: const EdgeInsets.all(24),
+        padding: EdgeInsets.all(24),
         child: Form(
           key: _formKey,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               _buildLabel('Nama Bahan Baku'),
-              TextFormField(controller: _nameController, decoration: const InputDecoration(hintText: 'misal: Gula')),
-              const SizedBox(height: 20),
+              TextFormField(controller: _nameController, decoration: InputDecoration(hintText: 'misal: Gula')),
+              SizedBox(height: 20),
               Row(children: [
                 Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [_buildLabel('Stok'), TextFormField(controller: _stockController, keyboardType: TextInputType.number)])),
-                const SizedBox(width: 16),
+                SizedBox(width: 16),
                 Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [_buildLabel('Satuan'), DropdownButtonFormField<String>(initialValue: _selectedUnit, items: ['GRAM', 'ML', 'PCS'].map((s) => DropdownMenuItem(value: s, child: Text(s))).toList(), onChanged: (v) => setState(() => _selectedUnit = v!))])),
               ]),
-              const SizedBox(height: 20),
+              SizedBox(height: 20),
               _buildLabel('Batas Stok Menipis'),
               TextFormField(controller: _thresholdController, keyboardType: TextInputType.number),
-              const SizedBox(height: 40),
-              ElevatedButton(onPressed: _isLoading ? null : _save, child: _isLoading ? const CircularProgressIndicator() : const Text('Simpan')),
+              SizedBox(height: 40),
+              ElevatedButton(onPressed: _isLoading ? null : _save, child: _isLoading ? const CircularProgressIndicator() : Text('Simpan')),
             ],
           ),
         ),
@@ -83,5 +84,5 @@ class _IngredientFormScreenState extends State<IngredientFormScreen> {
     );
   }
 
-  Widget _buildLabel(String t) => Padding(padding: const EdgeInsets.only(bottom: 8), child: Text(t, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13)));
+  Widget _buildLabel(String t) => Padding(padding: EdgeInsets.only(bottom: 8), child: Text(t, style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13)));
 }

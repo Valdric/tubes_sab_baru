@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:gosir/core/theme/app_colors.dart';
 import 'package:gosir/core/services/api_service.dart';
 import 'package:gosir/features/dashboard/screens/dashboard_screen.dart';
 
@@ -41,7 +40,7 @@ class _LoginScreenState extends State<LoginScreen> {
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(e.toString()), backgroundColor: AppColors.destructive),
+          SnackBar(content: Text(e.toString()), backgroundColor: Theme.of(context).colorScheme.error),
         );
       }
     } finally {
@@ -52,10 +51,10 @@ class _LoginScreenState extends State<LoginScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       body: Center(
         child: SingleChildScrollView(
-          padding: const EdgeInsets.all(24.0),
+          padding: EdgeInsets.all(24.0),
           child: Container(
             constraints: const BoxConstraints(maxWidth: 400),
             child: Form(
@@ -68,34 +67,34 @@ class _LoginScreenState extends State<LoginScreen> {
                   Text(
                     'Selamat Datang',
                     style: Theme.of(context).textTheme.displayMedium?.copyWith(
-                          color: AppColors.primary,
+                          color: Theme.of(context).colorScheme.primary,
                           fontWeight: FontWeight.w800,
                         ),
                   ),
-                  const SizedBox(height: 4),
-                  const Text(
+                  SizedBox(height: 4),
+                  Text(
                     'SILAHKAN MASUKKAN DATA ANDA',
                     style: TextStyle(
                       fontSize: 12,
                       fontWeight: FontWeight.bold,
-                      color: AppColors.mutedForeground,
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
                       letterSpacing: 1.2,
                     ),
                   ),
-                  const SizedBox(height: 48),
+                  SizedBox(height: 48),
 
                   // Username Field
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Text(
+                      Text(
                         'Username',
                         style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14),
                       ),
-                      const SizedBox(height: 8),
+                      SizedBox(height: 8),
                       TextFormField(
                         controller: _usernameController,
-                        decoration: const InputDecoration(
+                        decoration: InputDecoration(
                           hintText: 'Masukkan username anda',
                           prefixIcon: Icon(Icons.person_outline, size: 20),
                         ),
@@ -103,23 +102,23 @@ class _LoginScreenState extends State<LoginScreen> {
                       ),
                     ],
                   ),
-                  const SizedBox(height: 20),
+                  SizedBox(height: 20),
 
                   // Password Field
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Text(
+                      Text(
                         'Password',
                         style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14),
                       ),
-                      const SizedBox(height: 8),
+                      SizedBox(height: 8),
                       TextFormField(
                         controller: _passwordController,
                         obscureText: _obscurePassword,
                         decoration: InputDecoration(
                           hintText: 'Masukkan password anda',
-                          prefixIcon: const Icon(Icons.lock_outline, size: 20),
+                          prefixIcon: Icon(Icons.lock_outline, size: 20),
                           suffixIcon: IconButton(
                             icon: Icon(
                               _obscurePassword ? Icons.visibility_off_outlined : Icons.visibility_outlined,
@@ -132,21 +131,21 @@ class _LoginScreenState extends State<LoginScreen> {
                       ),
                     ],
                   ),
-                  const SizedBox(height: 32),
+                  SizedBox(height: 32),
 
                   // Submit Button
                   ElevatedButton(
                     onPressed: _isLoading ? null : _handleLogin,
                     child: _isLoading
-                        ? const SizedBox(
+                        ? SizedBox(
                             height: 20,
                             width: 20,
                             child: CircularProgressIndicator(
                               strokeWidth: 2,
-                              valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                              valueColor: AlwaysStoppedAnimation<Color>(Theme.of(context).cardColor),
                             ),
                           )
-                        : const Text('Masuk'),
+                        : Text('Masuk'),
                   ),
                 ],
               ),

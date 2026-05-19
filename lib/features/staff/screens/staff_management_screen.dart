@@ -1,7 +1,6 @@
+import 'package:gosir/main.dart';
 import 'package:flutter/material.dart';
-import 'package:gosir/core/theme/app_colors.dart';
 import 'package:gosir/shared/widgets/sidebar.dart';
-import 'package:gosir/shared/widgets/mobile_bottom_nav.dart';
 import 'package:gosir/core/services/api_service.dart';
 
 class StaffManagementScreen extends StatefulWidget {
@@ -77,41 +76,41 @@ class _StaffManagementScreenState extends State<StaffManagementScreen> {
       builder: (context) => StatefulBuilder(
         builder: (context, setModalState) => AlertDialog(
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-          title: Text(isEdit ? 'Ubah Data Staff' : 'Tambah Staff Baru', style: const TextStyle(fontWeight: FontWeight.bold)),
+          title: Text(isEdit ? 'Ubah Data Staff' : 'Tambah Staff Baru', style: TextStyle(fontWeight: FontWeight.bold)),
           content: SingleChildScrollView(
             child: Column(
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text('Nama Lengkap', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 13)),
-                const SizedBox(height: 8),
+                Text('Nama Lengkap', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 13)),
+                SizedBox(height: 8),
                 TextFormField(
                   controller: nameController,
                   decoration: _inputDecoration('Misal: Andi Wijaya'),
                 ),
-                const SizedBox(height: 16),
-                const Text('Username', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 13)),
-                const SizedBox(height: 8),
+                SizedBox(height: 16),
+                Text('Username', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 13)),
+                SizedBox(height: 8),
                 TextFormField(
                   controller: usernameController,
                   decoration: _inputDecoration('andi_wijaya'),
                   enabled: !isEdit,
                 ),
                 if (!isEdit) ...[
-                  const SizedBox(height: 16),
-                  const Text('Password', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 13)),
-                  const SizedBox(height: 8),
+                  SizedBox(height: 16),
+                  Text('Password', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 13)),
+                  SizedBox(height: 8),
                   TextFormField(
                     controller: passwordController,
                     decoration: _inputDecoration('Min. 6 Karakter'),
                     obscureText: true,
                   ),
                 ],
-                const SizedBox(height: 16),
-                const Text('Role', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 13)),
-                const SizedBox(height: 8),
+                SizedBox(height: 16),
+                Text('Role', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 13)),
+                SizedBox(height: 8),
                 DropdownButtonFormField<String>(
-                  value: selectedRole,
+                  initialValue: selectedRole,
                   items: ['SUPERADMIN', 'ADMIN', 'CASHIER', 'KITCHEN']
                       .map((r) => DropdownMenuItem(value: r, child: Text(r)))
                       .toList(),
@@ -119,14 +118,14 @@ class _StaffManagementScreenState extends State<StaffManagementScreen> {
                   decoration: _inputDecoration(''),
                 ),
                 if (errorText != null) ...[
-                  const SizedBox(height: 8),
-                  Text(errorText!, style: const TextStyle(color: Colors.red, fontSize: 12)),
+                  SizedBox(height: 8),
+                  Text(errorText!, style: TextStyle(color: Colors.red, fontSize: 12)),
                 ]
               ],
             ),
           ),
-          actions: [
-            TextButton(onPressed: () => Navigator.pop(context), child: const Text('Batal', style: TextStyle(color: Colors.grey))),
+          actions: [const ThemeToggle(), 
+            TextButton(onPressed: () => Navigator.pop(context), child: Text('Batal', style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant))),
             ElevatedButton(
               onPressed: () async {
                 if (nameController.text.isEmpty || usernameController.text.isEmpty) {
@@ -159,8 +158,8 @@ class _StaffManagementScreenState extends State<StaffManagementScreen> {
                   setModalState(() => errorText = e.toString());
                 }
               },
-              style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF065F46), foregroundColor: Colors.white, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8))),
-              child: const Text('Simpan'),
+              style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF065F46), foregroundColor: Theme.of(context).cardColor, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8))),
+              child: Text('Simpan'),
             ),
           ],
         ),
@@ -172,10 +171,10 @@ class _StaffManagementScreenState extends State<StaffManagementScreen> {
     return InputDecoration(
       hintText: hint,
       filled: true,
-      fillColor: Colors.grey.shade50,
-      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-      border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: Colors.grey.shade300)),
-      enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: Colors.grey.shade300)),
+      fillColor: Theme.of(context).colorScheme.surfaceContainerLowest,
+      contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: Theme.of(context).colorScheme.outline)),
+      enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: Theme.of(context).colorScheme.outline)),
     );
   }
 
@@ -190,9 +189,9 @@ class _StaffManagementScreenState extends State<StaffManagementScreen> {
       appBar: isDesktop
           ? null
           : AppBar(
-              backgroundColor: Colors.white,
-              title: const Text('Manajemen Staff', style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold)),
-              iconTheme: const IconThemeData(color: Colors.black),
+              backgroundColor: Theme.of(context).cardColor,
+              title: Text('Manajemen Staff', style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontWeight: FontWeight.bold)),
+              iconTheme: IconThemeData(color: Theme.of(context).colorScheme.onSurface),
             ),
       body: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -204,24 +203,24 @@ class _StaffManagementScreenState extends State<StaffManagementScreen> {
               children: [
                 if (isDesktop)
                   Padding(
-                    padding: const EdgeInsets.all(32.0),
+                    padding: EdgeInsets.all(32.0),
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text('Daftar Staff & Pegawai', style: Theme.of(context).textTheme.displayMedium?.copyWith(fontWeight: FontWeight.bold, color: Colors.black)),
-                            const SizedBox(height: 4),
-                            const Text('Kelola hak akses dan informasi pegawai toko Anda.', style: TextStyle(color: Colors.grey)),
+                            Text('Daftar Staff & Pegawai', style: Theme.of(context).textTheme.displayMedium?.copyWith(fontWeight: FontWeight.bold, color: Theme.of(context).colorScheme.onSurface)),
+                            SizedBox(height: 4),
+                            Text('Kelola hak akses dan informasi pegawai toko Anda.', style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant)),
                           ],
                         ),
                         if (isAdmin)
                           ElevatedButton.icon(
                             onPressed: () => _showFormModal(),
-                            icon: const Icon(Icons.person_add_alt_1),
-                            label: const Text('Tambah Pegawai'),
-                            style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF065F46), foregroundColor: Colors.white, minimumSize: const Size(200, 50), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8))),
+                            icon: Icon(Icons.person_add_alt_1),
+                            label: Text('Tambah Pegawai'),
+                            style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF065F46), foregroundColor: Theme.of(context).cardColor, minimumSize: const Size(200, 50), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8))),
                           ),
                       ],
                     ),
@@ -235,20 +234,20 @@ class _StaffManagementScreenState extends State<StaffManagementScreen> {
                     },
                     decoration: InputDecoration(
                       hintText: 'Cari staff...',
-                      prefixIcon: const Icon(Icons.search),
+                      prefixIcon: Icon(Icons.search),
                       filled: true,
-                      fillColor: Colors.grey.shade50,
-                      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: Colors.grey.shade300)),
-                      enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: Colors.grey.shade300)),
+                      fillColor: Theme.of(context).colorScheme.surfaceContainerLowest,
+                      contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: Theme.of(context).colorScheme.outline)),
+                      enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: Theme.of(context).colorScheme.outline)),
                     ),
                   ),
                 ),
                 Expanded(
                   child: _isLoading
-                      ? const Center(child: CircularProgressIndicator(color: Color(0xFF065F46)))
+                      ? Center(child: CircularProgressIndicator(color: Color(0xFF065F46)))
                       : ListView.builder(
-                          padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 8),
+                          padding: EdgeInsets.symmetric(horizontal: 32, vertical: 8),
                           itemCount: _staff.length,
                           itemBuilder: (context, index) {
                             final item = _staff[index];
@@ -267,30 +266,30 @@ class _StaffManagementScreenState extends State<StaffManagementScreen> {
 
   Widget _staffTile(Map<String, dynamic> item, bool isAdmin) {
     return Container(
-      margin: const EdgeInsets.only(bottom: 16),
+      margin: EdgeInsets.only(bottom: 16),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: Theme.of(context).cardColor,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: Colors.grey.shade200),
+        border: Border.all(color: Theme.of(context).colorScheme.outlineVariant),
       ),
       child: ListTile(
-        contentPadding: const EdgeInsets.all(16),
+        contentPadding: EdgeInsets.all(16),
         leading: CircleAvatar(
           radius: 24,
           backgroundColor: const Color(0xFF065F46).withOpacity(0.1),
-          child: Text(item['name']?[0].toUpperCase() ?? '?', style: const TextStyle(color: Color(0xFF065F46), fontWeight: FontWeight.bold, fontSize: 18)),
+          child: Text(item['name']?[0].toUpperCase() ?? '?', style: TextStyle(color: Color(0xFF065F46), fontWeight: FontWeight.bold, fontSize: 18)),
         ),
-        title: Text(item['name'] ?? '-', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+        title: Text(item['name'] ?? '-', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
         subtitle: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const SizedBox(height: 4),
-            Text('@${item['username']}', style: const TextStyle(color: Colors.grey, fontSize: 13)),
-            const SizedBox(height: 8),
+            SizedBox(height: 4),
+            Text('@${item['username']}', style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant, fontSize: 13)),
+            SizedBox(height: 8),
             Container(
-              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+              padding: EdgeInsets.symmetric(horizontal: 10, vertical: 4),
               decoration: BoxDecoration(color: Colors.blue.withOpacity(0.1), borderRadius: BorderRadius.circular(20)),
-              child: Text(item['role'] ?? '-', style: const TextStyle(color: Colors.blue, fontWeight: FontWeight.bold, fontSize: 11)),
+              child: Text(item['role'] ?? '-', style: TextStyle(color: Colors.blue, fontWeight: FontWeight.bold, fontSize: 11)),
             ),
           ],
         ),
@@ -298,8 +297,8 @@ class _StaffManagementScreenState extends State<StaffManagementScreen> {
             ? Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  IconButton(icon: const Icon(Icons.edit_outlined, color: Colors.blue), onPressed: () => _showFormModal(item: item)),
-                  IconButton(icon: const Icon(Icons.delete_outline, color: Colors.red), onPressed: () => _showDeleteConfirm(item)),
+                  IconButton(icon: Icon(Icons.edit_outlined, color: Colors.blue), onPressed: () => _showFormModal(item: item)),
+                  IconButton(icon: Icon(Icons.delete_outline, color: Colors.red), onPressed: () => _showDeleteConfirm(item)),
                 ],
               )
             : null,
@@ -311,17 +310,17 @@ class _StaffManagementScreenState extends State<StaffManagementScreen> {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Hapus Pegawai'),
+        title: Text('Hapus Pegawai'),
         content: Text('Apakah Anda yakin ingin menghapus "${item['name']}"? User ini tidak akan bisa login lagi.'),
-        actions: [
-          TextButton(onPressed: () => Navigator.pop(context), child: const Text('Batal')),
+        actions: [const ThemeToggle(), 
+          TextButton(onPressed: () => Navigator.pop(context), child: Text('Batal')),
           ElevatedButton(
             onPressed: () {
               Navigator.pop(context);
               _deleteStaff(item['id']);
             },
-            style: ElevatedButton.styleFrom(backgroundColor: Colors.red, foregroundColor: Colors.white),
-            child: const Text('Hapus'),
+            style: ElevatedButton.styleFrom(backgroundColor: Colors.red, foregroundColor: Theme.of(context).cardColor),
+            child: Text('Hapus'),
           ),
         ],
       ),

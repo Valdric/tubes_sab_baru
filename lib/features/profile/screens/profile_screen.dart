@@ -1,5 +1,5 @@
+import 'package:gosir/main.dart';
 import 'package:flutter/material.dart';
-import 'package:gosir/core/theme/app_colors.dart';
 import 'package:gosir/shared/widgets/sidebar.dart';
 import 'package:gosir/core/services/api_service.dart';
 
@@ -35,7 +35,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
       if (mounted) {
         setState(() => _isLoading = false);
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(e.toString()), backgroundColor: AppColors.destructive),
+          SnackBar(content: Text(e.toString()), backgroundColor: Theme.of(context).colorScheme.error),
         );
       }
     }
@@ -46,23 +46,23 @@ class _ProfileScreenState extends State<ProfileScreen> {
     final bool isDesktop = MediaQuery.of(context).size.width >= 768;
 
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       drawer: !isDesktop ? const Drawer(child: Sidebar(currentIndex: -1)) : null,
-      appBar: isDesktop ? null : AppBar(title: const Text('Profil Saya')),
+      appBar: isDesktop ? null : AppBar(title: const Text('Profil Saya'), actions: const [ThemeToggle()]),
       body: Row(
         children: [
           if (isDesktop) const Sidebar(currentIndex: -1),
           Expanded(
             child: _isLoading
-                ? const Center(child: CircularProgressIndicator())
+                ? Center(child: CircularProgressIndicator())
                 : SingleChildScrollView(
-                    padding: const EdgeInsets.all(24.0),
+                    padding: EdgeInsets.all(24.0),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text('Profil Saya', style: Theme.of(context).textTheme.displayMedium),
-                        const Text('Kelola informasi akun Anda.', style: TextStyle(color: AppColors.mutedForeground)),
-                        const SizedBox(height: 32),
+                        Text('Kelola informasi akun Anda.', style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant)),
+                        SizedBox(height: 32),
                         _buildInfoCard(),
                       ],
                     ),
@@ -75,26 +75,26 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   Widget _buildInfoCard() {
     return Container(
-      padding: const EdgeInsets.all(24),
+      padding: EdgeInsets.all(24),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: Theme.of(context).cardColor,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: AppColors.border),
+        border: Border.all(color: Theme.of(context).colorScheme.outline),
       ),
       child: Column(
         children: [
           _infoRow('Nama Lengkap', _profile['name'] ?? '-'),
-          const Divider(),
+          Divider(),
           _infoRow('Username', _profile['username'] ?? '-'),
-          const Divider(),
+          Divider(),
           _infoRow('Role / Akses', _profile['role'] ?? '-'),
-          const SizedBox(height: 24),
+          SizedBox(height: 24),
           ElevatedButton(
             onPressed: () {
               // TODO: Update Profile Implementation
             },
             style: ElevatedButton.styleFrom(minimumSize: const Size(200, 45)),
-            child: const Text('Ubah Profil'),
+            child: Text('Ubah Profil'),
           ),
         ],
       ),
@@ -103,12 +103,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   Widget _infoRow(String label, String value) {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 12.0),
+      padding: EdgeInsets.symmetric(vertical: 12.0),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Text(label, style: const TextStyle(color: AppColors.mutedForeground)),
-          Text(value, style: const TextStyle(fontWeight: FontWeight.bold)),
+          Text(label, style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant)),
+          Text(value, style: TextStyle(fontWeight: FontWeight.bold)),
         ],
       ),
     );

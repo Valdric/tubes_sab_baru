@@ -1,9 +1,8 @@
+import 'package:gosir/main.dart';
 import 'package:flutter/material.dart';
-import 'package:gosir/core/theme/app_colors.dart';
 import 'package:gosir/shared/widgets/sidebar.dart';
 import 'package:gosir/shared/widgets/mobile_bottom_nav.dart';
 import 'package:gosir/core/services/api_service.dart';
-import 'package:intl/intl.dart';
 
 class CategoriesScreen extends StatefulWidget {
   const CategoriesScreen({super.key});
@@ -84,23 +83,23 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
           title: Text(
             isEdit ? 'Ubah Kategori' : 'Tambah Kategori',
-            style: const TextStyle(fontWeight: FontWeight.bold),
+            style: TextStyle(fontWeight: FontWeight.bold),
           ),
           content: Column(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Text('Nama Kategori', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 13)),
-              const SizedBox(height: 8),
+              Text('Nama Kategori', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 13)),
+              SizedBox(height: 8),
               TextFormField(
                 controller: nameController,
                 decoration: InputDecoration(
                   hintText: 'Misal: Makanan Penutup',
                   errorText: errorText,
                   filled: true,
-                  fillColor: Colors.grey.shade50,
-                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: Colors.grey.shade300)),
-                  enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: Colors.grey.shade300)),
+                  fillColor: Theme.of(context).colorScheme.surfaceContainerLowest,
+                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: Theme.of(context).colorScheme.outline)),
+                  enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: Theme.of(context).colorScheme.outline)),
                 ),
                 autofocus: true,
                 onChanged: (val) {
@@ -109,10 +108,10 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
               ),
             ],
           ),
-          actions: [
+          actions: [const ThemeToggle(), 
             TextButton(
               onPressed: () => Navigator.pop(context),
-              child: const Text('Batal', style: TextStyle(color: Colors.grey)),
+              child: Text('Batal', style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant)),
             ),
             ElevatedButton(
               onPressed: () async {
@@ -136,10 +135,10 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
               },
               style: ElevatedButton.styleFrom(
                 backgroundColor: const Color(0xFF065F46),
-                foregroundColor: Colors.white,
+                foregroundColor: Theme.of(context).cardColor,
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
               ),
-              child: const Text('Simpan'),
+              child: Text('Simpan'),
             ),
           ],
         ),
@@ -158,14 +157,14 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
       appBar: isDesktop
           ? null
           : AppBar(
-              backgroundColor: Colors.white,
+              backgroundColor: Theme.of(context).cardColor,
               elevation: 0,
-              title: const Text('Categories', style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold)),
-              iconTheme: const IconThemeData(color: Colors.black),
-              actions: [
+              title: Text('Categories', style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontWeight: FontWeight.bold)),
+              iconTheme: IconThemeData(color: Theme.of(context).colorScheme.onSurface),
+              actions: [const ThemeToggle(), 
                 if (isAdmin)
                   IconButton(
-                    icon: const Icon(Icons.add_circle_outline),
+                    icon: Icon(Icons.add_circle_outline),
                     onPressed: () => _showFormModal(),
                   ),
               ],
@@ -180,7 +179,7 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
               children: [
                 if (isDesktop)
                   Padding(
-                    padding: const EdgeInsets.all(32.0),
+                    padding: EdgeInsets.all(32.0),
                     child: Wrap(
                       alignment: WrapAlignment.spaceBetween,
                       crossAxisAlignment: WrapCrossAlignment.center,
@@ -192,23 +191,23 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
                           children: [
                             Text(
                               'Manajemen Kategori',
-                              style: Theme.of(context).textTheme.displayMedium?.copyWith(fontWeight: FontWeight.bold, color: Colors.black),
+                              style: Theme.of(context).textTheme.displayMedium?.copyWith(fontWeight: FontWeight.bold, color: Theme.of(context).colorScheme.onSurface),
                             ),
-                            const SizedBox(height: 4),
-                            const Text(
+                            SizedBox(height: 4),
+                            Text(
                               'Kelola dan atur kategori menu Anda untuk mempermudah transaksi.',
-                              style: TextStyle(color: Colors.grey),
+                              style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant),
                             ),
                           ],
                         ),
                         if (isAdmin)
                           ElevatedButton.icon(
                             onPressed: () => _showFormModal(),
-                            icon: const Icon(Icons.add),
-                            label: const Text('Tambah Kategori'),
+                            icon: Icon(Icons.add),
+                            label: Text('Tambah Kategori'),
                             style: ElevatedButton.styleFrom(
                               backgroundColor: const Color(0xFF065F46),
-                              foregroundColor: Colors.white,
+                              foregroundColor: Theme.of(context).cardColor,
                               minimumSize: const Size(200, 50),
                               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
                             ),
@@ -227,15 +226,15 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
                         },
                         decoration: InputDecoration(
                           hintText: 'Cari kategori...',
-                          prefixIcon: const Icon(Icons.search),
+                          prefixIcon: Icon(Icons.search),
                           filled: true,
-                          fillColor: Colors.grey.shade50,
-                          contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                          border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: Colors.grey.shade300)),
-                          enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: Colors.grey.shade300)),
+                          fillColor: Theme.of(context).colorScheme.surfaceContainerLowest,
+                          contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                          border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: Theme.of(context).colorScheme.outline)),
+                          enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: Theme.of(context).colorScheme.outline)),
                         ),
                       ),
-                      const SizedBox(height: 12),
+                      SizedBox(height: 12),
                       LayoutBuilder(
                         builder: (context, constraints) {
                           final double itemWidth = (constraints.maxWidth - 12) / 2;
@@ -248,8 +247,8 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
                               children: [
                                 SizedBox(
                                   width: 200,
-                                  child: _buildFilterItem('Berdasarkan', _sortBy, const [
-                                    DropdownMenuItem(value: null, child: Text('Pilih berdasarkan', style: TextStyle(color: Colors.grey))),
+                                  child: _buildFilterItem('Berdasarkan', _sortBy, [
+                                    DropdownMenuItem(value: null, child: Text('Pilih berdasarkan', style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant))),
                                     DropdownMenuItem(value: 'name', child: Text('Nama')),
                                     DropdownMenuItem(value: 'created_at', child: Text('Waktu Dibuat')),
                                     DropdownMenuItem(value: 'updated_at', child: Text('Waktu Diperbarui')),
@@ -257,8 +256,8 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
                                 ),
                                 SizedBox(
                                   width: 200,
-                                  child: _buildFilterItem('Urutan', _sortDirection, const [
-                                    DropdownMenuItem(value: null, child: Text('Pilih urutan', style: TextStyle(color: Colors.grey))),
+                                  child: _buildFilterItem('Urutan', _sortDirection, [
+                                    DropdownMenuItem(value: null, child: Text('Pilih urutan', style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant))),
                                     DropdownMenuItem(value: 'asc', child: Text('A-Z / Kecil-Besar')),
                                     DropdownMenuItem(value: 'desc', child: Text('Z-A / Besar-Kecil')),
                                   ], (v) => setState(() => _sortDirection = v)),
@@ -269,17 +268,17 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
                             return Row(
                               children: [
                                 Expanded(
-                                  child: _buildFilterItem('Berdasarkan', _sortBy, const [
-                                    DropdownMenuItem(value: null, child: Text('Pilih berdasarkan', style: TextStyle(color: Colors.grey))),
+                                  child: _buildFilterItem('Berdasarkan', _sortBy, [
+                                    DropdownMenuItem(value: null, child: Text('Pilih berdasarkan', style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant))),
                                     DropdownMenuItem(value: 'name', child: Text('Nama')),
                                     DropdownMenuItem(value: 'created_at', child: Text('Waktu Dibuat')),
                                     DropdownMenuItem(value: 'updated_at', child: Text('Waktu Diperbarui')),
                                   ], (v) => setState(() => _sortBy = v)),
                                 ),
-                                const SizedBox(width: 12),
+                                SizedBox(width: 12),
                                 Expanded(
-                                  child: _buildFilterItem('Urutan', _sortDirection, const [
-                                    DropdownMenuItem(value: null, child: Text('Pilih urutan', style: TextStyle(color: Colors.grey))),
+                                  child: _buildFilterItem('Urutan', _sortDirection, [
+                                    DropdownMenuItem(value: null, child: Text('Pilih urutan', style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant))),
                                     DropdownMenuItem(value: 'asc', child: Text('A-Z / Kecil-Besar')),
                                     DropdownMenuItem(value: 'desc', child: Text('Z-A / Besar-Kecil')),
                                   ], (v) => setState(() => _sortDirection = v)),
@@ -294,9 +293,9 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
                 ),
                 Expanded(
                   child: _isLoading
-                      ? const Center(child: CircularProgressIndicator(color: Color(0xFF065F46)))
+                      ? Center(child: CircularProgressIndicator(color: Color(0xFF065F46)))
                       : _items.isEmpty
-                        ? const Center(child: Text("Belum ada kategori"))
+                        ? Center(child: Text("Belum ada kategori"))
                         : GridView.builder(
                           padding: EdgeInsets.symmetric(horizontal: isDesktop ? 32 : 16, vertical: 8),
                           gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
@@ -324,11 +323,11 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
   Widget _categoryCard(Map<String, dynamic> item, bool isAdmin) {
     return Container(
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: Theme.of(context).cardColor,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: Colors.grey.shade200),
+        border: Border.all(color: Theme.of(context).colorScheme.outlineVariant),
         boxShadow: [
-          BoxShadow(color: Colors.black.withOpacity(0.02), blurRadius: 10, offset: const Offset(0, 4)),
+          BoxShadow(color: Theme.of(context).colorScheme.onSurface.withOpacity(0.02), blurRadius: 10, offset: const Offset(0, 4)),
         ],
       ),
       child: Stack(
@@ -338,17 +337,17 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Container(
-                  padding: const EdgeInsets.all(16),
+                  padding: EdgeInsets.all(16),
                   decoration: BoxDecoration(
                     color: const Color(0xFF065F46).withOpacity(0.1),
                     shape: BoxShape.circle,
                   ),
-                  child: const Icon(Icons.category_outlined, color: Color(0xFF065F46), size: 32),
+                  child: Icon(Icons.category_outlined, color: Color(0xFF065F46), size: 32),
                 ),
-                const SizedBox(height: 16),
+                SizedBox(height: 16),
                 Text(
                   item['name'] ?? '-',
-                  style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: Colors.black87),
+                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.87)),
                   textAlign: TextAlign.center,
                 ),
               ],
@@ -359,7 +358,7 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
               top: 8,
               right: 8,
               child: PopupMenuButton<String>(
-                icon: const Icon(Icons.more_vert, color: Colors.grey, size: 20),
+                icon: Icon(Icons.more_vert, color: Theme.of(context).colorScheme.onSurfaceVariant, size: 20),
                 onSelected: (val) {
                   if (val == 'edit') {
                     _showFormModal(item: item);
@@ -382,17 +381,17 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Hapus Kategori'),
+        title: Text('Hapus Kategori'),
         content: Text('Apakah Anda yakin ingin menghapus kategori "${item['name']}"? Tindakan ini tidak dapat dibatalkan.'),
-        actions: [
-          TextButton(onPressed: () => Navigator.pop(context), child: const Text('Batal')),
+        actions: [const ThemeToggle(), 
+          TextButton(onPressed: () => Navigator.pop(context), child: Text('Batal')),
           ElevatedButton(
             onPressed: () {
               Navigator.pop(context);
               _deleteCategory(item['id']);
             },
-            style: ElevatedButton.styleFrom(backgroundColor: Colors.red, foregroundColor: Colors.white),
-            child: const Text('Hapus'),
+            style: ElevatedButton.styleFrom(backgroundColor: Colors.red, foregroundColor: Theme.of(context).cardColor),
+            child: Text('Hapus'),
           ),
         ],
       ),
@@ -404,18 +403,18 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
       crossAxisAlignment: CrossAxisAlignment.start,
       mainAxisSize: MainAxisSize.min,
       children: [
-        Text(title, style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Colors.grey)),
-        const SizedBox(height: 4),
+        Text(title, style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Theme.of(context).colorScheme.onSurfaceVariant)),
+        SizedBox(height: 4),
         DropdownButtonFormField<String>(
-          value: value,
+          initialValue: value,
           isExpanded: true,
           decoration: InputDecoration(
             filled: true,
-            fillColor: Colors.grey.shade50,
+            fillColor: Theme.of(context).colorScheme.surfaceContainerLowest,
             isDense: true,
-            contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-            border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: Colors.grey.shade300)),
-            enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: Colors.grey.shade300)),
+            contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+            border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: Theme.of(context).colorScheme.outline)),
+            enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: Theme.of(context).colorScheme.outline)),
           ),
           items: items,
           onChanged: (v) {

@@ -1,5 +1,5 @@
+import 'package:gosir/main.dart';
 import 'package:flutter/material.dart';
-import 'package:gosir/core/theme/app_colors.dart';
 import 'package:gosir/shared/widgets/sidebar.dart';
 import 'package:gosir/shared/widgets/mobile_bottom_nav.dart';
 import 'package:gosir/core/services/api_service.dart';
@@ -78,27 +78,27 @@ class _IngredientsScreenState extends State<IngredientsScreen> {
       builder: (context) => StatefulBuilder(
         builder: (context, setModalState) => AlertDialog(
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-          title: Text(isEdit ? 'Ubah Bahan Baku' : 'Tambah Bahan Baru', style: const TextStyle(fontWeight: FontWeight.bold)),
+          title: Text(isEdit ? 'Ubah Bahan Baku' : 'Tambah Bahan Baru', style: TextStyle(fontWeight: FontWeight.bold)),
           content: SingleChildScrollView(
             child: Column(
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text('Nama Bahan', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 13)),
-                const SizedBox(height: 8),
+                Text('Nama Bahan', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 13)),
+                SizedBox(height: 8),
                 TextFormField(
                   controller: nameController,
                   decoration: _inputDecoration('Misal: Kopi Arabica'),
                 ),
-                const SizedBox(height: 16),
+                SizedBox(height: 16),
                 Row(
                   children: [
                     Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          const Text('Stok', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 13)),
-                          const SizedBox(height: 8),
+                          Text('Stok', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 13)),
+                          SizedBox(height: 8),
                           TextFormField(
                             controller: stockController,
                             keyboardType: TextInputType.number,
@@ -107,15 +107,15 @@ class _IngredientsScreenState extends State<IngredientsScreen> {
                         ],
                       ),
                     ),
-                    const SizedBox(width: 12),
+                    SizedBox(width: 12),
                     Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          const Text('Satuan', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 13)),
-                          const SizedBox(height: 8),
+                          Text('Satuan', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 13)),
+                          SizedBox(height: 8),
                           DropdownButtonFormField<String>(
-                            value: selectedUnit,
+                            initialValue: selectedUnit,
                             items: ['GRAM', 'ML', 'PCS']
                                 .map((u) => DropdownMenuItem(value: u, child: Text(u)))
                                 .toList(),
@@ -127,23 +127,23 @@ class _IngredientsScreenState extends State<IngredientsScreen> {
                     ),
                   ],
                 ),
-                const SizedBox(height: 16),
-                const Text('Batas Minimal (Threshold)', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 13)),
-                const SizedBox(height: 8),
+                SizedBox(height: 16),
+                Text('Batas Minimal (Threshold)', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 13)),
+                SizedBox(height: 8),
                 TextFormField(
                   controller: thresholdController,
                   keyboardType: TextInputType.number,
                   decoration: _inputDecoration('10'),
                 ),
                 if (errorText != null) ...[
-                  const SizedBox(height: 8),
-                  Text(errorText!, style: const TextStyle(color: Colors.red, fontSize: 12)),
+                  SizedBox(height: 8),
+                  Text(errorText!, style: TextStyle(color: Colors.red, fontSize: 12)),
                 ]
               ],
             ),
           ),
-          actions: [
-            TextButton(onPressed: () => Navigator.pop(context), child: const Text('Batal', style: TextStyle(color: Colors.grey))),
+          actions: [const ThemeToggle(), 
+            TextButton(onPressed: () => Navigator.pop(context), child: Text('Batal', style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant))),
             ElevatedButton(
               onPressed: () async {
                 if (nameController.text.isEmpty) return;
@@ -167,8 +167,8 @@ class _IngredientsScreenState extends State<IngredientsScreen> {
                   setModalState(() => errorText = e.toString());
                 }
               },
-              style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF065F46), foregroundColor: Colors.white, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8))),
-              child: const Text('Simpan'),
+              style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF065F46), foregroundColor: Theme.of(context).cardColor, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8))),
+              child: Text('Simpan'),
             ),
           ],
         ),
@@ -180,10 +180,10 @@ class _IngredientsScreenState extends State<IngredientsScreen> {
     return InputDecoration(
       hintText: hint,
       filled: true,
-      fillColor: Colors.grey.shade50,
-      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-      border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: Colors.grey.shade300)),
-      enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: Colors.grey.shade300)),
+      fillColor: Theme.of(context).colorScheme.surfaceContainerLowest,
+      contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: Theme.of(context).colorScheme.outline)),
+      enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: Theme.of(context).colorScheme.outline)),
     );
   }
 
@@ -198,9 +198,9 @@ class _IngredientsScreenState extends State<IngredientsScreen> {
       appBar: isDesktop
           ? null
           : AppBar(
-              backgroundColor: Colors.white,
-              title: const Text('Bahan Baku', style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold)),
-              iconTheme: const IconThemeData(color: Colors.black),
+              backgroundColor: Theme.of(context).cardColor,
+              title: Text('Bahan Baku', style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontWeight: FontWeight.bold)),
+              iconTheme: IconThemeData(color: Theme.of(context).colorScheme.onSurface),
             ),
       body: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -212,24 +212,24 @@ class _IngredientsScreenState extends State<IngredientsScreen> {
               children: [
                 if (isDesktop)
                   Padding(
-                    padding: const EdgeInsets.all(32.0),
+                    padding: EdgeInsets.all(32.0),
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text('Stok Bahan Baku', style: Theme.of(context).textTheme.displayMedium?.copyWith(fontWeight: FontWeight.bold, color: Colors.black)),
-                            const SizedBox(height: 4),
-                            const Text('Pantau dan kelola ketersediaan bahan baku produksi Anda.', style: TextStyle(color: Colors.grey)),
+                            Text('Stok Bahan Baku', style: Theme.of(context).textTheme.displayMedium?.copyWith(fontWeight: FontWeight.bold, color: Theme.of(context).colorScheme.onSurface)),
+                            SizedBox(height: 4),
+                            Text('Pantau dan kelola ketersediaan bahan baku produksi Anda.', style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant)),
                           ],
                         ),
                         if (isAdmin)
                           ElevatedButton.icon(
                             onPressed: () => _showFormModal(),
-                            icon: const Icon(Icons.add_box_outlined),
-                            label: const Text('Tambah Bahan'),
-                            style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF065F46), foregroundColor: Colors.white, minimumSize: const Size(200, 50), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8))),
+                            icon: Icon(Icons.add_box_outlined),
+                            label: Text('Tambah Bahan'),
+                            style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF065F46), foregroundColor: Theme.of(context).cardColor, minimumSize: const Size(200, 50), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8))),
                           ),
                       ],
                     ),
@@ -243,20 +243,20 @@ class _IngredientsScreenState extends State<IngredientsScreen> {
                     },
                     decoration: InputDecoration(
                       hintText: 'Cari bahan baku...',
-                      prefixIcon: const Icon(Icons.search),
+                      prefixIcon: Icon(Icons.search),
                       filled: true,
-                      fillColor: Colors.grey.shade50,
-                      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: Colors.grey.shade300)),
-                      enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: Colors.grey.shade300)),
+                      fillColor: Theme.of(context).colorScheme.surfaceContainerLowest,
+                      contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: Theme.of(context).colorScheme.outline)),
+                      enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: Theme.of(context).colorScheme.outline)),
                     ),
                   ),
                 ),
                 Expanded(
                   child: _isLoading
-                      ? const Center(child: CircularProgressIndicator(color: Color(0xFF065F46)))
+                      ? Center(child: CircularProgressIndicator(color: Color(0xFF065F46)))
                       : _items.isEmpty
-                        ? const Center(child: Text("Belum ada bahan baku"))
+                        ? Center(child: Text("Belum ada bahan baku"))
                         : ListView.builder(
                           padding: EdgeInsets.symmetric(horizontal: isDesktop ? 32 : 16, vertical: 8),
                           itemCount: _items.length,
@@ -281,16 +281,16 @@ class _IngredientsScreenState extends State<IngredientsScreen> {
     final bool isLowStock = stock <= threshold;
 
     return Container(
-      margin: const EdgeInsets.only(bottom: 16),
+      margin: EdgeInsets.only(bottom: 16),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: Theme.of(context).cardColor,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: Colors.grey.shade200),
+        border: Border.all(color: Theme.of(context).colorScheme.outlineVariant),
       ),
       child: ListTile(
-        contentPadding: const EdgeInsets.all(16),
+        contentPadding: EdgeInsets.all(16),
         leading: Container(
-          padding: const EdgeInsets.all(12),
+          padding: EdgeInsets.all(12),
           decoration: BoxDecoration(
             color: (isLowStock ? Colors.red : const Color(0xFF065F46)).withOpacity(0.1),
             shape: BoxShape.circle,
@@ -300,22 +300,22 @@ class _IngredientsScreenState extends State<IngredientsScreen> {
             color: isLowStock ? Colors.red : const Color(0xFF065F46),
           ),
         ),
-        title: Text(item['name'] ?? '-', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+        title: Text(item['name'] ?? '-', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
         subtitle: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const SizedBox(height: 4),
-            Text('Tersedia: $stock ${item['unit'] ?? ''}', style: TextStyle(color: isLowStock ? Colors.red : Colors.grey, fontWeight: isLowStock ? FontWeight.bold : FontWeight.normal)),
+            SizedBox(height: 4),
+            Text('Tersedia: $stock ${item['unit'] ?? ''}', style: TextStyle(color: isLowStock ? Colors.red : Theme.of(context).colorScheme.onSurfaceVariant, fontWeight: isLowStock ? FontWeight.bold : FontWeight.normal)),
             if (isLowStock)
-              const Text('Stok hampir habis!', style: TextStyle(color: Colors.red, fontSize: 11, fontWeight: FontWeight.bold)),
+              Text('Stok hampir habis!', style: TextStyle(color: Colors.red, fontSize: 11, fontWeight: FontWeight.bold)),
           ],
         ),
         trailing: isAdmin
             ? Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  IconButton(icon: const Icon(Icons.edit_outlined, color: Colors.blue), onPressed: () => _showFormModal(item: item)),
-                  IconButton(icon: const Icon(Icons.delete_outline, color: Colors.red), onPressed: () => _showDeleteConfirm(item)),
+                  IconButton(icon: Icon(Icons.edit_outlined, color: Colors.blue), onPressed: () => _showFormModal(item: item)),
+                  IconButton(icon: Icon(Icons.delete_outline, color: Colors.red), onPressed: () => _showDeleteConfirm(item)),
                 ],
               )
             : null,
@@ -327,17 +327,17 @@ class _IngredientsScreenState extends State<IngredientsScreen> {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Hapus Bahan'),
+        title: Text('Hapus Bahan'),
         content: Text('Apakah Anda yakin ingin menghapus "${item['name']}"? Stok akan hilang dari sistem.'),
-        actions: [
-          TextButton(onPressed: () => Navigator.pop(context), child: const Text('Batal')),
+        actions: [const ThemeToggle(), 
+          TextButton(onPressed: () => Navigator.pop(context), child: Text('Batal')),
           ElevatedButton(
             onPressed: () {
               Navigator.pop(context);
               _deleteIngredient(item['id']);
             },
-            style: ElevatedButton.styleFrom(backgroundColor: Colors.red, foregroundColor: Colors.white),
-            child: const Text('Hapus'),
+            style: ElevatedButton.styleFrom(backgroundColor: Colors.red, foregroundColor: Theme.of(context).cardColor),
+            child: Text('Hapus'),
           ),
         ],
       ),

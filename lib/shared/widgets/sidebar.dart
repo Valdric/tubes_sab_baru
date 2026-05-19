@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:gosir/core/theme/app_colors.dart';
 import 'package:gosir/core/services/api_service.dart';
 import 'package:gosir/features/auth/screens/login_screen.dart';
 import 'package:gosir/features/dashboard/screens/dashboard_screen.dart';
@@ -60,26 +59,26 @@ class _SidebarState extends State<Sidebar> {
       width: 280,
       height: double.infinity,
       decoration: BoxDecoration(
-        color: AppColors.background,
-        border: const Border(right: BorderSide(color: AppColors.border)),
+        color: Theme.of(context).scaffoldBackgroundColor,
+        border: Border(right: BorderSide(color: Theme.of(context).colorScheme.outline)),
       ),
       child: Column(
         children: [
           // Header
           Padding(
-            padding: const EdgeInsets.all(24.0),
+            padding: EdgeInsets.all(24.0),
             child: Row(
               children: [
                 Container(
-                  padding: const EdgeInsets.all(8),
+                  padding: EdgeInsets.all(8),
                   decoration: BoxDecoration(
-                    color: AppColors.primary,
+                    color: Theme.of(context).colorScheme.primary,
                     borderRadius: BorderRadius.circular(8),
                   ),
-                  child: const Icon(Icons.store, color: Colors.white, size: 24),
+                  child: Icon(Icons.store, color: Theme.of(context).cardColor, size: 24),
                 ),
-                const SizedBox(width: 12),
-                const Expanded(
+                SizedBox(width: 12),
+                Expanded(
                   child: Text(
                     'GoSir',
                     style: TextStyle(
@@ -97,16 +96,16 @@ class _SidebarState extends State<Sidebar> {
           // Menu Items
           Expanded(
             child: ListView(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
+              padding: EdgeInsets.symmetric(horizontal: 16),
               children: [
-                const Padding(
+                Padding(
                   padding: EdgeInsets.only(left: 12, bottom: 8, top: 8),
                   child: Text(
                     'MANAGEMENT',
                     style: TextStyle(
                       fontSize: 11,
                       fontWeight: FontWeight.bold,
-                      color: AppColors.mutedForeground,
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
                     ),
                   ),
                 ),
@@ -165,7 +164,7 @@ class _SidebarState extends State<Sidebar> {
 
           // Footer
           Padding(
-            padding: const EdgeInsets.all(16.0),
+            padding: EdgeInsets.all(16.0),
             child: Column(
               children: [
                 ElevatedButton.icon(
@@ -175,18 +174,18 @@ class _SidebarState extends State<Sidebar> {
                       MaterialPageRoute(builder: (context) => const CashierScreen()),
                     );
                   },
-                  icon: const Icon(Icons.storefront, size: 20),
-                  label: const Text('Mode Kasir'),
+                  icon: Icon(Icons.storefront, size: 20),
+                  label: Text('Mode Kasir'),
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: AppColors.primary,
-                    foregroundColor: Colors.white,
+                    backgroundColor: Theme.of(context).colorScheme.primary,
+                    foregroundColor: Theme.of(context).cardColor,
                     minimumSize: const Size(double.infinity, 45),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(8),
                     ),
                   ),
                 ),
-                const SizedBox(height: 8),
+                SizedBox(height: 8),
                 TextButton.icon(
                   onPressed: () async {
                     await _api.logout();
@@ -197,15 +196,15 @@ class _SidebarState extends State<Sidebar> {
                       );
                     }
                   },
-                  icon: const Icon(Icons.logout, size: 20, color: AppColors.destructive),
-                  label: const Text(
+                  icon: Icon(Icons.logout, size: 20, color: Theme.of(context).colorScheme.error),
+                  label: Text(
                     'Keluar',
-                    style: TextStyle(color: AppColors.destructive),
+                    style: TextStyle(color: Theme.of(context).colorScheme.error),
                   ),
                   style: TextButton.styleFrom(
                     minimumSize: const Size(double.infinity, 45),
                     alignment: Alignment.centerLeft,
-                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    padding: EdgeInsets.symmetric(horizontal: 16),
                   ),
                 ),
               ],
@@ -224,7 +223,7 @@ class _SidebarState extends State<Sidebar> {
   }) {
     final isSelected = widget.currentIndex == index;
     return Container(
-      margin: const EdgeInsets.only(bottom: 4),
+      margin: EdgeInsets.only(bottom: 4),
       child: ListTile(
         onTap: onTap,
         dense: true,
@@ -232,18 +231,18 @@ class _SidebarState extends State<Sidebar> {
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
         leading: Icon(
           icon,
-          color: isSelected ? AppColors.primary : AppColors.mutedForeground,
+          color: isSelected ? Theme.of(context).colorScheme.primary : Theme.of(context).colorScheme.onSurfaceVariant,
           size: 20,
         ),
         title: Text(
           label,
           style: TextStyle(
-            color: isSelected ? AppColors.primary : AppColors.foreground,
+            color: isSelected ? Theme.of(context).colorScheme.primary : Theme.of(context).colorScheme.onSurface,
             fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
             fontSize: 14,
           ),
         ),
-        tileColor: isSelected ? AppColors.primary.withValues(alpha: 0.08) : null,
+        tileColor: isSelected ? Theme.of(context).colorScheme.primary.withValues(alpha: 0.08) : null,
       ),
     );
   }

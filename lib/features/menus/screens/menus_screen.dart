@@ -1,3 +1,4 @@
+import 'package:gosir/main.dart';
 import 'package:flutter/material.dart';
 import 'package:gosir/core/theme/app_colors.dart';
 import 'package:gosir/shared/widgets/sidebar.dart';
@@ -62,7 +63,7 @@ class _MenusScreenState extends State<MenusScreen> {
       if (mounted) {
         setState(() => _isLoading = false);
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(e.toString()), backgroundColor: AppColors.destructive),
+          SnackBar(content: Text(e.toString()), backgroundColor: Theme.of(context).colorScheme.error),
         );
       }
     }
@@ -80,7 +81,7 @@ class _MenusScreenState extends State<MenusScreen> {
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(e.toString()), backgroundColor: AppColors.destructive),
+          SnackBar(content: Text(e.toString()), backgroundColor: Theme.of(context).colorScheme.error),
         );
       }
     }
@@ -92,12 +93,12 @@ class _MenusScreenState extends State<MenusScreen> {
     final bool isAdmin = _role.toUpperCase() == 'ADMIN' || _role.toUpperCase() == 'SUPERADMIN';
 
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       drawer: !isDesktop ? const Drawer(child: Sidebar(currentIndex: 2)) : null,
       appBar: isDesktop
           ? null
           : AppBar(
-              title: const Text('Manajemen Menu'),
+              title: Text('Manajemen Menu'),
             ),
       body: Row(
         children: [
@@ -108,7 +109,7 @@ class _MenusScreenState extends State<MenusScreen> {
               children: [
                 if (!isDesktop)
                   Padding(
-                    padding: const EdgeInsets.all(16.0),
+                    padding: EdgeInsets.all(16.0),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
@@ -119,69 +120,69 @@ class _MenusScreenState extends State<MenusScreen> {
                           },
                           decoration: InputDecoration(
                             hintText: 'Cari menu...',
-                            prefixIcon: const Icon(Icons.search),
+                            prefixIcon: Icon(Icons.search),
                             filled: true,
-                            fillColor: Colors.grey.shade50,
-                            contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                            border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: Colors.grey.shade300)),
-                            enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: Colors.grey.shade300)),
+                            fillColor: Theme.of(context).colorScheme.surfaceContainerLowest,
+                            contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                            border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: Theme.of(context).colorScheme.outline)),
+                            enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: Theme.of(context).colorScheme.outline)),
                           ),
                         ),
-                        const SizedBox(height: 12),
+                        SizedBox(height: 12),
                         Column(
                           children: [
                             Row(
                               children: [
                                 Expanded(
-                                  child: _buildFilterItem('Berdasarkan', _sortBy, const [
-                                    DropdownMenuItem(value: null, child: Text('Semua', style: TextStyle(color: Colors.grey))),
+                                  child: _buildFilterItem('Berdasarkan', _sortBy, [
+                                    DropdownMenuItem(value: null, child: Text('Semua', style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant))),
                                     DropdownMenuItem(value: 'name', child: Text('Nama')),
                                     DropdownMenuItem(value: 'price', child: Text('Harga')),
                                     DropdownMenuItem(value: 'created_at', child: Text('Dibuat')),
                                     DropdownMenuItem(value: 'updated_at', child: Text('Diperbarui')),
                                   ], (v) => setState(() => _sortBy = v)),
                                 ),
-                                const SizedBox(width: 12),
+                                SizedBox(width: 12),
                                 Expanded(
-                                  child: _buildFilterItem('Urutan', _sortDirection, const [
-                                    DropdownMenuItem(value: null, child: Text('Semua', style: TextStyle(color: Colors.grey))),
+                                  child: _buildFilterItem('Urutan', _sortDirection, [
+                                    DropdownMenuItem(value: null, child: Text('Semua', style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant))),
                                     DropdownMenuItem(value: 'asc', child: Text('A-Z')),
                                     DropdownMenuItem(value: 'desc', child: Text('Z-A')),
                                   ], (v) => setState(() => _sortDirection = v)),
                                 ),
                               ],
                             ),
-                            const SizedBox(height: 12),
+                            SizedBox(height: 12),
                             Row(
                               children: [
                                 Expanded(
                                   child: _buildFilterItem('Kategori', _selectedCategory, [
-                                    const DropdownMenuItem(value: null, child: Text('Semua Kategori', style: TextStyle(color: Colors.grey))),
+                                    DropdownMenuItem(value: null, child: Text('Semua Kategori', style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant))),
                                     ..._categories.map((c) => DropdownMenuItem(value: c['id'].toString(), child: Text(c['name'] ?? '-'))),
                                   ], (v) => setState(() => _selectedCategory = v)),
                                 ),
-                                const SizedBox(width: 12),
+                                SizedBox(width: 12),
                                 Expanded(
-                                  child: _buildFilterItem('Divisi', _division, const [
-                                    DropdownMenuItem(value: null, child: Text('Semua Divisi', style: TextStyle(color: Colors.grey))),
+                                  child: _buildFilterItem('Divisi', _division, [
+                                    DropdownMenuItem(value: null, child: Text('Semua Divisi', style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant))),
                                     DropdownMenuItem(value: 'KITCHEN', child: Text('KITCHEN')),
                                     DropdownMenuItem(value: 'BAR', child: Text('BAR')),
                                   ], (v) => setState(() => _division = v)),
                                 ),
                               ],
                             ),
-                            const SizedBox(height: 12),
+                            SizedBox(height: 12),
                             Row(
                               children: [
                                 Expanded(
-                                  child: _buildFilterItem('Status', _isActive, const [
-                                    DropdownMenuItem(value: null, child: Text('Semua Status', style: TextStyle(color: Colors.grey))),
+                                  child: _buildFilterItem('Status', _isActive, [
+                                    DropdownMenuItem(value: null, child: Text('Semua Status', style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant))),
                                     DropdownMenuItem(value: 'true', child: Text('Aktif')),
                                     DropdownMenuItem(value: 'false', child: Text('Nonaktif')),
                                   ], (v) => setState(() => _isActive = v)),
                                 ),
-                                const SizedBox(width: 12),
-                                const Expanded(child: SizedBox()),
+                                SizedBox(width: 12),
+                                Expanded(child: SizedBox()),
                               ],
                             ),
                           ],
@@ -191,7 +192,7 @@ class _MenusScreenState extends State<MenusScreen> {
                   ),
                 if (isDesktop)
                   Padding(
-                    padding: const EdgeInsets.all(24.0),
+                    padding: EdgeInsets.all(24.0),
                     child: Wrap(
                       alignment: WrapAlignment.spaceBetween,
                       crossAxisAlignment: WrapCrossAlignment.center,
@@ -205,9 +206,9 @@ class _MenusScreenState extends State<MenusScreen> {
                               'Manajemen Menu',
                               style: Theme.of(context).textTheme.displayMedium,
                             ),
-                            const Text(
+                            Text(
                               'Kelola ketersediaan menu, bahan baku, harga dinamis.',
-                              style: TextStyle(color: AppColors.mutedForeground),
+                              style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant),
                             ),
                           ],
                         ),
@@ -219,8 +220,8 @@ class _MenusScreenState extends State<MenusScreen> {
                                 context,
                                 MaterialPageRoute(builder: (context) => const MenuFormScreen()),
                               ).then((v) => v == true ? _fetchData() : null),
-                              icon: const Icon(Icons.add),
-                              label: const Text('Tambah Menu'),
+                              icon: Icon(Icons.add),
+                              label: Text('Tambah Menu'),
                               style: ElevatedButton.styleFrom(
                                 minimumSize: const Size(double.infinity, 45),
                               ),
@@ -231,7 +232,7 @@ class _MenusScreenState extends State<MenusScreen> {
                   ),
                 if (isDesktop)
                   Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 8.0),
+                    padding: EdgeInsets.symmetric(horizontal: 24.0, vertical: 8.0),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
@@ -240,12 +241,12 @@ class _MenusScreenState extends State<MenusScreen> {
                             setState(() => _searchQuery = v);
                             _fetchData();
                           },
-                          decoration: const InputDecoration(
+                          decoration: InputDecoration(
                             hintText: 'Cari menu...',
                             prefixIcon: Icon(Icons.search),
                           ),
                         ),
-                        const SizedBox(height: 12),
+                        SizedBox(height: 12),
                         LayoutBuilder(
                           builder: (context, constraints) {
                             final double itemWidth = (constraints.maxWidth - 48) / 5;
@@ -258,8 +259,8 @@ class _MenusScreenState extends State<MenusScreen> {
                                 children: [
                                   SizedBox(
                                     width: 170,
-                                    child: _buildFilterItem('Berdasarkan', _sortBy, const [
-                                      DropdownMenuItem(value: null, child: Text('Pilih berdasarkan', style: TextStyle(color: Colors.grey))),
+                                    child: _buildFilterItem('Berdasarkan', _sortBy, [
+                                      DropdownMenuItem(value: null, child: Text('Pilih berdasarkan', style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant))),
                                       DropdownMenuItem(value: 'name', child: Text('Nama')),
                                       DropdownMenuItem(value: 'price', child: Text('Harga')),
                                       DropdownMenuItem(value: 'created_at', child: Text('Waktu Dibuat')),
@@ -268,8 +269,8 @@ class _MenusScreenState extends State<MenusScreen> {
                                   ),
                                   SizedBox(
                                     width: 170,
-                                    child: _buildFilterItem('Urutan', _sortDirection, const [
-                                      DropdownMenuItem(value: null, child: Text('Pilih urutan', style: TextStyle(color: Colors.grey))),
+                                    child: _buildFilterItem('Urutan', _sortDirection, [
+                                      DropdownMenuItem(value: null, child: Text('Pilih urutan', style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant))),
                                       DropdownMenuItem(value: 'asc', child: Text('A-Z / Kecil-Besar')),
                                       DropdownMenuItem(value: 'desc', child: Text('Z-A / Besar-Kecil')),
                                     ], (v) => setState(() => _sortDirection = v)),
@@ -277,22 +278,22 @@ class _MenusScreenState extends State<MenusScreen> {
                                   SizedBox(
                                     width: 170,
                                     child: _buildFilterItem('Kategori', _selectedCategory, [
-                                      const DropdownMenuItem(value: null, child: Text('Semua Kategori', style: TextStyle(color: Colors.grey))),
+                                      DropdownMenuItem(value: null, child: Text('Semua Kategori', style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant))),
                                       ..._categories.map((c) => DropdownMenuItem(value: c['id'].toString(), child: Text(c['name'] ?? '-'))),
                                     ], (v) => setState(() => _selectedCategory = v)),
                                   ),
                                   SizedBox(
                                     width: 170,
-                                    child: _buildFilterItem('Divisi', _division, const [
-                                      DropdownMenuItem(value: null, child: Text('Semua Divisi', style: TextStyle(color: Colors.grey))),
+                                    child: _buildFilterItem('Divisi', _division, [
+                                      DropdownMenuItem(value: null, child: Text('Semua Divisi', style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant))),
                                       DropdownMenuItem(value: 'KITCHEN', child: Text('KITCHEN')),
                                       DropdownMenuItem(value: 'BAR', child: Text('BAR')),
                                     ], (v) => setState(() => _division = v)),
                                   ),
                                   SizedBox(
                                     width: 170,
-                                    child: _buildFilterItem('Status', _isActive, const [
-                                      DropdownMenuItem(value: null, child: Text('Semua Status', style: TextStyle(color: Colors.grey))),
+                                    child: _buildFilterItem('Status', _isActive, [
+                                      DropdownMenuItem(value: null, child: Text('Semua Status', style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant))),
                                       DropdownMenuItem(value: 'true', child: Text('Aktif')),
                                       DropdownMenuItem(value: 'false', child: Text('Nonaktif')),
                                     ], (v) => setState(() => _isActive = v)),
@@ -303,41 +304,41 @@ class _MenusScreenState extends State<MenusScreen> {
                               return Row(
                                 children: [
                                   Expanded(
-                                    child: _buildFilterItem('Berdasarkan', _sortBy, const [
-                                      DropdownMenuItem(value: null, child: Text('Pilih berdasarkan', style: TextStyle(color: Colors.grey))),
+                                    child: _buildFilterItem('Berdasarkan', _sortBy, [
+                                      DropdownMenuItem(value: null, child: Text('Pilih berdasarkan', style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant))),
                                       DropdownMenuItem(value: 'name', child: Text('Nama')),
                                       DropdownMenuItem(value: 'price', child: Text('Harga')),
                                       DropdownMenuItem(value: 'created_at', child: Text('Waktu Dibuat')),
                                       DropdownMenuItem(value: 'updated_at', child: Text('Waktu Diperbarui')),
                                     ], (v) => setState(() => _sortBy = v)),
                                   ),
-                                  const SizedBox(width: 12),
+                                  SizedBox(width: 12),
                                   Expanded(
-                                    child: _buildFilterItem('Urutan', _sortDirection, const [
-                                      DropdownMenuItem(value: null, child: Text('Pilih urutan', style: TextStyle(color: Colors.grey))),
+                                    child: _buildFilterItem('Urutan', _sortDirection, [
+                                      DropdownMenuItem(value: null, child: Text('Pilih urutan', style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant))),
                                       DropdownMenuItem(value: 'asc', child: Text('A-Z / Kecil-Besar')),
                                       DropdownMenuItem(value: 'desc', child: Text('Z-A / Besar-Kecil')),
                                     ], (v) => setState(() => _sortDirection = v)),
                                   ),
-                                  const SizedBox(width: 12),
+                                  SizedBox(width: 12),
                                   Expanded(
                                     child: _buildFilterItem('Kategori', _selectedCategory, [
-                                      const DropdownMenuItem(value: null, child: Text('Semua Kategori', style: TextStyle(color: Colors.grey))),
+                                      DropdownMenuItem(value: null, child: Text('Semua Kategori', style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant))),
                                       ..._categories.map((c) => DropdownMenuItem(value: c['id'].toString(), child: Text(c['name'] ?? '-'))),
                                     ], (v) => setState(() => _selectedCategory = v)),
                                   ),
-                                  const SizedBox(width: 12),
+                                  SizedBox(width: 12),
                                   Expanded(
-                                    child: _buildFilterItem('Divisi', _division, const [
-                                      DropdownMenuItem(value: null, child: Text('Semua Divisi', style: TextStyle(color: Colors.grey))),
+                                    child: _buildFilterItem('Divisi', _division, [
+                                      DropdownMenuItem(value: null, child: Text('Semua Divisi', style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant))),
                                       DropdownMenuItem(value: 'KITCHEN', child: Text('KITCHEN')),
                                       DropdownMenuItem(value: 'BAR', child: Text('BAR')),
                                     ], (v) => setState(() => _division = v)),
                                   ),
-                                  const SizedBox(width: 12),
+                                  SizedBox(width: 12),
                                   Expanded(
-                                    child: _buildFilterItem('Status', _isActive, const [
-                                      DropdownMenuItem(value: null, child: Text('Semua Status', style: TextStyle(color: Colors.grey))),
+                                    child: _buildFilterItem('Status', _isActive, [
+                                      DropdownMenuItem(value: null, child: Text('Semua Status', style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant))),
                                       DropdownMenuItem(value: 'true', child: Text('Aktif')),
                                       DropdownMenuItem(value: 'false', child: Text('Nonaktif')),
                                     ], (v) => setState(() => _isActive = v)),
@@ -352,14 +353,14 @@ class _MenusScreenState extends State<MenusScreen> {
                   ),
                 Expanded(
                   child: _isLoading
-                      ? const Center(child: CircularProgressIndicator())
+                      ? Center(child: CircularProgressIndicator())
                       : Column(
                           children: [
                             Expanded(
                               child: isDesktop
                                   ? _buildMenuTable(isAdmin)
                                   : ListView.builder(
-                                      padding: const EdgeInsets.all(16),
+                                      padding: EdgeInsets.all(16),
                                       itemCount: _items.length,
                                       itemBuilder: (context, index) {
                                         final item = _items[index];
@@ -382,8 +383,8 @@ class _MenusScreenState extends State<MenusScreen> {
                 context,
                 MaterialPageRoute(builder: (context) => const MenuFormScreen()),
               ).then((v) => v == true ? _fetchData() : null),
-              backgroundColor: AppColors.primary,
-              child: const Icon(Icons.add, color: Colors.white),
+              backgroundColor: Theme.of(context).colorScheme.primary,
+              child: Icon(Icons.add, color: Theme.of(context).cardColor),
             )
           : null,
       bottomNavigationBar: isDesktop ? null : const MobileBottomNav(currentIndex: 2),
@@ -397,7 +398,7 @@ class _MenusScreenState extends State<MenusScreen> {
       children: [
         _menuCard(item, isAdmin, isDesktop),
         if (isExpanded) _ingredientsDetail(item),
-        const SizedBox(height: 12),
+        SizedBox(height: 12),
       ],
     );
   }
@@ -409,9 +410,9 @@ class _MenusScreenState extends State<MenusScreen> {
 
     return Container(
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: Theme.of(context).cardColor,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: AppColors.border),
+        border: Border.all(color: Theme.of(context).colorScheme.outline),
       ),
       child: IntrinsicHeight(
         child: Row(
@@ -420,26 +421,26 @@ class _MenusScreenState extends State<MenusScreen> {
             Container(
               width: isDesktop ? 120 : 80,
               decoration: BoxDecoration(
-                borderRadius: const BorderRadius.only(
+                borderRadius: BorderRadius.only(
                   topLeft: Radius.circular(12),
                   bottomLeft: Radius.circular(12),
                 ),
-                color: Colors.grey.shade100,
+                color: Theme.of(context).colorScheme.surfaceContainerLow,
               ),
               child: imageUrl.isNotEmpty
                   ? ClipRRect(
-                      borderRadius: const BorderRadius.only(
+                      borderRadius: BorderRadius.only(
                         topLeft: Radius.circular(12),
                         bottomLeft: Radius.circular(12),
                       ),
                       child: Image.network(imageUrl, fit: BoxFit.cover),
                     )
-                  : const Icon(Icons.restaurant, color: Colors.grey),
+                  : Icon(Icons.restaurant, color: Theme.of(context).colorScheme.onSurfaceVariant),
             ),
             // Info
             Expanded(
               child: Padding(
-                padding: const EdgeInsets.all(12.0),
+                padding: EdgeInsets.all(12.0),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   mainAxisSize: MainAxisSize.min, // Fix vertical overflow
@@ -453,33 +454,33 @@ class _MenusScreenState extends State<MenusScreen> {
                             children: [
                               Text(
                                 item['name'] ?? '-',
-                                style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
+                                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
                                 maxLines: 1,
                                 overflow: TextOverflow.ellipsis,
                               ),
                               Text(
                                 item['category']?['name'] ?? '-',
-                                style: const TextStyle(fontSize: 11, color: AppColors.mutedForeground),
+                                style: TextStyle(fontSize: 11, color: Theme.of(context).colorScheme.onSurfaceVariant),
                               ),
                             ],
                           ),
                         ),
-                        const SizedBox(width: 4),
+                        SizedBox(width: 4),
                         _statusChip(isActive),
-                        const SizedBox(width: 4),
+                        SizedBox(width: 4),
                         _divisionChip(item['division'] ?? 'KITCHEN'),
                       ],
                     ),
-                    const SizedBox(height: 8),
+                    SizedBox(height: 8),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Text(
                           currency.format(parseDouble(item['price'])),
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontWeight: FontWeight.w900,
                             fontSize: 16,
-                            color: AppColors.primary,
+                            color: Theme.of(context).colorScheme.primary,
                           ),
                         ),
                         TextButton.icon(
@@ -489,7 +490,7 @@ class _MenusScreenState extends State<MenusScreen> {
                             });
                           },
                           icon: Icon(isExpanded ? Icons.expand_less : Icons.expand_more, size: 14),
-                          label: const Text('Detail', style: TextStyle(fontSize: 11)),
+                          label: Text('Detail', style: TextStyle(fontSize: 11)),
                           style: TextButton.styleFrom(visualDensity: VisualDensity.compact, padding: EdgeInsets.zero),
                         ),
                       ],
@@ -512,9 +513,9 @@ class _MenusScreenState extends State<MenusScreen> {
                 },
                 itemBuilder: (context) => [
                   const PopupMenuItem(value: 'edit', child: Row(children: [Icon(Icons.edit, size: 18), SizedBox(width: 8), Text('Ubah')])),
-                  const PopupMenuItem(
+                  PopupMenuItem(
                     value: 'delete',
-                    child: Row(children: [Icon(Icons.delete, size: 18, color: AppColors.destructive), SizedBox(width: 8), Text('Hapus', style: TextStyle(color: AppColors.destructive))]),
+                    child: Row(children: [Icon(Icons.delete, size: 18, color: Theme.of(context).colorScheme.error), SizedBox(width: 8), Text('Hapus', style: TextStyle(color: Theme.of(context).colorScheme.error))]),
                   ),
                 ],
               ),
@@ -532,11 +533,11 @@ class _MenusScreenState extends State<MenusScreen> {
 
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.all(16),
+      padding: EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white,
-        border: Border.all(color: AppColors.border),
-        borderRadius: const BorderRadius.only(bottomLeft: Radius.circular(12), bottomRight: Radius.circular(12)),
+        color: Theme.of(context).cardColor,
+        border: Border.all(color: Theme.of(context).colorScheme.outline),
+        borderRadius: BorderRadius.only(bottomLeft: Radius.circular(12), bottomRight: Radius.circular(12)),
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -548,17 +549,17 @@ class _MenusScreenState extends State<MenusScreen> {
               height: 200,
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(8),
-                color: Colors.grey.shade100,
+                color: Theme.of(context).colorScheme.surfaceContainerLow,
               ),
               child: imageUrl.isNotEmpty
                   ? ClipRRect(
                       borderRadius: BorderRadius.circular(8),
                       child: Image.network(imageUrl, fit: BoxFit.cover),
                     )
-                  : const Icon(Icons.restaurant, size: 50, color: Colors.grey),
+                  : Icon(Icons.restaurant, size: 50, color: Theme.of(context).colorScheme.onSurfaceVariant),
             ),
           ),
-          const SizedBox(width: 24),
+          SizedBox(width: 24),
           // Details on Right
           Expanded(
             flex: 2,
@@ -571,8 +572,8 @@ class _MenusScreenState extends State<MenusScreen> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          const Text('Tanggal Dibuat', style: TextStyle(color: AppColors.mutedForeground, fontSize: 12)),
-                          Text(createdAt, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13)),
+                          Text('Tanggal Dibuat', style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant, fontSize: 12)),
+                          Text(createdAt, style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13)),
                         ],
                       ),
                     ),
@@ -580,17 +581,17 @@ class _MenusScreenState extends State<MenusScreen> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          const Text('Tanggal Diperbarui', style: TextStyle(color: AppColors.mutedForeground, fontSize: 12)),
-                          Text(updatedAt, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13)),
+                          Text('Tanggal Diperbarui', style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant, fontSize: 12)),
+                          Text(updatedAt, style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13)),
                         ],
                       ),
                     ),
                   ],
                 ),
-                const SizedBox(height: 24),
+                SizedBox(height: 24),
                 Container(
                   decoration: BoxDecoration(
-                    border: Border.all(color: Colors.grey.shade200),
+                    border: Border.all(color: Theme.of(context).colorScheme.outlineVariant),
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: Table(
@@ -601,7 +602,7 @@ class _MenusScreenState extends State<MenusScreen> {
                     },
                     children: [
                       TableRow(
-                        decoration: BoxDecoration(color: Colors.grey.shade50),
+                        decoration: BoxDecoration(color: Theme.of(context).colorScheme.surfaceContainerLowest),
                         children: const [
                           Padding(padding: EdgeInsets.all(12), child: Text('Bahan Baku', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12))),
                           Padding(padding: EdgeInsets.all(12), child: Text('Kuantitas yang Dibutuhkan', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12))),
@@ -618,9 +619,9 @@ class _MenusScreenState extends State<MenusScreen> {
                         ),
                       ...recipes.map((r) => TableRow(
                             children: [
-                              Padding(padding: const EdgeInsets.all(12), child: Text(r['ingredient']?['name'] ?? '-', style: const TextStyle(fontSize: 12))),
-                              Padding(padding: const EdgeInsets.all(12), child: Text(r['quantity']?.toString() ?? '0', style: const TextStyle(fontSize: 12))),
-                              Padding(padding: const EdgeInsets.all(12), child: Text(r['ingredient']?['unit']?.toString().toLowerCase() ?? '-', style: const TextStyle(fontSize: 12))),
+                              Padding(padding: EdgeInsets.all(12), child: Text(r['ingredient']?['name'] ?? '-', style: TextStyle(fontSize: 12))),
+                              Padding(padding: EdgeInsets.all(12), child: Text(r['quantity']?.toString() ?? '0', style: TextStyle(fontSize: 12))),
+                              Padding(padding: EdgeInsets.all(12), child: Text(r['ingredient']?['unit']?.toString().toLowerCase() ?? '-', style: TextStyle(fontSize: 12))),
                             ],
                           )),
                     ],
@@ -636,7 +637,7 @@ class _MenusScreenState extends State<MenusScreen> {
 
   Widget _divisionChip(String division) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+      padding: EdgeInsets.symmetric(horizontal: 8, vertical: 2),
       decoration: BoxDecoration(
         color: division == 'BAR' ? Colors.orange.withValues(alpha: 0.1) : Colors.blue.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(12),
@@ -654,7 +655,7 @@ class _MenusScreenState extends State<MenusScreen> {
 
   Widget _statusChip(bool isActive) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+      padding: EdgeInsets.symmetric(horizontal: 8, vertical: 2),
       decoration: BoxDecoration(
         color: isActive ? Colors.green.withValues(alpha: 0.1) : Colors.red.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(12),
@@ -674,17 +675,17 @@ class _MenusScreenState extends State<MenusScreen> {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Hapus Menu'),
+        title: Text('Hapus Menu'),
         content: Text('Apakah Anda yakin ingin menghapus menu "${item['name']}"?'),
-        actions: [
-          TextButton(onPressed: () => Navigator.pop(context), child: const Text('Batal')),
+        actions: [const ThemeToggle(), 
+          TextButton(onPressed: () => Navigator.pop(context), child: Text('Batal')),
           ElevatedButton(
             onPressed: () {
               Navigator.pop(context);
               _deleteMenu(item['id']);
             },
-            style: ElevatedButton.styleFrom(backgroundColor: AppColors.destructive),
-            child: const Text('Hapus'),
+            style: ElevatedButton.styleFrom(backgroundColor: Theme.of(context).colorScheme.error),
+            child: Text('Hapus'),
           ),
         ],
       ),
@@ -695,15 +696,15 @@ class _MenusScreenState extends State<MenusScreen> {
       scrollDirection: Axis.horizontal,
       child: Container(
         constraints: BoxConstraints(minWidth: MediaQuery.of(context).size.width - 300),
-        padding: const EdgeInsets.all(24),
+        padding: EdgeInsets.all(24),
         child: Container(
           decoration: BoxDecoration(
-            color: Colors.white,
+            color: Theme.of(context).cardColor,
             borderRadius: BorderRadius.circular(12),
-            border: Border.all(color: AppColors.border),
+            border: Border.all(color: Theme.of(context).colorScheme.outline),
           ),
           child: DataTable(
-            headingRowColor: WidgetStateProperty.all(Colors.grey.shade50),
+            headingRowColor: WidgetStateProperty.all(Theme.of(context).colorScheme.surfaceContainerLowest),
             columnSpacing: 24,
             columns: [
               const DataColumn(label: Text('No', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12))),
@@ -723,14 +724,14 @@ class _MenusScreenState extends State<MenusScreen> {
               return [
                 DataRow(
                   cells: [
-                    DataCell(Text('${index + 1}', style: const TextStyle(fontSize: 12, color: AppColors.mutedForeground))),
+                    DataCell(Text('${index + 1}', style: TextStyle(fontSize: 12, color: Theme.of(context).colorScheme.onSurfaceVariant))),
                     DataCell(
                       Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
                           if (item['image_url'] != null)
                             Padding(
-                              padding: const EdgeInsets.only(right: 12),
+                              padding: EdgeInsets.only(right: 12),
                               child: ClipRRect(
                                 borderRadius: BorderRadius.circular(4),
                                 child: Image.network(item['image_url'], width: 45, height: 35, fit: BoxFit.cover),
@@ -740,21 +741,21 @@ class _MenusScreenState extends State<MenusScreen> {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
-                              Text(item['name'] ?? '-', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12)),
-                              Text(item['category']?['name'] ?? '-', style: const TextStyle(fontSize: 11, color: AppColors.mutedForeground)),
+                              Text(item['name'] ?? '-', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12)),
+                              Text(item['category']?['name'] ?? '-', style: TextStyle(fontSize: 11, color: Theme.of(context).colorScheme.onSurfaceVariant)),
                             ],
                           ),
                         ],
                       ),
                     ),
-                    DataCell(Text(currency.format(parseDouble(item['price'])), style: const TextStyle(fontSize: 12))),
-                    DataCell(Text(currency.format(parseDouble(item['hpp'] ?? 0)), style: const TextStyle(fontSize: 12))),
-                    DataCell(Text('${item['stock'] ?? 0}', style: const TextStyle(fontSize: 12))),
+                    DataCell(Text(currency.format(parseDouble(item['price'])), style: TextStyle(fontSize: 12))),
+                    DataCell(Text(currency.format(parseDouble(item['hpp'] ?? 0)), style: TextStyle(fontSize: 12))),
+                    DataCell(Text('${item['stock'] ?? 0}', style: TextStyle(fontSize: 12))),
                     DataCell(_statusChip(isActive)),
                     DataCell(_divisionChip(item['division'] ?? 'KITCHEN')),
                     DataCell(
                       PopupMenuButton<String>(
-                        icon: const Icon(Icons.more_horiz, size: 20, color: AppColors.mutedForeground),
+                        icon: Icon(Icons.more_horiz, size: 20, color: Theme.of(context).colorScheme.onSurfaceVariant),
                         onSelected: (val) {
                           if (val == 'edit') {
                             Navigator.push(
@@ -773,11 +774,11 @@ class _MenusScreenState extends State<MenusScreen> {
                           const PopupMenuItem(value: 'edit', child: Row(children: [Icon(Icons.edit_outlined, size: 18), SizedBox(width: 8), Text('Edit', style: TextStyle(fontSize: 13))])),
                           PopupMenuItem(
                             value: 'detail',
-                            child: Row(children: [Icon(isExpanded ? Icons.visibility_off_outlined : Icons.visibility_outlined, size: 18), SizedBox(width: 8), Text(isExpanded ? 'Sembunyikan Detail' : 'Tampilkan Detail', style: const TextStyle(fontSize: 13))]),
+                            child: Row(children: [Icon(isExpanded ? Icons.visibility_off_outlined : Icons.visibility_outlined, size: 18), SizedBox(width: 8), Text(isExpanded ? 'Sembunyikan Detail' : 'Tampilkan Detail', style: TextStyle(fontSize: 13))]),
                           ),
-                          const PopupMenuItem(
+                          PopupMenuItem(
                             value: 'delete',
-                            child: Row(children: [Icon(Icons.delete_outline, size: 18, color: AppColors.destructive), SizedBox(width: 8), Text('Hapus', style: TextStyle(color: AppColors.destructive, fontSize: 13))]),
+                            child: Row(children: [Icon(Icons.delete_outline, size: 18, color: Theme.of(context).colorScheme.error), SizedBox(width: 8), Text('Hapus', style: TextStyle(color: Theme.of(context).colorScheme.error, fontSize: 13))]),
                           ),
                         ],
                       ),
@@ -790,7 +791,7 @@ class _MenusScreenState extends State<MenusScreen> {
                       DataCell(
                         Container(
                           width: MediaQuery.of(context).size.width - 350,
-                          padding: const EdgeInsets.symmetric(vertical: 8),
+                          padding: EdgeInsets.symmetric(vertical: 8),
                           child: _ingredientsDetail(item),
                         ),
                       ),
@@ -813,24 +814,24 @@ class _MenusScreenState extends State<MenusScreen> {
 
   Widget _buildPagination() {
     return Padding(
-      padding: const EdgeInsets.all(24.0),
+      padding: EdgeInsets.all(24.0),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Row(
             children: [
-              const Text('Hal. 1 dari 1', style: TextStyle(fontSize: 12, color: AppColors.mutedForeground)),
-              const SizedBox(width: 16),
+              Text('Hal. 1 dari 1', style: TextStyle(fontSize: 12, color: Theme.of(context).colorScheme.onSurfaceVariant)),
+              SizedBox(width: 16),
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 8),
+                padding: EdgeInsets.symmetric(horizontal: 8),
                 decoration: BoxDecoration(
-                  border: Border.all(color: Colors.grey.shade300),
+                  border: Border.all(color: Theme.of(context).colorScheme.outline),
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: DropdownButtonHideUnderline(
                   child: DropdownButton<int>(
                     value: 10,
-                    style: const TextStyle(fontSize: 12, color: Colors.black),
+                    style: TextStyle(fontSize: 12, color: Theme.of(context).colorScheme.onSurface),
                     items: [10, 20, 50].map((e) => DropdownMenuItem(value: e, child: Text('$e / Hal'))).toList(),
                     onChanged: (v) {},
                   ),
@@ -840,8 +841,8 @@ class _MenusScreenState extends State<MenusScreen> {
           ),
           Row(
             children: [
-              IconButton(onPressed: null, icon: const Icon(Icons.chevron_left)),
-              IconButton(onPressed: null, icon: const Icon(Icons.chevron_right)),
+              IconButton(onPressed: null, icon: Icon(Icons.chevron_left)),
+              IconButton(onPressed: null, icon: Icon(Icons.chevron_right)),
             ],
           ),
         ],
@@ -854,18 +855,18 @@ class _MenusScreenState extends State<MenusScreen> {
       crossAxisAlignment: CrossAxisAlignment.start,
       mainAxisSize: MainAxisSize.min,
       children: [
-        Text(title, style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Colors.grey)),
-        const SizedBox(height: 4),
+        Text(title, style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Theme.of(context).colorScheme.onSurfaceVariant)),
+        SizedBox(height: 4),
         DropdownButtonFormField<String>(
-          value: value,
+          initialValue: value,
           isExpanded: true,
           decoration: InputDecoration(
             filled: true,
-            fillColor: Colors.grey.shade50,
+            fillColor: Theme.of(context).colorScheme.surfaceContainerLowest,
             isDense: true,
-            contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-            border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: Colors.grey.shade300)),
-            enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: Colors.grey.shade300)),
+            contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+            border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: Theme.of(context).colorScheme.outline)),
+            enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: Theme.of(context).colorScheme.outline)),
           ),
           items: items,
           onChanged: (v) {

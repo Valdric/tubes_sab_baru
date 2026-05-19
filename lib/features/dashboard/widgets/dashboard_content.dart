@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
-import 'package:gosir/core/theme/app_colors.dart';
 import 'package:gosir/core/services/api_service.dart';
 import 'package:gosir/features/reports/models/dashboard_summary.dart';
 import 'package:intl/intl.dart';
@@ -120,8 +119,8 @@ class _DashboardContentState extends State<DashboardContent> {
   @override
   Widget build(BuildContext context) {
     if (_isLoading) {
-      return const Center(
-        child: CircularProgressIndicator(color: AppColors.primary),
+      return Center(
+        child: CircularProgressIndicator(color: Theme.of(context).colorScheme.primary),
       );
     }
 
@@ -130,14 +129,14 @@ class _DashboardContentState extends State<DashboardContent> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const Icon(Icons.error_outline, size: 48, color: Colors.grey),
-            const SizedBox(height: 16),
-            const Text("Gagal memuat data dashboard"),
-            const SizedBox(height: 16),
+            Icon(Icons.error_outline, size: 48, color: Theme.of(context).colorScheme.onSurfaceVariant),
+            SizedBox(height: 16),
+            Text("Gagal memuat data dashboard"),
+            SizedBox(height: 16),
             ElevatedButton(
               onPressed: _fetchAllData,
-              style: ElevatedButton.styleFrom(backgroundColor: AppColors.primary, foregroundColor: Colors.white),
-              child: const Text("Coba Lagi"),
+              style: ElevatedButton.styleFrom(backgroundColor: Theme.of(context).colorScheme.primary, foregroundColor: Theme.of(context).cardColor),
+              child: Text("Coba Lagi"),
             ),
           ],
         ),
@@ -151,22 +150,22 @@ class _DashboardContentState extends State<DashboardContent> {
     );
 
     return Material(
-      color: AppColors.background,
+      color: Theme.of(context).scaffoldBackgroundColor,
       child: SingleChildScrollView(
-        padding: const EdgeInsets.all(24),
+        padding: EdgeInsets.all(24),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             _buildHeader(),
-            const SizedBox(height: 24),
+            SizedBox(height: 24),
             _buildMetricsGrid(currency),
-            const SizedBox(height: 32),
+            SizedBox(height: 32),
             _buildTrendCard(),
-            const SizedBox(height: 32),
+            SizedBox(height: 32),
             _buildPeakHoursCard(),
-            const SizedBox(height: 32),
+            SizedBox(height: 32),
             _buildDistributions(),
-            const SizedBox(height: 32),
+            SizedBox(height: 32),
             _buildDetails(),
           ],
         ),
@@ -188,13 +187,13 @@ class _DashboardContentState extends State<DashboardContent> {
               "Dashboard",
               style: Theme.of(context).textTheme.displayMedium?.copyWith(
                     fontWeight: FontWeight.bold,
-                    color: Colors.black,
+                    color: Theme.of(context).colorScheme.onSurface,
                     fontSize: 32,
                   ),
             ),
-            const Text(
+            Text(
               "Analisis performa bisnis dan pertumbuhan periode ini.",
-              style: TextStyle(color: AppColors.mutedForeground, fontSize: 14),
+              style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant, fontSize: 14),
             ),
           ],
         ),
@@ -203,13 +202,13 @@ class _DashboardContentState extends State<DashboardContent> {
           children: [
             OutlinedButton.icon(
               onPressed: _resetFilter,
-              icon: const Icon(Icons.refresh, size: 18),
-              label: const Text("Reset"),
+              icon: Icon(Icons.refresh, size: 18),
+              label: Text("Reset"),
               style: OutlinedButton.styleFrom(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
               ),
             ),
-            const SizedBox(width: 12),
+            SizedBox(width: 12),
             _buildCustomDropdown(
               label: _globalDateRange == null
                   ? "Semua Waktu"
@@ -281,34 +280,34 @@ class _DashboardContentState extends State<DashboardContent> {
   Widget _metricCard(String title, String value, IconData icon,
       {String? footer, List<String>? details}) {
     return Container(
-      padding: const EdgeInsets.all(20),
+      padding: EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: Theme.of(context).cardColor,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: Colors.grey.shade200),
+        border: Border.all(color: Theme.of(context).colorScheme.outlineVariant),
       ),
       child: Stack(
         children: [
           Positioned(
             right: 0,
             top: 0,
-            child: Icon(icon, color: Colors.grey.shade400, size: 24),
+            child: Icon(icon, color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.4), size: 24),
           ),
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
                 title,
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 14,
                   fontWeight: FontWeight.w600,
-                  color: Colors.black87,
+                  color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.87),
                 ),
               ),
-              const SizedBox(height: 12),
+              SizedBox(height: 12),
               Text(
                 value,
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 24,
                   fontWeight: FontWeight.bold,
                   color: Color(0xFF065F46), // Dark green like web
@@ -318,15 +317,15 @@ class _DashboardContentState extends State<DashboardContent> {
               if (footer != null)
                 Text(
                   footer,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 10,
                     fontWeight: FontWeight.bold,
-                    color: Colors.grey,
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
                   ),
                 ),
               if (details != null)
                 ...details.map((d) => Padding(
-                      padding: const EdgeInsets.only(top: 2),
+                      padding: EdgeInsets.only(top: 2),
                       child: Text(
                         d,
                         style: TextStyle(
@@ -344,11 +343,11 @@ class _DashboardContentState extends State<DashboardContent> {
 
   Widget _buildTrendCard() {
     return Container(
-      padding: const EdgeInsets.all(24),
+      padding: EdgeInsets.all(24),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: Theme.of(context).cardColor,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: Colors.grey.shade200),
+        border: Border.all(color: Theme.of(context).colorScheme.outlineVariant),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -370,15 +369,15 @@ class _DashboardContentState extends State<DashboardContent> {
                         ),
                       ],
                     ),
-                    const SizedBox(height: 4),
-                    const Text(
+                    SizedBox(height: 4),
+                    Text(
                       "Visualisasi pergerakan pendapatan dngn rentang maksimal 7 hari.",
-                      style: TextStyle(color: AppColors.mutedForeground, fontSize: 12),
+                      style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant, fontSize: 12),
                     ),
                   ],
                 ),
               ),
-              const SizedBox(width: 8),
+              SizedBox(width: 8),
               _buildCustomDropdown(
                 label: _getPresetLabel(_trendDateRange!),
                 onSelected: (preset) async {
@@ -398,12 +397,12 @@ class _DashboardContentState extends State<DashboardContent> {
               ),
             ],
           ),
-          const SizedBox(height: 24),
+          SizedBox(height: 24),
           Container(
             height: 300,
             constraints: const BoxConstraints(minHeight: 200),
             child: _revenueTrend.isEmpty
-                ? const Center(child: Text("Tidak ada data tren"))
+                ? Center(child: Text("Tidak ada data tren"))
                 : RepaintBoundary(
                     child: IgnorePointer(
                       child: LineChart(
@@ -413,7 +412,7 @@ class _DashboardContentState extends State<DashboardContent> {
                             show: true,
                             drawVerticalLine: false,
                             getDrawingHorizontalLine: (value) => FlLine(
-                              color: Colors.grey.shade100,
+                              color: Theme.of(context).colorScheme.surfaceContainerLow,
                               strokeWidth: 1,
                             ),
                           ),
@@ -427,16 +426,16 @@ class _DashboardContentState extends State<DashboardContent> {
                                 interval: 1,
                                 getTitlesWidget: (value, meta) {
                                   int index = value.toInt();
-                                  if (index < 0 || index >= _revenueTrend.length) return const SizedBox();
+                                  if (index < 0 || index >= _revenueTrend.length) return SizedBox();
                                   final item = _revenueTrend[index];
                                   final revenue = parseDouble(item['revenue']);
-                                  if (revenue <= 0) return const SizedBox();
+                                  if (revenue <= 0) return SizedBox();
                                   final date = DateTime.parse(item['date']);
                                   return Padding(
-                                    padding: const EdgeInsets.only(top: 8.0),
+                                    padding: EdgeInsets.only(top: 8.0),
                                     child: Text(
                                       DateFormat('dd MMM').format(date),
-                                      style: const TextStyle(fontSize: 10, color: Colors.grey),
+                                      style: TextStyle(fontSize: 10, color: Theme.of(context).colorScheme.onSurfaceVariant),
                                     ),
                                   );
                                 },
@@ -477,11 +476,11 @@ class _DashboardContentState extends State<DashboardContent> {
 
   Widget _buildPeakHoursCard() {
     return Container(
-      padding: const EdgeInsets.all(24),
+      padding: EdgeInsets.all(24),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: Theme.of(context).cardColor,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: Colors.grey.shade200),
+        border: Border.all(color: Theme.of(context).colorScheme.outlineVariant),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -503,15 +502,15 @@ class _DashboardContentState extends State<DashboardContent> {
                         ),
                       ],
                     ),
-                    const SizedBox(height: 4),
-                    const Text(
+                    SizedBox(height: 4),
+                    Text(
                       "Pola sebaran pesanan harian berdasarkan jam harian.",
-                      style: TextStyle(color: AppColors.mutedForeground, fontSize: 12),
+                      style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant, fontSize: 12),
                     ),
                   ],
                 ),
               ),
-              const SizedBox(width: 8),
+              SizedBox(width: 8),
               _buildCustomDropdown(
                 label: _getPeakLabel(_peakDate),
                 onSelected: (preset) async {
@@ -534,12 +533,12 @@ class _DashboardContentState extends State<DashboardContent> {
               ),
             ],
           ),
-          const SizedBox(height: 24),
+          SizedBox(height: 24),
           Container(
             height: 200,
             constraints: const BoxConstraints(minHeight: 150),
             child: _peakHours.isEmpty
-                ? const Center(child: Text("Tidak ada data jam sibuk"))
+                ? Center(child: Text("Tidak ada data jam sibuk"))
                 : RepaintBoundary(
                     child: IgnorePointer(
                       child: BarChart(
@@ -554,10 +553,10 @@ class _DashboardContentState extends State<DashboardContent> {
                               sideTitles: SideTitles(
                                 showTitles: true,
                                 getTitlesWidget: (value, meta) {
-                                  if (value % 3 != 0) return const SizedBox();
+                                  if (value % 3 != 0) return SizedBox();
                                   return Text(
                                     "${value.toInt().toString().padLeft(2, '0')}:00",
-                                    style: const TextStyle(fontSize: 10, color: Colors.grey),
+                                    style: TextStyle(fontSize: 10, color: Theme.of(context).colorScheme.onSurfaceVariant),
                                   );
                                 },
                               ),
@@ -604,21 +603,21 @@ class _DashboardContentState extends State<DashboardContent> {
       elevation: 4,
       tooltip: "",
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+        padding: EdgeInsets.symmetric(horizontal: 16, vertical: 10),
         decoration: BoxDecoration(
-          color: AppColors.background,
+          color: Theme.of(context).scaffoldBackgroundColor,
           borderRadius: BorderRadius.circular(8),
-          border: Border.all(color: Colors.grey.shade200),
+          border: Border.all(color: Theme.of(context).colorScheme.outlineVariant),
         ),
         child: Row(
           mainAxisSize: minAxisSize,
           children: [
             Text(
               label,
-              style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w500, color: Colors.black87),
+              style: TextStyle(fontSize: 13, fontWeight: FontWeight.w500, color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.87)),
             ),
-            const SizedBox(width: 8),
-            const Icon(Icons.keyboard_arrow_down, size: 18, color: Colors.grey),
+            SizedBox(width: 8),
+            Icon(Icons.keyboard_arrow_down, size: 18, color: Theme.of(context).colorScheme.onSurfaceVariant),
           ],
         ),
       ),
@@ -629,9 +628,9 @@ class _DashboardContentState extends State<DashboardContent> {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text(_translatePreset(p), style: const TextStyle(fontSize: 13)),
+                  Text(_translatePreset(p), style: TextStyle(fontSize: 13)),
                   if (currentValue == p)
-                    const Icon(Icons.check, size: 16, color: Colors.black87),
+                    Icon(Icons.check, size: 16, color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.87)),
                 ],
               ),
             )),
@@ -642,9 +641,9 @@ class _DashboardContentState extends State<DashboardContent> {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Text("Pilih Tanggal...", style: TextStyle(fontSize: 13)),
+              Text("Pilih Tanggal...", style: TextStyle(fontSize: 13)),
               if (currentValue == 'custom')
-                const Icon(Icons.check, size: 16, color: Colors.black87),
+                Icon(Icons.check, size: 16, color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.87)),
             ],
           ),
         ),
@@ -724,36 +723,36 @@ class _DashboardContentState extends State<DashboardContent> {
     int totalCount = items.fold(0, (sum, item) => sum + item.value);
 
     return Container(
-      padding: const EdgeInsets.all(20),
+      padding: EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: Theme.of(context).cardColor,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: Colors.grey.shade200),
+        border: Border.all(color: Theme.of(context).colorScheme.outlineVariant),
       ),
       child: Column(
         children: [
           Text(
             title,
-            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
+            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
           ),
           if (subtitle != null)
             Padding(
-              padding: const EdgeInsets.only(top: 4),
+              padding: EdgeInsets.only(top: 4),
               child: Text(
                 subtitle,
-                style: const TextStyle(fontSize: 11, color: AppColors.mutedForeground),
+                style: TextStyle(fontSize: 11, color: Theme.of(context).colorScheme.onSurfaceVariant),
                 textAlign: TextAlign.center,
               ),
             ),
-          const SizedBox(height: 24),
+          SizedBox(height: 24),
           Expanded(
             child: Container(
               constraints: const BoxConstraints(minHeight: 150),
               child: items.isEmpty
-                  ? const Center(
+                  ? Center(
                       child: Text("Tidak ada data",
                           style: TextStyle(
-                              fontSize: 11, color: AppColors.mutedForeground)))
+                              fontSize: 11, color: Theme.of(context).colorScheme.onSurfaceVariant)))
                   : Stack(
                       alignment: Alignment.center,
                       children: [
@@ -776,10 +775,10 @@ class _DashboardContentState extends State<DashboardContent> {
                               radius: 40,
                               showTitle: true,
                               titlePositionPercentageOffset: 1.5,
-                              titleStyle: const TextStyle(
+                              titleStyle: TextStyle(
                                   fontSize: 10,
                                   fontWeight: FontWeight.bold,
-                                  color: Colors.black87),
+                                  color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.87)),
                             );
                           }).toList(),
                           centerSpaceRadius: 50,
@@ -791,15 +790,15 @@ class _DashboardContentState extends State<DashboardContent> {
                         children: [
                           Text(
                             "$totalCount",
-                            style: const TextStyle(
+                            style: TextStyle(
                                 fontSize: 24, fontWeight: FontWeight.bold),
                           ),
-                            const Text(
+                            Text(
                               "ORDER",
                               style: TextStyle(
                                   fontSize: 10,
                                   fontWeight: FontWeight.bold,
-                                  color: Colors.grey),
+                                  color: Theme.of(context).colorScheme.onSurfaceVariant),
                             ),
                           ],
                         ),
@@ -856,8 +855,8 @@ class _DashboardContentState extends State<DashboardContent> {
                 icon: Icons.restaurant_menu,
                 subtitle: "Item yang paling sering dipesan.",
               ),
-        if (isWide) const SizedBox(width: 24),
-        if (!isWide) const SizedBox(height: 24),
+        if (isWide) SizedBox(width: 24),
+        if (!isWide) SizedBox(height: 24),
         isWide
             ? Expanded(
                 flex: 1,
@@ -888,11 +887,11 @@ class _DashboardContentState extends State<DashboardContent> {
     bool isError = false,
   }) {
     return Container(
-      padding: const EdgeInsets.all(24),
+      padding: EdgeInsets.all(24),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: Theme.of(context).cardColor,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: Colors.grey.shade200),
+        border: Border.all(color: Theme.of(context).colorScheme.outlineVariant),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -900,36 +899,36 @@ class _DashboardContentState extends State<DashboardContent> {
           Row(
             children: [
               Icon(icon, color: isError ? Colors.red : const Color(0xFF10B981), size: 20),
-              const SizedBox(width: 8),
+              SizedBox(width: 8),
               Text(
                 title,
-                style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
               ),
             ],
           ),
           if (subtitle != null)
             Padding(
-              padding: const EdgeInsets.only(top: 4),
+              padding: EdgeInsets.only(top: 4),
               child: Text(
                 subtitle,
-                style: const TextStyle(fontSize: 12, color: AppColors.mutedForeground),
+                style: TextStyle(fontSize: 12, color: Theme.of(context).colorScheme.onSurfaceVariant),
               ),
             ),
-          const SizedBox(height: 20),
+          SizedBox(height: 20),
           if (items.isEmpty)
             Center(
               child: Column(
                 children: [
-                  const SizedBox(height: 16),
+                  SizedBox(height: 16),
                   Icon(
                     isError ? Icons.check_circle_outline : Icons.info_outline,
                     size: 48,
-                    color: isError ? Colors.green.withValues(alpha: 0.2) : Colors.grey.withValues(alpha: 0.2),
+                    color: isError ? Colors.green.withValues(alpha: 0.2) : Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.2),
                   ),
-                  const SizedBox(height: 12),
+                  SizedBox(height: 12),
                   Text(
                     isError ? "Stok bahan baku terpantau aman." : "Belum ada item terlaris.",
-                    style: const TextStyle(fontSize: 12, color: Colors.grey),
+                    style: TextStyle(fontSize: 12, color: Theme.of(context).colorScheme.onSurfaceVariant),
                   ),
                 ],
               ),
@@ -938,10 +937,10 @@ class _DashboardContentState extends State<DashboardContent> {
             ...items.map<Widget>((item) {
               if (item is MostSoldItem) {
                 return Container(
-                  margin: const EdgeInsets.only(bottom: 8),
-                  padding: const EdgeInsets.all(12),
+                  margin: EdgeInsets.only(bottom: 8),
+                  padding: EdgeInsets.all(12),
                   decoration: BoxDecoration(
-                    color: Colors.grey.shade50,
+                    color: Theme.of(context).colorScheme.surfaceContainerLowest,
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: Row(
@@ -950,17 +949,17 @@ class _DashboardContentState extends State<DashboardContent> {
                       Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text(item.name, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13)),
-                          Text("Kuantitas: ${item.totalSold}x", style: const TextStyle(fontSize: 11, color: AppColors.mutedForeground)),
+                          Text(item.name, style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13)),
+                          Text("Kuantitas: ${item.totalSold}x", style: TextStyle(fontSize: 11, color: Theme.of(context).colorScheme.onSurfaceVariant)),
                         ],
                       ),
                       Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                        padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                         decoration: BoxDecoration(
                           color: Colors.green.withValues(alpha: 0.1),
                           borderRadius: BorderRadius.circular(4),
                         ),
-                        child: const Text("Terlaris", style: TextStyle(fontSize: 10, color: Colors.green, fontWeight: FontWeight.bold)),
+                        child: Text("Terlaris", style: TextStyle(fontSize: 10, color: Colors.green, fontWeight: FontWeight.bold)),
                       ),
                     ],
                   ),
@@ -968,15 +967,15 @@ class _DashboardContentState extends State<DashboardContent> {
               } else {
                 // LowStockItem
                 return Container(
-                  margin: const EdgeInsets.only(bottom: 8),
-                  padding: const EdgeInsets.all(12),
+                  margin: EdgeInsets.only(bottom: 8),
+                  padding: EdgeInsets.all(12),
                   decoration: BoxDecoration(
                     color: Colors.red.withValues(alpha: 0.05),
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: Text(
                     "${item.name} (${item.stock} ${item.unit})",
-                    style: const TextStyle(fontSize: 12, color: Colors.red),
+                    style: TextStyle(fontSize: 12, color: Colors.red),
                   ),
                 );
               }
@@ -1031,17 +1030,17 @@ class _WebStyleCalendarDialogState extends State<_WebStyleCalendarDialog> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Padding(
-            padding: const EdgeInsets.fromLTRB(24, 20, 16, 8),
+            padding: EdgeInsets.fromLTRB(24, 20, 16, 8),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
                   widget.isRange ? "Pilih Rentang Tanggal" : "Pilih Tanggal",
-                  style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                 ),
                 IconButton(
                   onPressed: () => Navigator.pop(context),
-                  icon: const Icon(Icons.close, size: 20),
+                  icon: Icon(Icons.close, size: 20),
                   padding: EdgeInsets.zero,
                   constraints: const BoxConstraints(),
                 ),
@@ -1049,15 +1048,15 @@ class _WebStyleCalendarDialogState extends State<_WebStyleCalendarDialog> {
             ),
           ),
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 24),
+            padding: EdgeInsets.symmetric(horizontal: 24),
             child: Text(
               widget.isRange 
                   ? "Tentukan awal dan akhir tanggal untuk filter data."
                   : "Tentukan tanggal spesifik untuk filter data harian.",
-              style: const TextStyle(fontSize: 13, color: Colors.grey, fontWeight: FontWeight.normal),
+              style: TextStyle(fontSize: 13, color: Theme.of(context).colorScheme.onSurfaceVariant, fontWeight: FontWeight.normal),
             ),
           ),
-          const SizedBox(height: 16),
+          SizedBox(height: 16),
         ],
       ),
       content: Builder(
@@ -1073,8 +1072,8 @@ class _WebStyleCalendarDialogState extends State<_WebStyleCalendarDialog> {
           );
         },
       ),
-      backgroundColor: AppColors.background,
-      actionsPadding: const EdgeInsets.fromLTRB(24, 0, 24, 20),
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+      actionsPadding: EdgeInsets.fromLTRB(24, 0, 24, 20),
       actions: [
         ElevatedButton(
           onPressed: () {
@@ -1095,12 +1094,12 @@ class _WebStyleCalendarDialogState extends State<_WebStyleCalendarDialog> {
           },
           style: ElevatedButton.styleFrom(
             backgroundColor: const Color(0xFF639B8D), // Teal color from screenshot
-            foregroundColor: Colors.white,
+            foregroundColor: Theme.of(context).cardColor,
             elevation: 0,
             minimumSize: const Size(double.infinity, 45),
             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
           ),
-          child: const Text("Simpan", style: TextStyle(fontWeight: FontWeight.bold)),
+          child: Text("Simpan", style: TextStyle(fontWeight: FontWeight.bold)),
         ),
       ],
     );
@@ -1121,7 +1120,7 @@ class _WebStyleCalendarDialogState extends State<_WebStyleCalendarDialog> {
       mainAxisSize: MainAxisSize.min,
       children: [
         _buildStartCalendar(isSmall: true),
-        const Divider(height: 1),
+        Divider(height: 1),
         _buildEndCalendar(isSmall: true),
       ],
     );
@@ -1157,7 +1156,7 @@ class _WebStyleCalendarDialogState extends State<_WebStyleCalendarDialog> {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          const Padding(
+          Padding(
             padding: EdgeInsets.only(top: 8),
             child: Text("Tanggal Mulai", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12, color: Color(0xFF639B8D))),
           ),
@@ -1168,7 +1167,7 @@ class _WebStyleCalendarDialogState extends State<_WebStyleCalendarDialog> {
                 colorScheme: const ColorScheme.light(primary: Color(0xFF639B8D)),
               ),
               child: CalendarDatePicker(
-                key: ValueKey("start_${_selectedStart}"),
+                key: ValueKey("start_$_selectedStart"),
                 initialDate: _selectedStart ?? DateTime.now(),
                 firstDate: DateTime(2020),
                 lastDate: DateTime.now(),
@@ -1194,7 +1193,7 @@ class _WebStyleCalendarDialogState extends State<_WebStyleCalendarDialog> {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          const Padding(
+          Padding(
             padding: EdgeInsets.only(top: 8),
             child: Text("Tanggal Selesai", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12, color: Color(0xFF639B8D))),
           ),
@@ -1205,7 +1204,7 @@ class _WebStyleCalendarDialogState extends State<_WebStyleCalendarDialog> {
                 colorScheme: const ColorScheme.light(primary: Color(0xFF639B8D)),
               ),
               child: CalendarDatePicker(
-                key: ValueKey("end_${_selectedEnd}"),
+                key: ValueKey("end_$_selectedEnd"),
                 initialDate: _selectedEnd ?? _selectedStart ?? DateTime.now(),
                 firstDate: _selectedStart ?? DateTime(2020),
                 lastDate: DateTime.now(),

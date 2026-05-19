@@ -1,5 +1,5 @@
+import 'package:gosir/main.dart';
 import 'package:flutter/material.dart';
-import 'package:gosir/core/theme/app_colors.dart';
 import 'package:gosir/shared/widgets/sidebar.dart';
 import 'package:gosir/shared/widgets/mobile_bottom_nav.dart';
 import 'package:gosir/features/dashboard/widgets/dashboard_content.dart';
@@ -12,13 +12,13 @@ class DashboardScreen extends StatelessWidget {
     final bool isDesktop = MediaQuery.of(context).size.width >= 768;
 
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       drawer: !isDesktop ? const Drawer(child: Sidebar(currentIndex: 0)) : null,
-      appBar: isDesktop ? null : AppBar(title: const Text('Dashboard')),
+      appBar: isDesktop ? null : AppBar(title: const Text('Dashboard'), actions: const [ThemeToggle()]),
       body: Row(
         children: [
           if (isDesktop) const Sidebar(currentIndex: 0),
-          const Expanded(
+          Expanded(
             child: DashboardContent(),
           ),
         ],

@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:gosir/core/theme/app_colors.dart';
 import 'package:gosir/features/dashboard/screens/dashboard_screen.dart';
 import 'package:gosir/features/categories/screens/categories_screen.dart';
 import 'package:gosir/features/menus/screens/menus_screen.dart';
@@ -73,8 +72,8 @@ class MobileBottomNav extends StatelessWidget {
         }
       },
       type: BottomNavigationBarType.fixed,
-      selectedItemColor: AppColors.primary,
-      unselectedItemColor: AppColors.mutedForeground,
+      selectedItemColor: Theme.of(context).colorScheme.primary,
+      unselectedItemColor: Theme.of(context).colorScheme.onSurfaceVariant,
       showUnselectedLabels: true,
       selectedFontSize: 12,
       unselectedFontSize: 12,

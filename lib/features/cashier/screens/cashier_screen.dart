@@ -1,3 +1,4 @@
+import 'package:gosir/main.dart';
 import 'package:flutter/material.dart';
 import 'package:gosir/core/theme/app_colors.dart';
 import 'package:gosir/core/services/api_service.dart';
@@ -48,7 +49,7 @@ class _CashierScreenState extends State<CashierScreen> {
       if (mounted) {
         setState(() => _isLoading = false);
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(e.toString()), backgroundColor: AppColors.destructive),
+          SnackBar(content: Text(e.toString()), backgroundColor: Theme.of(context).colorScheme.error),
         );
       }
     }
@@ -75,16 +76,16 @@ class _CashierScreenState extends State<CashierScreen> {
     final success = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Checkout'),
+        title: Text('Checkout'),
         content: SingleChildScrollView(
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
               TextField(
                 controller: customerNameController,
-                decoration: const InputDecoration(labelText: 'Nama Pelanggan'),
+                decoration: InputDecoration(labelText: 'Nama Pelanggan'),
               ),
-              const SizedBox(height: 16),
+              SizedBox(height: 16),
               DropdownButtonFormField<String>(
                 initialValue: type,
                 items: const [
@@ -92,9 +93,9 @@ class _CashierScreenState extends State<CashierScreen> {
                   DropdownMenuItem(value: 'TAKE_AWAY', child: Text('Take Away')),
                 ],
                 onChanged: (v) => type = v!,
-                decoration: const InputDecoration(labelText: 'Tipe Pesanan'),
+                decoration: InputDecoration(labelText: 'Tipe Pesanan'),
               ),
-              const SizedBox(height: 16),
+              SizedBox(height: 16),
               DropdownButtonFormField<String>(
                 initialValue: paymentMethod,
                 items: const [
@@ -103,13 +104,13 @@ class _CashierScreenState extends State<CashierScreen> {
                   DropdownMenuItem(value: 'TRANSFER', child: Text('Transfer')),
                 ],
                 onChanged: (v) => paymentMethod = v!,
-                decoration: const InputDecoration(labelText: 'Metode Pembayaran'),
+                decoration: InputDecoration(labelText: 'Metode Pembayaran'),
               ),
             ],
           ),
         ),
-        actions: [
-          TextButton(onPressed: () => Navigator.pop(context), child: const Text('Batal')),
+        actions: [const ThemeToggle(), 
+          TextButton(onPressed: () => Navigator.pop(context), child: Text('Batal')),
           ElevatedButton(
             onPressed: () async {
               try {
@@ -129,12 +130,12 @@ class _CashierScreenState extends State<CashierScreen> {
               } catch (e) {
                 if (context.mounted) {
                   ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text(e.toString()), backgroundColor: AppColors.destructive),
+                    SnackBar(content: Text(e.toString()), backgroundColor: Theme.of(context).colorScheme.error),
                   );
                 }
               }
             },
-            child: const Text('Proses Pesanan'),
+            child: Text('Proses Pesanan'),
           ),
         ],
       ),
@@ -156,23 +157,23 @@ class _CashierScreenState extends State<CashierScreen> {
     final cart = Provider.of<CartProvider>(context);
 
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       appBar: AppBar(
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
+          icon: Icon(Icons.arrow_back),
           onPressed: () => Navigator.pushReplacement(
             context,
             MaterialPageRoute(builder: (context) => const DashboardScreen()),
           ),
         ),
-        title: const Text('Kasir'),
-        actions: [
+        title: Text('Kasir'),
+        actions: [const ThemeToggle(), 
           if (!isDesktop)
             Stack(
               alignment: Alignment.center,
               children: [
                 IconButton(
-                  icon: const Icon(Icons.shopping_cart),
+                  icon: Icon(Icons.shopping_cart),
                   onPressed: () => _showCartBottomSheet(),
                 ),
                 if (cart.itemCount > 0)
@@ -180,12 +181,12 @@ class _CashierScreenState extends State<CashierScreen> {
                     right: 8,
                     top: 8,
                     child: Container(
-                      padding: const EdgeInsets.all(2),
-                      decoration: const BoxDecoration(color: Colors.red, shape: BoxShape.circle),
+                      padding: EdgeInsets.all(2),
+                      decoration: BoxDecoration(color: Colors.red, shape: BoxShape.circle),
                       constraints: const BoxConstraints(minWidth: 16, minHeight: 16),
                       child: Text(
                         '${cart.itemCount}',
-                        style: const TextStyle(color: Colors.white, fontSize: 10),
+                        style: TextStyle(color: Theme.of(context).cardColor, fontSize: 10),
                         textAlign: TextAlign.center,
                       ),
                     ),
@@ -203,8 +204,8 @@ class _CashierScreenState extends State<CashierScreen> {
               children: [
                 // Category Filter & Search
                 Container(
-                  padding: const EdgeInsets.all(16),
-                  color: Colors.white,
+                  padding: EdgeInsets.all(16),
+                  color: Theme.of(context).cardColor,
                   child: Column(
                     children: [
                       TextField(
@@ -212,12 +213,12 @@ class _CashierScreenState extends State<CashierScreen> {
                           _searchQuery = v;
                           _filterMenus();
                         },
-                        decoration: const InputDecoration(
+                        decoration: InputDecoration(
                           hintText: 'Cari menu...',
                           prefixIcon: Icon(Icons.search),
                         ),
                       ),
-                      const SizedBox(height: 12),
+                      SizedBox(height: 12),
                       SingleChildScrollView(
                         scrollDirection: Axis.horizontal,
                         child: Row(
@@ -233,9 +234,9 @@ class _CashierScreenState extends State<CashierScreen> {
                 // Menu Grid
                 Expanded(
                   child: _isLoading
-                      ? const Center(child: CircularProgressIndicator())
+                      ? Center(child: CircularProgressIndicator())
                       : GridView.builder(
-                          padding: const EdgeInsets.all(16),
+                          padding: EdgeInsets.all(16),
                           gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                             crossAxisCount: isDesktop ? 4 : 2,
                             childAspectRatio: 0.75,
@@ -256,9 +257,9 @@ class _CashierScreenState extends State<CashierScreen> {
           if (isDesktop)
             Container(
               width: 350,
-              decoration: const BoxDecoration(
-                color: Colors.white,
-                border: Border(left: BorderSide(color: AppColors.border)),
+              decoration: BoxDecoration(
+                color: Theme.of(context).cardColor,
+                border: Border(left: BorderSide(color: Theme.of(context).colorScheme.outline)),
               ),
               child: _cartContent(),
             ),
@@ -270,7 +271,7 @@ class _CashierScreenState extends State<CashierScreen> {
   Widget _categoryChip(String? id, String label) {
     final isSelected = _activeCategoryId == id;
     return Padding(
-      padding: const EdgeInsets.only(right: 8.0),
+      padding: EdgeInsets.only(right: 8.0),
       child: FilterChip(
         label: Text(label),
         selected: isSelected,
@@ -278,10 +279,10 @@ class _CashierScreenState extends State<CashierScreen> {
           setState(() => _activeCategoryId = val ? id : null);
           _filterMenus();
         },
-        selectedColor: AppColors.primary.withValues(alpha: 0.2),
-        checkmarkColor: AppColors.primary,
+        selectedColor: Theme.of(context).colorScheme.primary.withValues(alpha: 0.2),
+        checkmarkColor: Theme.of(context).colorScheme.primary,
         labelStyle: TextStyle(
-          color: isSelected ? AppColors.primary : AppColors.foreground,
+          color: isSelected ? Theme.of(context).colorScheme.primary : Theme.of(context).colorScheme.onSurface,
           fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
         ),
       ),
@@ -315,14 +316,14 @@ class _CashierScreenState extends State<CashierScreen> {
                 children: [
                   menu['image_url'] != null
                       ? Image.network(menu['image_url'], fit: BoxFit.cover)
-                      : const Icon(Icons.restaurant, size: 40, color: Colors.grey),
+                      : Icon(Icons.restaurant, size: 40, color: Theme.of(context).colorScheme.onSurfaceVariant),
                   if (isOutOfStock)
                     Container(
-                      color: Colors.black54,
-                      child: const Center(
+                      color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.54),
+                      child: Center(
                         child: Text(
                           'HABIS',
-                          style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+                          style: TextStyle(color: Theme.of(context).cardColor, fontWeight: FontWeight.bold),
                         ),
                       ),
                     ),
@@ -330,7 +331,7 @@ class _CashierScreenState extends State<CashierScreen> {
               ),
             ),
             Padding(
-              padding: const EdgeInsets.all(8.0),
+              padding: EdgeInsets.all(8.0),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -338,12 +339,12 @@ class _CashierScreenState extends State<CashierScreen> {
                     menu['name'] ?? '-',
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(fontWeight: FontWeight.bold),
+                    style: TextStyle(fontWeight: FontWeight.bold),
                   ),
-                  const SizedBox(height: 4),
+                  SizedBox(height: 4),
                   Text(
                     currency.format(price),
-                    style: const TextStyle(color: AppColors.primary, fontWeight: FontWeight.w600),
+                    style: TextStyle(color: Theme.of(context).colorScheme.primary, fontWeight: FontWeight.w600),
                   ),
                 ],
               ),
@@ -358,7 +359,7 @@ class _CashierScreenState extends State<CashierScreen> {
     final cart = Provider.of<CartProvider>(context);
     return Column(
       children: [
-        const Padding(
+        Padding(
           padding: EdgeInsets.all(16.0),
           child: Row(
             children: [
@@ -368,10 +369,10 @@ class _CashierScreenState extends State<CashierScreen> {
             ],
           ),
         ),
-        const Divider(height: 1),
+        Divider(height: 1),
         Expanded(
           child: cart.items.isEmpty
-              ? const Center(child: Text('Keranjang masih kosong.'))
+              ? Center(child: Text('Keranjang masih kosong.'))
               : ListView.builder(
                   itemCount: cart.itemCount,
                   itemBuilder: (context, index) {
@@ -380,24 +381,24 @@ class _CashierScreenState extends State<CashierScreen> {
                   },
                 ),
         ),
-        const Divider(height: 1),
+        Divider(height: 1),
         Container(
-          padding: const EdgeInsets.all(16),
+          padding: EdgeInsets.all(16),
           child: Column(
             children: [
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  const Text('Total', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                  Text('Total', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
                   Text(currency.format(cart.totalAmount),
-                      style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppColors.primary)),
+                      style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Theme.of(context).colorScheme.primary)),
                 ],
               ),
-              const SizedBox(height: 16),
+              SizedBox(height: 16),
               ElevatedButton(
                 onPressed: cart.items.isEmpty ? null : _handleCheckout,
                 style: ElevatedButton.styleFrom(minimumSize: const Size(double.infinity, 50)),
-                child: const Text('Checkout'),
+                child: Text('Checkout'),
               ),
             ],
           ),
@@ -409,18 +410,18 @@ class _CashierScreenState extends State<CashierScreen> {
   Widget _cartItemTile(CartItem item) {
     final cart = Provider.of<CartProvider>(context, listen: false);
     return ListTile(
-      title: Text(item.name, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold)),
+      title: Text(item.name, style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold)),
       subtitle: Text(currency.format(item.price)),
       trailing: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
           IconButton(
-            icon: const Icon(Icons.remove_circle_outline, size: 20),
+            icon: Icon(Icons.remove_circle_outline, size: 20),
             onPressed: () => cart.updateQuantity(item.menuId, item.quantity - 1),
           ),
-          Text('${item.quantity}', style: const TextStyle(fontWeight: FontWeight.bold)),
+          Text('${item.quantity}', style: TextStyle(fontWeight: FontWeight.bold)),
           IconButton(
-            icon: const Icon(Icons.add_circle_outline, size: 20),
+            icon: Icon(Icons.add_circle_outline, size: 20),
             onPressed: () => cart.updateQuantity(item.menuId, item.quantity + 1),
           ),
         ],

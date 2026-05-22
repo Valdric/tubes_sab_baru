@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
+import 'dart:convert';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:gosir/core/services/api_service.dart';
 import 'package:gosir/features/auth/screens/login_screen.dart';
 import 'package:gosir/features/dashboard/screens/dashboard_screen.dart';
+import 'package:gosir/features/profile/screens/profile_screen.dart';
 import 'package:gosir/features/categories/screens/categories_screen.dart';
 import 'package:gosir/features/menus/screens/menus_screen.dart';
 import 'package:gosir/features/ingredients/screens/ingredients_screen.dart';
@@ -22,6 +25,7 @@ class Sidebar extends StatefulWidget {
 class _SidebarState extends State<Sidebar> {
   final ApiService _api = ApiService();
   String _role = 'CASHIER'; // Default role
+  String? _storedPhotoBase64;
 
   @override
   void initState() {
@@ -33,9 +37,19 @@ class _SidebarState extends State<Sidebar> {
     try {
       final res = await _api.get('/auth/me');
       if (mounted) {
+        final username = res['data']['username'] ?? '';
         setState(() {
           _role = res['data']['role'] ?? 'CASHIER';
         });
+        if (username.isNotEmpty) {
+          final prefs = await SharedPreferences.getInstance();
+          final photo = prefs.getString('profile_photo_$username');
+          if (mounted) {
+            setState(() {
+              _storedPhotoBase64 = photo;
+            });
+          }
+        }
       }
     } catch (e) {
       // Ignore error
@@ -60,7 +74,14 @@ class _SidebarState extends State<Sidebar> {
       height: double.infinity,
       decoration: BoxDecoration(
         color: Theme.of(context).scaffoldBackgroundColor,
-        border: Border(right: BorderSide(color: Theme.of(context).colorScheme.outline)),
+        border: Border(
+          right: BorderSide(
+            color: Theme.of(context).brightness == Brightness.dark
+                ? const Color(0xFF1E2923) // Subtle dark slate border that integrates perfectly in dark mode
+                : Theme.of(context).colorScheme.outlineVariant.withValues(alpha: 0.4), // Subtle soft border in light mode
+            width: 1,
+          ),
+        ),
       ),
       child: Column(
         children: [
@@ -88,6 +109,16 @@ class _SidebarState extends State<Sidebar> {
                     ),
                     overflow: TextOverflow.ellipsis,
                   ),
+                ),
+                IconButton(
+                  icon: _storedPhotoBase64 != null
+                      ? CircleAvatar(
+                          radius: 12,
+                          backgroundImage: MemoryImage(base64Decode(_storedPhotoBase64!)),
+                        )
+                      : Icon(Icons.account_circle_outlined, color: Theme.of(context).colorScheme.onSurface),
+                  tooltip: 'Profil Saya',
+                  onPressed: () => _navigateTo(context, const ProfileScreen()),
                 ),
               ],
             ),
@@ -178,7 +209,7 @@ class _SidebarState extends State<Sidebar> {
                   label: Text('Mode Kasir'),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Theme.of(context).colorScheme.primary,
-                    foregroundColor: Theme.of(context).cardColor,
+                    foregroundColor: Theme.of(context).colorScheme.onPrimary,
                     minimumSize: const Size(double.infinity, 45),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(8),

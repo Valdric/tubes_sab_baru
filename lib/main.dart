@@ -32,7 +32,8 @@ class GoSirApp extends StatelessWidget {
           themeMode: currentMode,
           theme: ThemeData(
             brightness: Brightness.light,
-            scaffoldBackgroundColor: AppColors.background,
+            scaffoldBackgroundColor: const Color(0xFFF8FAFC),
+            cardColor: const Color(0xFFFFFFFF),
             colorScheme: ColorScheme.fromSeed(
               seedColor: AppColors.primary,
               brightness: Brightness.light,
@@ -40,7 +41,7 @@ class GoSirApp extends StatelessWidget {
               onPrimary: AppColors.onPrimary,
               secondary: AppColors.secondary,
               onSecondary: AppColors.secondaryForeground,
-              surface: AppColors.background,
+              surface: const Color(0xFFFFFFFF),
               onSurface: AppColors.foreground,
               error: AppColors.destructive,
               onError: AppColors.destructiveForeground,
@@ -55,7 +56,7 @@ class GoSirApp extends StatelessWidget {
             ),
             inputDecorationTheme: InputDecorationTheme(
               filled: true,
-              fillColor: AppColors.background,
+              fillColor: const Color(0xFFFFFFFF),
               contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(10),
@@ -80,18 +81,25 @@ class GoSirApp extends StatelessWidget {
                 textStyle: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
               ),
             ),
+            bottomNavigationBarTheme: const BottomNavigationBarThemeData(
+              backgroundColor: Color(0xFFFFFFFF),
+              selectedItemColor: AppColors.primary,
+              unselectedItemColor: Color(0xFF64748B),
+              elevation: 8,
+            ),
           ),
           darkTheme: ThemeData(
             brightness: Brightness.dark,
-            scaffoldBackgroundColor: const Color(0xFF121212),
+            scaffoldBackgroundColor: const Color(0xFF0A0D0B),
+            cardColor: const Color(0xFF131A16),
             colorScheme: ColorScheme.fromSeed(
-              seedColor: AppColors.primary,
+              seedColor: const Color(0xFF10B981),
               brightness: Brightness.dark,
-              primary: AppColors.primary,
-              onPrimary: AppColors.onPrimary,
-              secondary: const Color(0xFF1E293B),
-              onSecondary: const Color(0xFFF1F5F9),
-              surface: const Color(0xFF1E1E1E),
+              primary: const Color(0xFF10B981),
+              onPrimary: const Color(0xFF0A0D0B),
+              secondary: const Color(0xFF131A16),
+              onSecondary: const Color(0xFFE2E8F0),
+              surface: const Color(0xFF131A16),
               onSurface: const Color(0xFFE2E8F0),
               error: const Color(0xFFEF4444),
               onError: const Color(0xFFFFFFFF),
@@ -106,30 +114,36 @@ class GoSirApp extends StatelessWidget {
             ),
             inputDecorationTheme: InputDecorationTheme(
               filled: true,
-              fillColor: const Color(0xFF1E1E1E),
+              fillColor: const Color(0xFF131A16),
               contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(10),
-                borderSide: const BorderSide(color: Color(0xFF333333)),
+                borderSide: const BorderSide(color: Color(0xFF223029)),
               ),
               enabledBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(10),
-                borderSide: const BorderSide(color: Color(0xFF333333)),
+                borderSide: const BorderSide(color: Color(0xFF223029)),
               ),
               focusedBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(10),
-                borderSide: const BorderSide(color: AppColors.primary, width: 2),
+                borderSide: const BorderSide(color: Color(0xFF10B981), width: 2),
               ),
             ),
             elevatedButtonTheme: ElevatedButtonThemeData(
               style: ElevatedButton.styleFrom(
-                backgroundColor: AppColors.primary,
-                foregroundColor: AppColors.onPrimary,
+                backgroundColor: const Color(0xFF10B981),
+                foregroundColor: const Color(0xFF0A0D0B),
                 minimumSize: const Size(double.infinity, 50),
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                 elevation: 0,
                 textStyle: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
               ),
+            ),
+            bottomNavigationBarTheme: const BottomNavigationBarThemeData(
+              backgroundColor: Color(0xFF131A16),
+              selectedItemColor: Color(0xFF10B981),
+              unselectedItemColor: Color(0xFF94A3B8),
+              elevation: 8,
             ),
           ),
           home: const LoginScreen(),
@@ -149,7 +163,24 @@ class ThemeToggle extends StatelessWidget {
       builder: (context, currentMode, _) {
         final isDark = currentMode == ThemeMode.dark;
         return IconButton(
-          icon: Icon(isDark ? Icons.light_mode : Icons.dark_mode, color: Theme.of(context).colorScheme.onSurface),
+          tooltip: isDark ? 'Ubah ke Mode Terang' : 'Ubah ke Mode Gelap',
+          icon: AnimatedSwitcher(
+            duration: const Duration(milliseconds: 300),
+            transitionBuilder: (Widget child, Animation<double> animation) {
+              return RotationTransition(
+                turns: animation,
+                child: ScaleTransition(
+                  scale: animation,
+                  child: child,
+                ),
+              );
+            },
+            child: Icon(
+              isDark ? Icons.light_mode_rounded : Icons.dark_mode_rounded,
+              key: ValueKey<bool>(isDark),
+              color: isDark ? const Color(0xFFFBBF24) : Theme.of(context).colorScheme.primary,
+            ),
+          ),
           onPressed: () {
             themeNotifier.value = isDark ? ThemeMode.light : ThemeMode.dark;
           },

@@ -1,5 +1,5 @@
-import 'package:gosir/main.dart';
 import 'package:flutter/material.dart';
+import 'package:gosir/shared/widgets/profile_button.dart';
 import 'package:gosir/shared/widgets/sidebar.dart';
 import 'package:gosir/shared/widgets/mobile_bottom_nav.dart';
 import 'package:gosir/core/services/api_service.dart';
@@ -154,7 +154,7 @@ class _CashesScreenState extends State<CashesScreen> {
               ],
             ),
           ),
-          actions: [const ThemeToggle(), 
+          actions: [
             TextButton(
               onPressed: () => Navigator.pop(context), 
               style: TextButton.styleFrom(padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12)),
@@ -187,7 +187,7 @@ class _CashesScreenState extends State<CashesScreen> {
                 }
               },
               style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF065F46), 
+                backgroundColor: Theme.of(context).colorScheme.primary, 
                 foregroundColor: Theme.of(context).cardColor, 
                 elevation: 0,
                 padding: EdgeInsets.symmetric(horizontal: 20, vertical: 12),
@@ -210,7 +210,7 @@ class _CashesScreenState extends State<CashesScreen> {
       contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       border: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: BorderSide(color: Theme.of(context).colorScheme.outline)),
       enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: BorderSide(color: Theme.of(context).colorScheme.outline)),
-      focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: BorderSide(color: Color(0xFF065F46))),
+      focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: BorderSide(color: Theme.of(context).colorScheme.primary)),
     );
   }
 
@@ -221,7 +221,7 @@ class _CashesScreenState extends State<CashesScreen> {
     return Scaffold(
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       drawer: !isDesktop ? const Drawer(child: Sidebar(currentIndex: 5)) : null,
-      appBar: isDesktop ? null : AppBar(title: const Text('Catatan Kas'), actions: const [ThemeToggle()]),
+      appBar: isDesktop ? null : AppBar(title: const Text('Catatan Kas'), actions: [const ProfileButton()]),
       body: Row(
         children: [
           if (isDesktop) const Sidebar(currentIndex: 5),
@@ -266,7 +266,7 @@ class _CashesScreenState extends State<CashesScreen> {
                                 contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                                 border: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: BorderSide(color: Theme.of(context).colorScheme.outline)),
                                 enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: BorderSide(color: Theme.of(context).colorScheme.outline)),
-                                focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: BorderSide(color: Color(0xFF065F46))),
+                                focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: BorderSide(color: Theme.of(context).colorScheme.primary)),
                               ),
                             ),
                           ),
@@ -277,7 +277,7 @@ class _CashesScreenState extends State<CashesScreen> {
                               icon: Icon(Icons.add, size: 18),
                               label: Text('Tambah Catatan', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 13)),
                               style: ElevatedButton.styleFrom(
-                                backgroundColor: const Color(0xFF065F46), 
+                                backgroundColor: Theme.of(context).colorScheme.primary, 
                                 foregroundColor: Theme.of(context).cardColor, 
                                 elevation: 0,
                                 minimumSize: const Size(0, 46),
@@ -332,7 +332,7 @@ class _CashesScreenState extends State<CashesScreen> {
                 ),
                 Expanded(
                   child: _isLoading
-                      ? Center(child: CircularProgressIndicator(color: Color(0xFF065F46)))
+                      ? Center(child: CircularProgressIndicator(color: Theme.of(context).colorScheme.primary))
                       : _items.isEmpty
                         ? Center(child: Text("Belum ada catatan kas"))
                         : ListView.builder(
@@ -352,8 +352,8 @@ class _CashesScreenState extends State<CashesScreen> {
       floatingActionButton: !isDesktop
           ? FloatingActionButton(
               onPressed: () => _showFormModal(),
-              backgroundColor: const Color(0xFF065F46),
-              child: Icon(Icons.add, color: Theme.of(context).cardColor),
+              backgroundColor: Theme.of(context).colorScheme.primary,
+              child: Icon(Icons.add, color: Theme.of(context).colorScheme.onPrimary),
             )
           : null,
       bottomNavigationBar: isDesktop ? null : const MobileBottomNav(currentIndex: 0),
@@ -371,7 +371,7 @@ class _CashesScreenState extends State<CashesScreen> {
         borderRadius: BorderRadius.circular(12),
         border: Border.all(color: Theme.of(context).colorScheme.outlineVariant),
         boxShadow: [
-          BoxShadow(color: Theme.of(context).colorScheme.onSurface.withOpacity(0.02), blurRadius: 4, offset: const Offset(0, 2)),
+          BoxShadow(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.02), blurRadius: 4, offset: const Offset(0, 2)),
         ],
       ),
       child: ListTile(
@@ -379,7 +379,7 @@ class _CashesScreenState extends State<CashesScreen> {
         leading: Container(
           padding: EdgeInsets.all(10),
           decoration: BoxDecoration(
-            color: (isIncome ? Colors.green : Colors.red).withOpacity(0.1),
+            color: (isIncome ? Colors.green : Colors.red).withValues(alpha: 0.1),
             shape: BoxShape.circle,
           ),
           child: Icon(
@@ -429,7 +429,7 @@ class _CashesScreenState extends State<CashesScreen> {
             contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 10),
             border: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: BorderSide(color: Theme.of(context).colorScheme.outline)),
             enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: BorderSide(color: Theme.of(context).colorScheme.outline)),
-            focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: BorderSide(color: Color(0xFF065F46))),
+            focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: BorderSide(color: Theme.of(context).colorScheme.primary)),
           ),
           icon: Icon(Icons.keyboard_arrow_down, color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.45), size: 20),
         ),

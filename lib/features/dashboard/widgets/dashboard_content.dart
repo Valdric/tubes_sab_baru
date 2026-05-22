@@ -310,7 +310,7 @@ class _DashboardContentState extends State<DashboardContent> {
                 style: TextStyle(
                   fontSize: 24,
                   fontWeight: FontWeight.bold,
-                  color: Color(0xFF065F46), // Dark green like web
+                  color: Theme.of(context).colorScheme.primary,
                 ),
               ),
               const Spacer(),
@@ -1093,8 +1093,8 @@ class _WebStyleCalendarDialogState extends State<_WebStyleCalendarDialog> {
             }
           },
           style: ElevatedButton.styleFrom(
-            backgroundColor: const Color(0xFF639B8D), // Teal color from screenshot
-            foregroundColor: Theme.of(context).cardColor,
+            backgroundColor: Theme.of(context).colorScheme.primary,
+            foregroundColor: Theme.of(context).colorScheme.onPrimary,
             elevation: 0,
             minimumSize: const Size(double.infinity, 45),
             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
@@ -1134,7 +1134,10 @@ class _WebStyleCalendarDialogState extends State<_WebStyleCalendarDialog> {
           Expanded(
             child: Theme(
               data: Theme.of(context).copyWith(
-                colorScheme: const ColorScheme.light(primary: Color(0xFF639B8D)),
+                colorScheme: ColorScheme.fromSeed(
+                  seedColor: const Color(0xFF639B8D),
+                  brightness: Theme.of(context).brightness,
+                ).copyWith(primary: const Color(0xFF639B8D)),
               ),
               child: CalendarDatePicker(
                 key: ValueKey("single_$_selectedSingle"),
@@ -1158,13 +1161,16 @@ class _WebStyleCalendarDialogState extends State<_WebStyleCalendarDialog> {
         children: [
           Padding(
             padding: EdgeInsets.only(top: 8),
-            child: Text("Tanggal Mulai", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12, color: Color(0xFF639B8D))),
+            child: Text("Tanggal Mulai", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12, color: Theme.of(context).colorScheme.primary)),
           ),
           SizedBox(
             height: isSmall ? 330 : null,
             child: Theme(
               data: Theme.of(context).copyWith(
-                colorScheme: const ColorScheme.light(primary: Color(0xFF639B8D)),
+                colorScheme: ColorScheme.fromSeed(
+                  seedColor: const Color(0xFF639B8D),
+                  brightness: Theme.of(context).brightness,
+                ).copyWith(primary: const Color(0xFF639B8D)),
               ),
               child: CalendarDatePicker(
                 key: ValueKey("start_$_selectedStart"),
@@ -1195,13 +1201,16 @@ class _WebStyleCalendarDialogState extends State<_WebStyleCalendarDialog> {
         children: [
           Padding(
             padding: EdgeInsets.only(top: 8),
-            child: Text("Tanggal Selesai", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12, color: Color(0xFF639B8D))),
+            child: Text("Tanggal Selesai", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12, color: Theme.of(context).colorScheme.primary)),
           ),
           SizedBox(
             height: isSmall ? 330 : null,
             child: Theme(
               data: Theme.of(context).copyWith(
-                colorScheme: const ColorScheme.light(primary: Color(0xFF639B8D)),
+                colorScheme: ColorScheme.fromSeed(
+                  seedColor: const Color(0xFF639B8D),
+                  brightness: Theme.of(context).brightness,
+                ).copyWith(primary: const Color(0xFF639B8D)),
               ),
               child: CalendarDatePicker(
                 key: ValueKey("end_$_selectedEnd"),

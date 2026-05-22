@@ -1,8 +1,8 @@
-import 'package:gosir/main.dart';
 import 'package:flutter/material.dart';
 import 'package:gosir/shared/widgets/sidebar.dart';
 import 'package:gosir/shared/widgets/mobile_bottom_nav.dart';
 import 'package:gosir/core/services/api_service.dart';
+import 'package:gosir/shared/widgets/profile_button.dart';
 
 class CategoriesScreen extends StatefulWidget {
   const CategoriesScreen({super.key});
@@ -108,7 +108,7 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
               ),
             ],
           ),
-          actions: [const ThemeToggle(), 
+          actions: [
             TextButton(
               onPressed: () => Navigator.pop(context),
               child: Text('Batal', style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant)),
@@ -134,7 +134,7 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
                 }
               },
               style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF065F46),
+                backgroundColor: Theme.of(context).colorScheme.primary,
                 foregroundColor: Theme.of(context).cardColor,
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
               ),
@@ -152,7 +152,7 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
     final bool isAdmin = _role.toUpperCase() == 'ADMIN' || _role.toUpperCase() == 'SUPERADMIN';
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF9FAFB), // Background like web
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor, // Background like web
       drawer: !isDesktop ? const Drawer(child: Sidebar(currentIndex: 1)) : null,
       appBar: isDesktop
           ? null
@@ -161,7 +161,8 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
               elevation: 0,
               title: Text('Categories', style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontWeight: FontWeight.bold)),
               iconTheme: IconThemeData(color: Theme.of(context).colorScheme.onSurface),
-              actions: [const ThemeToggle(), 
+              actions: [
+                const ProfileButton(),
                 if (isAdmin)
                   IconButton(
                     icon: Icon(Icons.add_circle_outline),
@@ -206,7 +207,7 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
                             icon: Icon(Icons.add),
                             label: Text('Tambah Kategori'),
                             style: ElevatedButton.styleFrom(
-                              backgroundColor: const Color(0xFF065F46),
+                              backgroundColor: Theme.of(context).colorScheme.primary,
                               foregroundColor: Theme.of(context).cardColor,
                               minimumSize: const Size(200, 50),
                               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
@@ -293,7 +294,7 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
                 ),
                 Expanded(
                   child: _isLoading
-                      ? Center(child: CircularProgressIndicator(color: Color(0xFF065F46)))
+                      ? Center(child: CircularProgressIndicator(color: Theme.of(context).colorScheme.primary))
                       : _items.isEmpty
                         ? Center(child: Text("Belum ada kategori"))
                         : GridView.builder(
@@ -327,7 +328,7 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
         borderRadius: BorderRadius.circular(16),
         border: Border.all(color: Theme.of(context).colorScheme.outlineVariant),
         boxShadow: [
-          BoxShadow(color: Theme.of(context).colorScheme.onSurface.withOpacity(0.02), blurRadius: 10, offset: const Offset(0, 4)),
+          BoxShadow(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.02), blurRadius: 10, offset: const Offset(0, 4)),
         ],
       ),
       child: Stack(
@@ -339,10 +340,10 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
                 Container(
                   padding: EdgeInsets.all(16),
                   decoration: BoxDecoration(
-                    color: const Color(0xFF065F46).withOpacity(0.1),
+                    color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.1),
                     shape: BoxShape.circle,
                   ),
-                  child: Icon(Icons.category_outlined, color: Color(0xFF065F46), size: 32),
+                  child: Icon(Icons.category_outlined, color: Theme.of(context).colorScheme.primary, size: 32),
                 ),
                 SizedBox(height: 16),
                 Text(
@@ -383,7 +384,7 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
       builder: (context) => AlertDialog(
         title: Text('Hapus Kategori'),
         content: Text('Apakah Anda yakin ingin menghapus kategori "${item['name']}"? Tindakan ini tidak dapat dibatalkan.'),
-        actions: [const ThemeToggle(), 
+        actions: [
           TextButton(onPressed: () => Navigator.pop(context), child: Text('Batal')),
           ElevatedButton(
             onPressed: () {

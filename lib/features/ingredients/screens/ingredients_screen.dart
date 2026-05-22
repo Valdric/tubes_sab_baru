@@ -1,5 +1,5 @@
-import 'package:gosir/main.dart';
 import 'package:flutter/material.dart';
+import 'package:gosir/shared/widgets/profile_button.dart';
 import 'package:gosir/shared/widgets/sidebar.dart';
 import 'package:gosir/shared/widgets/mobile_bottom_nav.dart';
 import 'package:gosir/core/services/api_service.dart';
@@ -142,7 +142,7 @@ class _IngredientsScreenState extends State<IngredientsScreen> {
               ],
             ),
           ),
-          actions: [const ThemeToggle(), 
+          actions: [
             TextButton(onPressed: () => Navigator.pop(context), child: Text('Batal', style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant))),
             ElevatedButton(
               onPressed: () async {
@@ -167,7 +167,7 @@ class _IngredientsScreenState extends State<IngredientsScreen> {
                   setModalState(() => errorText = e.toString());
                 }
               },
-              style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF065F46), foregroundColor: Theme.of(context).cardColor, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8))),
+              style: ElevatedButton.styleFrom(backgroundColor: Theme.of(context).colorScheme.primary, foregroundColor: Theme.of(context).cardColor, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8))),
               child: Text('Simpan'),
             ),
           ],
@@ -193,7 +193,7 @@ class _IngredientsScreenState extends State<IngredientsScreen> {
     final bool isAdmin = _role.toUpperCase() == 'ADMIN' || _role.toUpperCase() == 'SUPERADMIN';
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF9FAFB),
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       drawer: !isDesktop ? const Drawer(child: Sidebar(currentIndex: 3)) : null,
       appBar: isDesktop
           ? null
@@ -201,6 +201,7 @@ class _IngredientsScreenState extends State<IngredientsScreen> {
               backgroundColor: Theme.of(context).cardColor,
               title: Text('Bahan Baku', style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontWeight: FontWeight.bold)),
               iconTheme: IconThemeData(color: Theme.of(context).colorScheme.onSurface),
+              actions: [const ProfileButton()],
             ),
       body: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -229,7 +230,7 @@ class _IngredientsScreenState extends State<IngredientsScreen> {
                             onPressed: () => _showFormModal(),
                             icon: Icon(Icons.add_box_outlined),
                             label: Text('Tambah Bahan'),
-                            style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF065F46), foregroundColor: Theme.of(context).cardColor, minimumSize: const Size(200, 50), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8))),
+                            style: ElevatedButton.styleFrom(backgroundColor: Theme.of(context).colorScheme.primary, foregroundColor: Theme.of(context).cardColor, minimumSize: const Size(200, 50), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8))),
                           ),
                       ],
                     ),
@@ -254,7 +255,7 @@ class _IngredientsScreenState extends State<IngredientsScreen> {
                 ),
                 Expanded(
                   child: _isLoading
-                      ? Center(child: CircularProgressIndicator(color: Color(0xFF065F46)))
+                      ? Center(child: CircularProgressIndicator(color: Theme.of(context).colorScheme.primary))
                       : _items.isEmpty
                         ? Center(child: Text("Belum ada bahan baku"))
                         : ListView.builder(
@@ -292,12 +293,12 @@ class _IngredientsScreenState extends State<IngredientsScreen> {
         leading: Container(
           padding: EdgeInsets.all(12),
           decoration: BoxDecoration(
-            color: (isLowStock ? Colors.red : const Color(0xFF065F46)).withOpacity(0.1),
+            color: (isLowStock ? Colors.red : Theme.of(context).colorScheme.primary).withValues(alpha: 0.1),
             shape: BoxShape.circle,
           ),
           child: Icon(
             isLowStock ? Icons.warning_amber_rounded : Icons.inventory_2_outlined,
-            color: isLowStock ? Colors.red : const Color(0xFF065F46),
+            color: isLowStock ? Colors.red : Theme.of(context).colorScheme.primary,
           ),
         ),
         title: Text(item['name'] ?? '-', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
@@ -329,7 +330,7 @@ class _IngredientsScreenState extends State<IngredientsScreen> {
       builder: (context) => AlertDialog(
         title: Text('Hapus Bahan'),
         content: Text('Apakah Anda yakin ingin menghapus "${item['name']}"? Stok akan hilang dari sistem.'),
-        actions: [const ThemeToggle(), 
+        actions: [
           TextButton(onPressed: () => Navigator.pop(context), child: Text('Batal')),
           ElevatedButton(
             onPressed: () {

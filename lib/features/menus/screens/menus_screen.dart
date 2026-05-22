@@ -1,5 +1,5 @@
-import 'package:gosir/main.dart';
 import 'package:flutter/material.dart';
+import 'package:gosir/shared/widgets/profile_button.dart';
 import 'package:gosir/core/theme/app_colors.dart';
 import 'package:gosir/shared/widgets/sidebar.dart';
 import 'package:gosir/shared/widgets/mobile_bottom_nav.dart';
@@ -98,7 +98,10 @@ class _MenusScreenState extends State<MenusScreen> {
       appBar: isDesktop
           ? null
           : AppBar(
-              title: Text('Manajemen Menu'),
+              backgroundColor: Theme.of(context).cardColor,
+              title: Text('Manajemen Menu', style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontWeight: FontWeight.bold)),
+              iconTheme: IconThemeData(color: Theme.of(context).colorScheme.onSurface),
+              actions: [const ProfileButton()],
             ),
       body: Row(
         children: [
@@ -677,7 +680,7 @@ class _MenusScreenState extends State<MenusScreen> {
       builder: (context) => AlertDialog(
         title: Text('Hapus Menu'),
         content: Text('Apakah Anda yakin ingin menghapus menu "${item['name']}"?'),
-        actions: [const ThemeToggle(), 
+        actions: [
           TextButton(onPressed: () => Navigator.pop(context), child: Text('Batal')),
           ElevatedButton(
             onPressed: () {

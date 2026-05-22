@@ -1,4 +1,4 @@
-import 'package:gosir/main.dart';
+import 'package:gosir/shared/widgets/profile_button.dart';
 import 'dart:io';
 import 'dart:convert';
 import 'package:flutter/material.dart';
@@ -124,7 +124,7 @@ class _MenuFormScreenState extends State<MenuFormScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Theme.of(context).cardColor,
-      appBar: AppBar(title: Text(widget.menu == null ? 'Tambah Menu' : 'Edit Menu'), actions: [const ThemeToggle()],),
+      appBar: AppBar(title: Text(widget.menu == null ? 'Tambah Menu' : 'Edit Menu'), actions: [const ProfileButton()]),
       body: SingleChildScrollView(
         padding: EdgeInsets.all(24),
         child: Form(

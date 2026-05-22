@@ -1,4 +1,4 @@
-import 'package:gosir/main.dart';
+import 'package:gosir/shared/widgets/profile_button.dart';
 import 'package:flutter/material.dart';
 import 'package:gosir/core/services/api_service.dart';
 
@@ -56,7 +56,7 @@ class _IngredientFormScreenState extends State<IngredientFormScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Theme.of(context).cardColor,
-      appBar: AppBar(title: Text(widget.item == null ? 'Tambah Bahan' : 'Edit Bahan'), actions: [const ThemeToggle()],),
+      appBar: AppBar(title: Text(widget.item == null ? 'Tambah Bahan' : 'Edit Bahan'), actions: [const ProfileButton()]),
       body: SingleChildScrollView(
         padding: EdgeInsets.all(24),
         child: Form(

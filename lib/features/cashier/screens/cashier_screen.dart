@@ -1,4 +1,4 @@
-import 'package:gosir/main.dart';
+import 'package:gosir/shared/widgets/profile_button.dart';
 import 'package:flutter/material.dart';
 import 'package:gosir/core/theme/app_colors.dart';
 import 'package:gosir/core/services/api_service.dart';
@@ -109,7 +109,7 @@ class _CashierScreenState extends State<CashierScreen> {
             ],
           ),
         ),
-        actions: [const ThemeToggle(), 
+        actions: [
           TextButton(onPressed: () => Navigator.pop(context), child: Text('Batal')),
           ElevatedButton(
             onPressed: () async {
@@ -167,7 +167,8 @@ class _CashierScreenState extends State<CashierScreen> {
           ),
         ),
         title: Text('Kasir'),
-        actions: [const ThemeToggle(), 
+        actions: [
+          const ProfileButton(),
           if (!isDesktop)
             Stack(
               alignment: Alignment.center,

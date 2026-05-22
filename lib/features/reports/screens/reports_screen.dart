@@ -1,5 +1,5 @@
-import 'package:gosir/main.dart';
 import 'package:flutter/material.dart';
+import 'package:gosir/shared/widgets/profile_button.dart';
 import 'package:gosir/shared/widgets/sidebar.dart';
 import 'package:gosir/shared/widgets/mobile_bottom_nav.dart';
 import 'package:gosir/features/dashboard/widgets/dashboard_content.dart';
@@ -19,7 +19,7 @@ class _ReportsScreenState extends State<ReportsScreen> {
     return Scaffold(
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       drawer: !isDesktop ? const Drawer(child: Sidebar(currentIndex: 7)) : null,
-      appBar: isDesktop ? null : AppBar(title: const Text('Laporan & Statistik'), actions: const [ThemeToggle()]),
+      appBar: isDesktop ? null : AppBar(title: const Text('Laporan & Statistik'), actions: [const ProfileButton()]),
       body: Row(
         children: [
           if (isDesktop) const Sidebar(currentIndex: 7),

@@ -1,5 +1,5 @@
-import 'package:gosir/main.dart';
 import 'package:flutter/material.dart';
+import 'package:gosir/shared/widgets/profile_button.dart';
 import 'package:gosir/shared/widgets/sidebar.dart';
 import 'package:gosir/shared/widgets/mobile_bottom_nav.dart';
 import 'package:gosir/core/services/api_service.dart';
@@ -64,7 +64,10 @@ class _OrdersScreenState extends State<OrdersScreen> {
       drawer: !isDesktop ? const Drawer(child: Sidebar(currentIndex: 4)) : null,
       appBar: isDesktop
           ? null
-          : AppBar(title: const Text('Riwayat Pesanan'), actions: const [ThemeToggle()]),
+          : AppBar(
+              title: const Text('Riwayat Pesanan'),
+              actions: const [ProfileButton()],
+            ),
       body: Row(
         children: [
           if (isDesktop) const Sidebar(currentIndex: 4),

@@ -1,5 +1,5 @@
-import 'package:gosir/main.dart';
 import 'package:flutter/material.dart';
+import 'package:gosir/shared/widgets/profile_button.dart';
 import 'package:gosir/shared/widgets/sidebar.dart';
 import 'package:gosir/core/services/api_service.dart';
 
@@ -124,7 +124,7 @@ class _StaffManagementScreenState extends State<StaffManagementScreen> {
               ],
             ),
           ),
-          actions: [const ThemeToggle(), 
+          actions: [
             TextButton(onPressed: () => Navigator.pop(context), child: Text('Batal', style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant))),
             ElevatedButton(
               onPressed: () async {
@@ -158,7 +158,7 @@ class _StaffManagementScreenState extends State<StaffManagementScreen> {
                   setModalState(() => errorText = e.toString());
                 }
               },
-              style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF065F46), foregroundColor: Theme.of(context).cardColor, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8))),
+              style: ElevatedButton.styleFrom(backgroundColor: Theme.of(context).colorScheme.primary, foregroundColor: Theme.of(context).cardColor, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8))),
               child: Text('Simpan'),
             ),
           ],
@@ -184,7 +184,7 @@ class _StaffManagementScreenState extends State<StaffManagementScreen> {
     final bool isAdmin = _myRole.toUpperCase() == 'ADMIN' || _myRole.toUpperCase() == 'SUPERADMIN';
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF9FAFB),
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       drawer: !isDesktop ? const Drawer(child: Sidebar(currentIndex: 6)) : null,
       appBar: isDesktop
           ? null
@@ -192,6 +192,7 @@ class _StaffManagementScreenState extends State<StaffManagementScreen> {
               backgroundColor: Theme.of(context).cardColor,
               title: Text('Manajemen Staff', style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontWeight: FontWeight.bold)),
               iconTheme: IconThemeData(color: Theme.of(context).colorScheme.onSurface),
+              actions: [const ProfileButton()],
             ),
       body: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -220,7 +221,7 @@ class _StaffManagementScreenState extends State<StaffManagementScreen> {
                             onPressed: () => _showFormModal(),
                             icon: Icon(Icons.person_add_alt_1),
                             label: Text('Tambah Pegawai'),
-                            style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF065F46), foregroundColor: Theme.of(context).cardColor, minimumSize: const Size(200, 50), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8))),
+                            style: ElevatedButton.styleFrom(backgroundColor: Theme.of(context).colorScheme.primary, foregroundColor: Theme.of(context).cardColor, minimumSize: const Size(200, 50), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8))),
                           ),
                       ],
                     ),
@@ -245,9 +246,9 @@ class _StaffManagementScreenState extends State<StaffManagementScreen> {
                 ),
                 Expanded(
                   child: _isLoading
-                      ? Center(child: CircularProgressIndicator(color: Color(0xFF065F46)))
+                      ? Center(child: CircularProgressIndicator(color: Theme.of(context).colorScheme.primary))
                       : ListView.builder(
-                          padding: EdgeInsets.symmetric(horizontal: 32, vertical: 8),
+                          padding: EdgeInsets.symmetric(horizontal: isDesktop ? 32 : 16, vertical: 8),
                           itemCount: _staff.length,
                           itemBuilder: (context, index) {
                             final item = _staff[index];
@@ -276,8 +277,8 @@ class _StaffManagementScreenState extends State<StaffManagementScreen> {
         contentPadding: EdgeInsets.all(16),
         leading: CircleAvatar(
           radius: 24,
-          backgroundColor: const Color(0xFF065F46).withOpacity(0.1),
-          child: Text(item['name']?[0].toUpperCase() ?? '?', style: TextStyle(color: Color(0xFF065F46), fontWeight: FontWeight.bold, fontSize: 18)),
+          backgroundColor: Theme.of(context).colorScheme.primary.withValues(alpha: 0.1),
+          child: Text(item['name']?[0].toUpperCase() ?? '?', style: TextStyle(color: Theme.of(context).colorScheme.primary, fontWeight: FontWeight.bold, fontSize: 18)),
         ),
         title: Text(item['name'] ?? '-', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
         subtitle: Column(
@@ -288,7 +289,7 @@ class _StaffManagementScreenState extends State<StaffManagementScreen> {
             SizedBox(height: 8),
             Container(
               padding: EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-              decoration: BoxDecoration(color: Colors.blue.withOpacity(0.1), borderRadius: BorderRadius.circular(20)),
+              decoration: BoxDecoration(color: Colors.blue.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(20)),
               child: Text(item['role'] ?? '-', style: TextStyle(color: Colors.blue, fontWeight: FontWeight.bold, fontSize: 11)),
             ),
           ],
@@ -312,7 +313,7 @@ class _StaffManagementScreenState extends State<StaffManagementScreen> {
       builder: (context) => AlertDialog(
         title: Text('Hapus Pegawai'),
         content: Text('Apakah Anda yakin ingin menghapus "${item['name']}"? User ini tidak akan bisa login lagi.'),
-        actions: [const ThemeToggle(), 
+        actions: [
           TextButton(onPressed: () => Navigator.pop(context), child: Text('Batal')),
           ElevatedButton(
             onPressed: () {

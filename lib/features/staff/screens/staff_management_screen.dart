@@ -178,6 +178,143 @@ class _StaffManagementScreenState extends State<StaffManagementScreen> {
     );
   }
 
+  Widget _buildFilterSection(bool isDesktop, bool isAdmin) {
+    final bool isDark = Theme.of(context).brightness == Brightness.dark;
+    final Color cardBgColor = isDark ? const Color(0xFF131A16) : const Color(0xFFFFFFFF);
+    final Color borderColor = isDark ? const Color(0xFF223029) : const Color(0xFFE2E8F0);
+
+    return Container(
+      margin: EdgeInsets.symmetric(horizontal: isDesktop ? 32.0 : 16.0, vertical: 12.0),
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: cardBgColor,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: borderColor, width: 1),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: isDark ? 0.3 : 0.05),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          if (isDesktop)
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: [
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Cari Pegawai',
+                        style: TextStyle(
+                          color: isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B),
+                          fontSize: 12,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                      const SizedBox(height: 6),
+                      TextField(
+                        onChanged: (v) {
+                          setState(() => _searchQuery = v);
+                          _fetchData();
+                        },
+                        style: TextStyle(
+                          color: isDark ? const Color(0xFFE2E8F0) : const Color(0xFF1E293B),
+                          fontSize: 14,
+                        ),
+                        decoration: InputDecoration(
+                          hintText: 'Cari nama atau username...',
+                          prefixIcon: Icon(Icons.search, color: isDark ? const Color(0xFF10B981) : Theme.of(context).colorScheme.primary),
+                          filled: true,
+                          fillColor: isDark ? const Color(0xFF0A0D0B) : const Color(0xFFF8FAFC),
+                          contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(10),
+                            borderSide: BorderSide(color: borderColor),
+                          ),
+                          enabledBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(10),
+                            borderSide: BorderSide(color: borderColor),
+                          ),
+                          focusedBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(10),
+                            borderSide: BorderSide(color: isDark ? const Color(0xFF10B981) : Theme.of(context).colorScheme.primary, width: 2),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                if (isAdmin) ...[
+                  const SizedBox(width: 16),
+                  ElevatedButton.icon(
+                    onPressed: () => _showFormModal(),
+                    icon: const Icon(Icons.person_add_alt_1, size: 20),
+                    label: const Text('Tambah Pegawai'),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: isDark ? const Color(0xFF10B981) : Theme.of(context).colorScheme.primary,
+                      foregroundColor: isDark ? const Color(0xFF0A0D0B) : const Color(0xFFFFFFFF),
+                      minimumSize: const Size(200, 48),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                    ),
+                  ),
+                ],
+              ],
+            )
+          else
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Cari Pegawai',
+                  style: TextStyle(
+                    color: isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B),
+                    fontSize: 12,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                const SizedBox(height: 6),
+                TextField(
+                  onChanged: (v) {
+                    setState(() => _searchQuery = v);
+                    _fetchData();
+                  },
+                  style: TextStyle(
+                    color: isDark ? const Color(0xFFE2E8F0) : const Color(0xFF1E293B),
+                    fontSize: 14,
+                  ),
+                  decoration: InputDecoration(
+                    hintText: 'Cari nama atau username...',
+                    prefixIcon: Icon(Icons.search, color: isDark ? const Color(0xFF10B981) : Theme.of(context).colorScheme.primary),
+                    filled: true,
+                    fillColor: isDark ? const Color(0xFF0A0D0B) : const Color(0xFFF8FAFC),
+                    contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(10),
+                      borderSide: BorderSide(color: borderColor),
+                    ),
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(10),
+                      borderSide: BorderSide(color: borderColor),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(10),
+                      borderSide: BorderSide(color: isDark ? const Color(0xFF10B981) : Theme.of(context).colorScheme.primary, width: 2),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final bool isDesktop = MediaQuery.of(context).size.width >= 768;
@@ -204,46 +341,26 @@ class _StaffManagementScreenState extends State<StaffManagementScreen> {
               children: [
                 if (isDesktop)
                   Padding(
-                    padding: EdgeInsets.all(32.0),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    padding: const EdgeInsets.only(left: 32.0, right: 32.0, top: 32.0, bottom: 8.0),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text('Daftar Staff & Pegawai', style: Theme.of(context).textTheme.displayMedium?.copyWith(fontWeight: FontWeight.bold, color: Theme.of(context).colorScheme.onSurface)),
-                            SizedBox(height: 4),
-                            Text('Kelola hak akses dan informasi pegawai toko Anda.', style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant)),
-                          ],
+                        Text(
+                          'Daftar Staff & Pegawai',
+                          style: Theme.of(context).textTheme.displayMedium?.copyWith(
+                                fontWeight: FontWeight.bold,
+                                color: Theme.of(context).colorScheme.onSurface,
+                              ),
                         ),
-                        if (isAdmin)
-                          ElevatedButton.icon(
-                            onPressed: () => _showFormModal(),
-                            icon: Icon(Icons.person_add_alt_1),
-                            label: Text('Tambah Pegawai'),
-                            style: ElevatedButton.styleFrom(backgroundColor: Theme.of(context).colorScheme.primary, foregroundColor: Theme.of(context).cardColor, minimumSize: const Size(200, 50), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8))),
-                          ),
+                        const SizedBox(height: 4),
+                        Text(
+                          'Kelola hak akses dan informasi pegawai toko Anda.',
+                          style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant),
+                        ),
                       ],
                     ),
                   ),
-                Padding(
-                  padding: EdgeInsets.symmetric(horizontal: isDesktop ? 32.0 : 16.0, vertical: 8.0),
-                  child: TextField(
-                    onChanged: (v) {
-                      setState(() => _searchQuery = v);
-                      _fetchData();
-                    },
-                    decoration: InputDecoration(
-                      hintText: 'Cari staff...',
-                      prefixIcon: Icon(Icons.search),
-                      filled: true,
-                      fillColor: Theme.of(context).colorScheme.surfaceContainerLowest,
-                      contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: Theme.of(context).colorScheme.outline)),
-                      enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: Theme.of(context).colorScheme.outline)),
-                    ),
-                  ),
-                ),
+                _buildFilterSection(isDesktop, isAdmin),
                 Expanded(
                   child: _isLoading
                       ? Center(child: CircularProgressIndicator(color: Theme.of(context).colorScheme.primary))
@@ -261,6 +378,20 @@ class _StaffManagementScreenState extends State<StaffManagementScreen> {
           ),
         ],
       ),
+      floatingActionButton: (!isDesktop && isAdmin)
+          ? FloatingActionButton(
+              onPressed: () => _showFormModal(),
+              backgroundColor: Theme.of(context).brightness == Brightness.dark
+                  ? const Color(0xFF10B981)
+                  : Theme.of(context).colorScheme.primary,
+              foregroundColor: Theme.of(context).brightness == Brightness.dark
+                  ? const Color(0xFF0A0D0B)
+                  : const Color(0xFFFFFFFF),
+              elevation: 4,
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+              child: const Icon(Icons.add, size: 28),
+            )
+          : null,
       bottomNavigationBar: null,
     );
   }

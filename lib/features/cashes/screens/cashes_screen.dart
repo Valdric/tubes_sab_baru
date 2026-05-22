@@ -214,6 +214,347 @@ class _CashesScreenState extends State<CashesScreen> {
     );
   }
 
+  Widget _buildFilterDropdown<T>({
+    required String label,
+    required T value,
+    required List<DropdownMenuItem<T>> items,
+    required ValueChanged<T?> onChanged,
+  }) {
+    final bool isDark = Theme.of(context).brightness == Brightness.dark;
+    final Color labelColor = isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B);
+    final Color dropdownBgColor = isDark ? const Color(0xFF131A16) : const Color(0xFFFFFFFF);
+    final Color borderColor = isDark ? const Color(0xFF223029) : const Color(0xFFE2E8F0);
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Text(
+          label,
+          style: TextStyle(
+            color: labelColor,
+            fontSize: 12,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+        const SizedBox(height: 6),
+        Container(
+          height: 48,
+          padding: const EdgeInsets.symmetric(horizontal: 12),
+          decoration: BoxDecoration(
+            color: dropdownBgColor,
+            borderRadius: BorderRadius.circular(10),
+            border: Border.all(color: borderColor),
+          ),
+          child: DropdownButtonHideUnderline(
+            child: DropdownButton<T>(
+              value: value,
+              items: items,
+              onChanged: onChanged,
+              dropdownColor: dropdownBgColor,
+              icon: Icon(
+                Icons.keyboard_arrow_down_rounded,
+                color: isDark ? const Color(0xFF10B981) : Theme.of(context).colorScheme.primary,
+              ),
+              isExpanded: true,
+              style: TextStyle(
+                color: isDark ? const Color(0xFFE2E8F0) : const Color(0xFF1E293B),
+                fontSize: 14,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildFilterSection(bool isDesktop) {
+    final bool isDark = Theme.of(context).brightness == Brightness.dark;
+    final Color cardBgColor = isDark ? const Color(0xFF131A16) : const Color(0xFFFFFFFF);
+    final Color borderColor = isDark ? const Color(0xFF223029) : const Color(0xFFE2E8F0);
+
+    return Container(
+      margin: EdgeInsets.symmetric(horizontal: isDesktop ? 32.0 : 16.0, vertical: 12.0),
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: cardBgColor,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: borderColor, width: 1),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: isDark ? 0.3 : 0.05),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Row 1: Search Input (and Add Button on Desktop)
+          if (isDesktop)
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: [
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Cari Catatan Kas',
+                        style: TextStyle(
+                          color: isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B),
+                          fontSize: 12,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                      const SizedBox(height: 6),
+                      TextField(
+                        onChanged: (v) {
+                          setState(() => _searchQuery = v);
+                          _fetchData();
+                        },
+                        style: TextStyle(
+                          color: isDark ? const Color(0xFFE2E8F0) : const Color(0xFF1E293B),
+                          fontSize: 14,
+                        ),
+                        decoration: InputDecoration(
+                          hintText: 'Cari deskripsi...',
+                          prefixIcon: Icon(Icons.search, color: isDark ? const Color(0xFF10B981) : Theme.of(context).colorScheme.primary),
+                          filled: true,
+                          fillColor: isDark ? const Color(0xFF0A0D0B) : const Color(0xFFF8FAFC),
+                          contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(10),
+                            borderSide: BorderSide(color: borderColor),
+                          ),
+                          enabledBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(10),
+                            borderSide: BorderSide(color: borderColor),
+                          ),
+                          focusedBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(10),
+                            borderSide: BorderSide(color: isDark ? const Color(0xFF10B981) : Theme.of(context).colorScheme.primary, width: 2),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(width: 16),
+                ElevatedButton.icon(
+                  onPressed: () => _showFormModal(),
+                  icon: const Icon(Icons.add, size: 20),
+                  label: const Text('Tambah Catatan'),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: isDark ? const Color(0xFF10B981) : Theme.of(context).colorScheme.primary,
+                    foregroundColor: isDark ? const Color(0xFF0A0D0B) : const Color(0xFFFFFFFF),
+                    minimumSize: const Size(200, 48),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                  ),
+                ),
+              ],
+            )
+          else
+            // Search Input on Mobile
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Cari Catatan Kas',
+                  style: TextStyle(
+                    color: isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B),
+                    fontSize: 12,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                const SizedBox(height: 6),
+                TextField(
+                  onChanged: (v) {
+                    setState(() => _searchQuery = v);
+                    _fetchData();
+                  },
+                  style: TextStyle(
+                    color: isDark ? const Color(0xFFE2E8F0) : const Color(0xFF1E293B),
+                    fontSize: 14,
+                  ),
+                  decoration: InputDecoration(
+                    hintText: 'Cari deskripsi...',
+                    prefixIcon: Icon(Icons.search, color: isDark ? const Color(0xFF10B981) : Theme.of(context).colorScheme.primary),
+                    filled: true,
+                    fillColor: isDark ? const Color(0xFF0A0D0B) : const Color(0xFFF8FAFC),
+                    contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(10),
+                      borderSide: BorderSide(color: borderColor),
+                    ),
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(10),
+                      borderSide: BorderSide(color: borderColor),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(10),
+                      borderSide: BorderSide(color: isDark ? const Color(0xFF10B981) : Theme.of(context).colorScheme.primary, width: 2),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+
+          const SizedBox(height: 16),
+
+          // Row 2: The 4 Dropdowns
+          if (isDesktop)
+            Row(
+              children: [
+                Expanded(
+                  child: _buildFilterDropdown<String?>(
+                    label: 'Berdasarkan',
+                    value: _selectedSortBy,
+                    items: const [
+                      DropdownMenuItem(value: 'Tanggal', child: Text('Tanggal')),
+                      DropdownMenuItem(value: 'Deskripsi', child: Text('Deskripsi')),
+                      DropdownMenuItem(value: 'Jumlah', child: Text('Jumlah')),
+                    ],
+                    onChanged: (val) {
+                      setState(() => _selectedSortBy = val);
+                      _fetchData();
+                    },
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: _buildFilterDropdown<String?>(
+                    label: 'Urutan',
+                    value: _selectedSortDirection,
+                    items: const [
+                      DropdownMenuItem(value: 'A-Z / Kecil-Besar', child: Text('A-Z / Kecil-Besar')),
+                      DropdownMenuItem(value: 'Z-A / Besar-Kecil', child: Text('Z-A / Besar-Kecil')),
+                    ],
+                    onChanged: (val) {
+                      setState(() => _selectedSortDirection = val);
+                      _fetchData();
+                    },
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: _buildFilterDropdown<String?>(
+                    label: 'Tipe',
+                    value: _selectedType,
+                    items: const [
+                      DropdownMenuItem(value: 'Semua Tipe', child: Text('Semua Tipe')),
+                      DropdownMenuItem(value: 'Pemasukan', child: Text('Pemasukan')),
+                      DropdownMenuItem(value: 'Pengeluaran', child: Text('Pengeluaran')),
+                    ],
+                    onChanged: (val) {
+                      setState(() => _selectedType = val);
+                      _fetchData();
+                    },
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: _buildFilterDropdown<String?>(
+                    label: 'Rentang Tanggal',
+                    value: _selectedDateRange,
+                    items: const [
+                      DropdownMenuItem(value: 'Semua Waktu', child: Text('Semua Waktu')),
+                      DropdownMenuItem(value: 'Hari Ini', child: Text('Hari Ini')),
+                      DropdownMenuItem(value: 'Minggu Ini', child: Text('Minggu Ini')),
+                      DropdownMenuItem(value: 'Bulan Ini', child: Text('Bulan Ini')),
+                    ],
+                    onChanged: (val) {
+                      setState(() => _selectedDateRange = val);
+                      _fetchData();
+                    },
+                  ),
+                ),
+              ],
+            )
+          else
+            // Dropdowns on Mobile: 2x2 Grid using rows
+            Column(
+              children: [
+                Row(
+                  children: [
+                    Expanded(
+                      child: _buildFilterDropdown<String?>(
+                        label: 'Berdasarkan',
+                        value: _selectedSortBy,
+                        items: const [
+                          DropdownMenuItem(value: 'Tanggal', child: Text('Tanggal')),
+                          DropdownMenuItem(value: 'Deskripsi', child: Text('Deskripsi')),
+                          DropdownMenuItem(value: 'Jumlah', child: Text('Jumlah')),
+                        ],
+                        onChanged: (val) {
+                          setState(() => _selectedSortBy = val);
+                          _fetchData();
+                        },
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: _buildFilterDropdown<String?>(
+                        label: 'Urutan',
+                        value: _selectedSortDirection,
+                        items: const [
+                          DropdownMenuItem(value: 'A-Z / Kecil-Besar', child: Text('A-Z / Kecil-Besar')),
+                          DropdownMenuItem(value: 'Z-A / Besar-Kecil', child: Text('Z-A / Besar-Kecil')),
+                        ],
+                        onChanged: (val) {
+                          setState(() => _selectedSortDirection = val);
+                          _fetchData();
+                        },
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 12),
+                Row(
+                  children: [
+                    Expanded(
+                      child: _buildFilterDropdown<String?>(
+                        label: 'Tipe',
+                        value: _selectedType,
+                        items: const [
+                          DropdownMenuItem(value: 'Semua Tipe', child: Text('Semua Tipe')),
+                          DropdownMenuItem(value: 'Pemasukan', child: Text('Pemasukan')),
+                          DropdownMenuItem(value: 'Pengeluaran', child: Text('Pengeluaran')),
+                        ],
+                        onChanged: (val) {
+                          setState(() => _selectedType = val);
+                          _fetchData();
+                        },
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: _buildFilterDropdown<String?>(
+                        label: 'Rentang',
+                        value: _selectedDateRange,
+                        items: const [
+                          DropdownMenuItem(value: 'Semua Waktu', child: Text('Semua Waktu')),
+                          DropdownMenuItem(value: 'Hari Ini', child: Text('Hari Ini')),
+                          DropdownMenuItem(value: 'Minggu Ini', child: Text('Minggu Ini')),
+                          DropdownMenuItem(value: 'Bulan Ini', child: Text('Bulan Ini')),
+                        ],
+                        onChanged: (val) {
+                          setState(() => _selectedDateRange = val);
+                          _fetchData();
+                        },
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final bool isDesktop = MediaQuery.of(context).size.width >= 768;
@@ -221,7 +562,14 @@ class _CashesScreenState extends State<CashesScreen> {
     return Scaffold(
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       drawer: !isDesktop ? const Drawer(child: Sidebar(currentIndex: 5)) : null,
-      appBar: isDesktop ? null : AppBar(title: const Text('Catatan Kas'), actions: [const ProfileButton()]),
+      appBar: isDesktop
+          ? null
+          : AppBar(
+              backgroundColor: Theme.of(context).cardColor,
+              title: Text('Catatan Kas', style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontWeight: FontWeight.bold)),
+              iconTheme: IconThemeData(color: Theme.of(context).colorScheme.onSurface),
+              actions: [const ProfileButton()],
+            ),
       body: Row(
         children: [
           if (isDesktop) const Sidebar(currentIndex: 5),
@@ -231,118 +579,39 @@ class _CashesScreenState extends State<CashesScreen> {
               children: [
                 if (isDesktop)
                   Padding(
-                    padding: EdgeInsets.only(left: 32.0, right: 32.0, top: 32.0, bottom: 8.0),
+                    padding: const EdgeInsets.only(left: 32.0, right: 32.0, top: 32.0, bottom: 8.0),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text('Catatan Kas', style: Theme.of(context).textTheme.displayMedium?.copyWith(fontWeight: FontWeight.bold, color: Theme.of(context).colorScheme.onSurface)),
-                        SizedBox(height: 4),
-                        Text('Kelola catatan pemasukan dan pengeluaran operasional.', style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant)),
+                        Text(
+                          'Catatan Kas',
+                          style: Theme.of(context).textTheme.displayMedium?.copyWith(
+                                fontWeight: FontWeight.bold,
+                                color: Theme.of(context).colorScheme.onSurface,
+                              ),
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          'Kelola catatan pemasukan dan pengeluaran operasional.',
+                          style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant),
+                        ),
                       ],
                     ),
                   ),
-                Padding(
-                  padding: EdgeInsets.symmetric(horizontal: isDesktop ? 32.0 : 16.0, vertical: 16.0),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text('Cari Catatan Kas', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
-                      SizedBox(height: 8),
-                      Row(
-                        children: [
-                          Expanded(
-                            child: TextField(
-                              onChanged: (v) {
-                                setState(() => _searchQuery = v);
-                                _fetchData();
-                              },
-                              style: TextStyle(fontSize: 14),
-                              decoration: InputDecoration(
-                                hintText: 'Cari deskripsi...',
-                                hintStyle: TextStyle(fontSize: 14, color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.38)),
-                                prefixIcon: Icon(Icons.search, size: 20, color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.54)),
-                                filled: true,
-                                fillColor: Theme.of(context).cardColor,
-                                contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                                border: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: BorderSide(color: Theme.of(context).colorScheme.outline)),
-                                enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: BorderSide(color: Theme.of(context).colorScheme.outline)),
-                                focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: BorderSide(color: Theme.of(context).colorScheme.primary)),
-                              ),
-                            ),
-                          ),
-                          if (isDesktop) ...[
-                            SizedBox(width: 12),
-                            ElevatedButton.icon(
-                              onPressed: () => _showFormModal(),
-                              icon: Icon(Icons.add, size: 18),
-                              label: Text('Tambah Catatan', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 13)),
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: Theme.of(context).colorScheme.primary, 
-                                foregroundColor: Theme.of(context).cardColor, 
-                                elevation: 0,
-                                minimumSize: const Size(0, 46),
-                                padding: EdgeInsets.symmetric(horizontal: 20),
-                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8))
-                              ),
-                            ),
-                          ]
-                        ],
-                      ),
-                      SizedBox(height: 16),
-                      LayoutBuilder(
-                        builder: (context, constraints) {
-                          final isSmall = constraints.maxWidth < 600;
-                          if (isSmall) {
-                            return Column(
-                              children: [
-                                Row(
-                                  children: [
-                                    Expanded(child: _buildDropdown('Berdasarkan', ['Tanggal', 'Deskripsi', 'Jumlah'], _selectedSortBy ?? 'Tanggal', (v) { setState(() { _selectedSortBy = v; _fetchData(); }); })),
-                                    SizedBox(width: 12),
-                                    Expanded(child: _buildDropdown('Urutan', ['A-Z / Kecil-Besar', 'Z-A / Besar-Kecil'], _selectedSortDirection ?? 'Z-A / Besar-Kecil', (v) { setState(() { _selectedSortDirection = v; _fetchData(); }); })),
-                                  ],
-                                ),
-                                SizedBox(height: 12),
-                                Row(
-                                  children: [
-                                    Expanded(child: _buildDropdown('Tipe', ['Semua Tipe', 'Pemasukan', 'Pengeluaran'], _selectedType ?? 'Semua Tipe', (v) { setState(() { _selectedType = v; _fetchData(); }); })),
-                                    SizedBox(width: 12),
-                                    Expanded(child: _buildDropdown('Rentang Tanggal', ['Semua Waktu', 'Hari Ini', 'Minggu Ini', 'Bulan Ini'], _selectedDateRange ?? 'Semua Waktu', (v) { setState(() { _selectedDateRange = v; _fetchData(); }); })),
-                                  ],
-                                ),
-                              ],
-                            );
-                          } else {
-                            return Row(
-                              children: [
-                                Expanded(child: _buildDropdown('Berdasarkan', ['Tanggal', 'Deskripsi', 'Jumlah'], _selectedSortBy ?? 'Tanggal', (v) { setState(() { _selectedSortBy = v; _fetchData(); }); })),
-                                SizedBox(width: 16),
-                                Expanded(child: _buildDropdown('Urutan', ['A-Z / Kecil-Besar', 'Z-A / Besar-Kecil'], _selectedSortDirection ?? 'Z-A / Besar-Kecil', (v) { setState(() { _selectedSortDirection = v; _fetchData(); }); })),
-                                SizedBox(width: 16),
-                                Expanded(child: _buildDropdown('Tipe', ['Semua Tipe', 'Pemasukan', 'Pengeluaran'], _selectedType ?? 'Semua Tipe', (v) { setState(() { _selectedType = v; _fetchData(); }); })),
-                                SizedBox(width: 16),
-                                Expanded(child: _buildDropdown('Rentang Tanggal', ['Semua Waktu', 'Hari Ini', 'Minggu Ini', 'Bulan Ini'], _selectedDateRange ?? 'Semua Waktu', (v) { setState(() { _selectedDateRange = v; _fetchData(); }); })),
-                              ],
-                            );
-                          }
-                        }
-                      ),
-                    ],
-                  ),
-                ),
+                _buildFilterSection(isDesktop),
                 Expanded(
                   child: _isLoading
                       ? Center(child: CircularProgressIndicator(color: Theme.of(context).colorScheme.primary))
                       : _items.isEmpty
-                        ? Center(child: Text("Belum ada catatan kas"))
-                        : ListView.builder(
-                          padding: EdgeInsets.symmetric(horizontal: isDesktop ? 32 : 16, vertical: 8),
-                          itemCount: _items.length,
-                          itemBuilder: (context, index) {
-                            final item = _items[index];
-                            return _cashCard(item);
-                          },
-                        ),
+                          ? Center(child: Text("Belum ada catatan kas", style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant)))
+                          : ListView.builder(
+                              padding: EdgeInsets.symmetric(horizontal: isDesktop ? 32 : 16, vertical: 8),
+                              itemCount: _items.length,
+                              itemBuilder: (context, index) {
+                                final item = _items[index];
+                                return _cashCard(item);
+                              },
+                            ),
                 ),
               ],
             ),
@@ -352,8 +621,15 @@ class _CashesScreenState extends State<CashesScreen> {
       floatingActionButton: !isDesktop
           ? FloatingActionButton(
               onPressed: () => _showFormModal(),
-              backgroundColor: Theme.of(context).colorScheme.primary,
-              child: Icon(Icons.add, color: Theme.of(context).colorScheme.onPrimary),
+              backgroundColor: Theme.of(context).brightness == Brightness.dark
+                  ? const Color(0xFF10B981)
+                  : Theme.of(context).colorScheme.primary,
+              foregroundColor: Theme.of(context).brightness == Brightness.dark
+                  ? const Color(0xFF0A0D0B)
+                  : const Color(0xFFFFFFFF),
+              elevation: 4,
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+              child: const Icon(Icons.add, size: 28),
             )
           : null,
       bottomNavigationBar: isDesktop ? null : const MobileBottomNav(currentIndex: 0),
@@ -409,31 +685,6 @@ class _CashesScreenState extends State<CashesScreen> {
         ),
         onTap: () => _showFormModal(item: item),
       ),
-    );
-  }
-
-  Widget _buildDropdown(String label, List<String> items, String value, ValueChanged<String?> onChanged) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(label, style: TextStyle(fontWeight: FontWeight.w600, fontSize: 12, color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.54))),
-        SizedBox(height: 6),
-        DropdownButtonFormField<String>(
-          initialValue: value,
-          isExpanded: true,
-          items: items.map((e) => DropdownMenuItem(value: e, child: Text(e, style: TextStyle(fontSize: 13), overflow: TextOverflow.ellipsis))).toList(),
-          onChanged: onChanged,
-          decoration: InputDecoration(
-            filled: true,
-            fillColor: Theme.of(context).cardColor,
-            contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-            border: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: BorderSide(color: Theme.of(context).colorScheme.outline)),
-            enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: BorderSide(color: Theme.of(context).colorScheme.outline)),
-            focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: BorderSide(color: Theme.of(context).colorScheme.primary)),
-          ),
-          icon: Icon(Icons.keyboard_arrow_down, color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.45), size: 20),
-        ),
-      ],
     );
   }
 }

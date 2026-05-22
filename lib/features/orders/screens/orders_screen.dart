@@ -55,6 +55,169 @@ class _OrdersScreenState extends State<OrdersScreen> {
     }
   }
 
+  Widget _buildFilterDropdown<T>({
+    required String label,
+    required T value,
+    required List<DropdownMenuItem<T>> items,
+    required ValueChanged<T?> onChanged,
+  }) {
+    final bool isDark = Theme.of(context).brightness == Brightness.dark;
+    final Color labelColor = isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B);
+    final Color dropdownBgColor = isDark ? const Color(0xFF131A16) : const Color(0xFFFFFFFF);
+    final Color borderColor = isDark ? const Color(0xFF223029) : const Color(0xFFE2E8F0);
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Text(
+          label,
+          style: TextStyle(
+            color: labelColor,
+            fontSize: 12,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+        const SizedBox(height: 6),
+        Container(
+          height: 48,
+          padding: const EdgeInsets.symmetric(horizontal: 12),
+          decoration: BoxDecoration(
+            color: dropdownBgColor,
+            borderRadius: BorderRadius.circular(10),
+            border: Border.all(color: borderColor),
+          ),
+          child: DropdownButtonHideUnderline(
+            child: DropdownButton<T>(
+              value: value,
+              items: items,
+              onChanged: onChanged,
+              dropdownColor: dropdownBgColor,
+              icon: Icon(
+                Icons.keyboard_arrow_down_rounded,
+                color: isDark ? const Color(0xFF10B981) : Theme.of(context).colorScheme.primary,
+              ),
+              isExpanded: true,
+              style: TextStyle(
+                color: isDark ? const Color(0xFFE2E8F0) : const Color(0xFF1E293B),
+                fontSize: 14,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildFilterSection(bool isDesktop) {
+    final bool isDark = Theme.of(context).brightness == Brightness.dark;
+    final Color cardBgColor = isDark ? const Color(0xFF131A16) : const Color(0xFFFFFFFF);
+    final Color borderColor = isDark ? const Color(0xFF223029) : const Color(0xFFE2E8F0);
+
+    return Container(
+      margin: EdgeInsets.symmetric(horizontal: isDesktop ? 32.0 : 16.0, vertical: 12.0),
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: cardBgColor,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: borderColor, width: 1),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: isDark ? 0.3 : 0.05),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'Cari Pesanan',
+                style: TextStyle(
+                  color: isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B),
+                  fontSize: 12,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+              const SizedBox(height: 6),
+              TextField(
+                onChanged: (v) {
+                  setState(() => _searchQuery = v);
+                  _fetchData();
+                },
+                style: TextStyle(
+                  color: isDark ? const Color(0xFFE2E8F0) : const Color(0xFF1E293B),
+                  fontSize: 14,
+                ),
+                decoration: InputDecoration(
+                  hintText: 'Cari pesanan (Nama Pelanggan / ID)...',
+                  prefixIcon: Icon(Icons.search, color: isDark ? const Color(0xFF10B981) : Theme.of(context).colorScheme.primary),
+                  filled: true,
+                  fillColor: isDark ? const Color(0xFF0A0D0B) : const Color(0xFFF8FAFC),
+                  contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(10),
+                    borderSide: BorderSide(color: borderColor),
+                  ),
+                  enabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(10),
+                    borderSide: BorderSide(color: borderColor),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(10),
+                    borderSide: BorderSide(color: isDark ? const Color(0xFF10B981) : Theme.of(context).colorScheme.primary, width: 2),
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 16),
+          Row(
+            children: [
+              Expanded(
+                child: _buildFilterDropdown<String?>(
+                  label: isDesktop ? 'Tipe Pesanan' : 'Tipe',
+                  value: _selectedType,
+                  items: [
+                    DropdownMenuItem(value: null, child: Text('Semua Tipe', style: TextStyle(color: isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B)))),
+                    const DropdownMenuItem(value: 'DINE_IN', child: Text('Dine In')),
+                    const DropdownMenuItem(value: 'TAKE_AWAY', child: Text('Take Away')),
+                  ],
+                  onChanged: (val) {
+                    setState(() => _selectedType = val);
+                    _fetchData();
+                  },
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: _buildFilterDropdown<String?>(
+                  label: 'Pembayaran',
+                  value: _selectedPayment,
+                  items: [
+                    DropdownMenuItem(value: null, child: Text('Semua Pembayaran', style: TextStyle(color: isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B)))),
+                    const DropdownMenuItem(value: 'CASH', child: Text('Tunai')),
+                    const DropdownMenuItem(value: 'QRIS', child: Text('QRIS')),
+                    const DropdownMenuItem(value: 'TRANSFER', child: Text('Transfer')),
+                  ],
+                  onChanged: (val) {
+                    setState(() => _selectedPayment = val);
+                    _fetchData();
+                  },
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final bool isDesktop = MediaQuery.of(context).size.width >= 768;
@@ -65,8 +228,10 @@ class _OrdersScreenState extends State<OrdersScreen> {
       appBar: isDesktop
           ? null
           : AppBar(
-              title: const Text('Riwayat Pesanan'),
-              actions: const [ProfileButton()],
+              backgroundColor: Theme.of(context).cardColor,
+              title: Text('Riwayat Pesanan', style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontWeight: FontWeight.bold)),
+              iconTheme: IconThemeData(color: Theme.of(context).colorScheme.onSurface),
+              actions: [const ProfileButton()],
             ),
       body: Row(
         children: [
@@ -77,14 +242,18 @@ class _OrdersScreenState extends State<OrdersScreen> {
               children: [
                 if (isDesktop)
                   Padding(
-                    padding: EdgeInsets.all(24.0),
+                    padding: const EdgeInsets.only(left: 32.0, right: 32.0, top: 32.0, bottom: 8.0),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
                           'Riwayat Pesanan',
-                          style: Theme.of(context).textTheme.displayMedium,
+                          style: Theme.of(context).textTheme.displayMedium?.copyWith(
+                                fontWeight: FontWeight.bold,
+                                color: Theme.of(context).colorScheme.onSurface,
+                              ),
                         ),
+                        const SizedBox(height: 4),
                         Text(
                           'Pantau dan lihat kembali transaksi yang telah dilakukan.',
                           style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant),
@@ -92,142 +261,14 @@ class _OrdersScreenState extends State<OrdersScreen> {
                       ],
                     ),
                   ),
-                Padding(
-                  padding: EdgeInsets.symmetric(horizontal: isDesktop ? 24.0 : 16.0, vertical: 8.0),
-                  child: TextField(
-                    onChanged: (v) {
-                      setState(() => _searchQuery = v);
-                      _fetchData();
-                    },
-                    decoration: InputDecoration(
-                      hintText: 'Cari pesanan (Nama Pelanggan / ID)...',
-                      prefixIcon: Icon(Icons.search),
-                    ),
-                  ),
-                ),
-                Padding(
-                  padding: EdgeInsets.symmetric(horizontal: isDesktop ? 24.0 : 16.0, vertical: 8.0),
-                  child: LayoutBuilder(
-                    builder: (context, constraints) {
-                      final double itemWidth = (constraints.maxWidth - 8) / 2;
-                      final bool useWrap = itemWidth < 160;
-                      
-                      if (useWrap) {
-                        return Wrap(
-                          spacing: 8,
-                          runSpacing: 8,
-                          children: [
-                            SizedBox(
-                              width: double.infinity,
-                              child: DropdownButtonFormField<String>(
-                                initialValue: _selectedType,
-                                decoration: InputDecoration(
-                                  hintText: 'Semua Tipe',
-                                  isDense: true,
-                                  contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
-                                  filled: true,
-                                  fillColor: Theme.of(context).cardColor,
-                                ),
-                                items: const [
-                                  DropdownMenuItem(value: null, child: Text('Semua Tipe')),
-                                  DropdownMenuItem(value: 'DINE_IN', child: Text('Dine In')),
-                                  DropdownMenuItem(value: 'TAKE_AWAY', child: Text('Take Away')),
-                                ],
-                                onChanged: (v) {
-                                  setState(() => _selectedType = v);
-                                  _fetchData();
-                                },
-                              ),
-                            ),
-                            SizedBox(
-                              width: double.infinity,
-                              child: DropdownButtonFormField<String>(
-                                initialValue: _selectedPayment,
-                                decoration: InputDecoration(
-                                  hintText: 'Pembayaran',
-                                  isDense: true,
-                                  contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
-                                  filled: true,
-                                  fillColor: Theme.of(context).cardColor,
-                                ),
-                                items: const [
-                                  DropdownMenuItem(value: null, child: Text('Semua Pembayaran')),
-                                  DropdownMenuItem(value: 'CASH', child: Text('Tunai')),
-                                  DropdownMenuItem(value: 'QRIS', child: Text('QRIS')),
-                                  DropdownMenuItem(value: 'TRANSFER', child: Text('Transfer')),
-                                ],
-                                onChanged: (v) {
-                                  setState(() => _selectedPayment = v);
-                                  _fetchData();
-                                },
-                              ),
-                            ),
-                          ],
-                        );
-                      } else {
-                        return Row(
-                          children: [
-                            Expanded(
-                              child: DropdownButtonFormField<String>(
-                                initialValue: _selectedType,
-                                decoration: InputDecoration(
-                                  hintText: 'Semua Tipe',
-                                  isDense: true,
-                                  contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
-                                  filled: true,
-                                  fillColor: Theme.of(context).cardColor,
-                                ),
-                                items: const [
-                                  DropdownMenuItem(value: null, child: Text('Semua Tipe')),
-                                  DropdownMenuItem(value: 'DINE_IN', child: Text('Dine In')),
-                                  DropdownMenuItem(value: 'TAKE_AWAY', child: Text('Take Away')),
-                                ],
-                                onChanged: (v) {
-                                  setState(() => _selectedType = v);
-                                  _fetchData();
-                                },
-                              ),
-                            ),
-                            SizedBox(width: 8),
-                            Expanded(
-                              child: DropdownButtonFormField<String>(
-                                initialValue: _selectedPayment,
-                                decoration: InputDecoration(
-                                  hintText: 'Pembayaran',
-                                  isDense: true,
-                                  contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
-                                  filled: true,
-                                  fillColor: Theme.of(context).cardColor,
-                                ),
-                                items: const [
-                                  DropdownMenuItem(value: null, child: Text('Semua Pembayaran')),
-                                  DropdownMenuItem(value: 'CASH', child: Text('Tunai')),
-                                  DropdownMenuItem(value: 'QRIS', child: Text('QRIS')),
-                                  DropdownMenuItem(value: 'TRANSFER', child: Text('Transfer')),
-                                ],
-                                onChanged: (v) {
-                                  setState(() => _selectedPayment = v);
-                                  _fetchData();
-                                },
-                              ),
-                            ),
-                          ],
-                        );
-                      }
-                    },
-                  ),
-                ),
+                _buildFilterSection(isDesktop),
                 Expanded(
                   child: _isLoading
-                      ? Center(child: CircularProgressIndicator())
+                      ? Center(child: CircularProgressIndicator(color: Theme.of(context).colorScheme.primary))
                       : _items.isEmpty
-                          ? Center(child: Text('Belum ada pesanan.'))
+                          ? Center(child: Text('Belum ada pesanan.', style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant)))
                           : ListView.builder(
-                              padding: EdgeInsets.all(isDesktop ? 24 : 16),
+                              padding: EdgeInsets.symmetric(horizontal: isDesktop ? 32 : 16, vertical: 8),
                               itemCount: _items.length,
                               itemBuilder: (context, index) {
                                 final item = _items[index];

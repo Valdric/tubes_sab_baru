@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Inventory Management</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "on-secondary-fixed": "#00201b",
+                        "secondary-fixed-dim": "#7ad7c6",
+                        "surface-container-lowest": "#ffffff",
+                        "on-tertiary-fixed-variant": "#713700",
+                        "inverse-on-surface": "#f2eff9",
+                        "outline": "#757684",
+                        "secondary-container": "#94f0df",
+                        "surface-tint": "#4355b9",
+                        "on-primary": "#ffffff",
+                        "primary-fixed": "#dee0ff",
+                        "surface-container-highest": "#e3e1ea",
+                        "on-background": "#1a1b22",
+                        "surface": "#fbf8ff",
+                        "on-tertiary-container": "#ffc7a2",
+                        "surface-container": "#efedf6",
+                        "error-container": "#ffdad6",
+                        "surface-container-low": "#f4f2fc",
+                        "on-surface": "#1a1b22",
+                        "secondary-fixed": "#97f3e2",
+                        "primary-fixed-dim": "#bac3ff",
+                        "surface-bright": "#fbf8ff",
+                        "on-error": "#ffffff",
+                        "secondary": "#006b5e",
+                        "primary": "#24389c",
+                        "on-error-container": "#93000a",
+                        "inverse-surface": "#2f3037",
+                        "on-surface-variant": "#454652",
+                        "on-secondary-container": "#006f62",
+                        "inverse-primary": "#bac3ff",
+                        "primary-container": "#3f51b5",
+                        "on-primary-fixed": "#00105c",
+                        "on-secondary": "#ffffff",
+                        "outline-variant": "#c5c5d4",
+                        "tertiary": "#6c3400",
+                        "error": "#ba1a1a",
+                        "tertiary-fixed": "#ffdcc6",
+                        "tertiary-container": "#8f4700",
+                        "on-primary-fixed-variant": "#293ca0",
+                        "on-secondary-fixed-variant": "#005047",
+                        "tertiary-fixed-dim": "#ffb784",
+                        "on-primary-container": "#cacfff",
+                        "surface-dim": "#dbd9e2",
+                        "surface-variant": "#e3e1ea",
+                        "on-tertiary-fixed": "#301400",
+                        "background": "#fbf8ff",
+                        "on-tertiary": "#ffffff",
+                        "surface-container-high": "#e9e7f0"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.125rem",
+                        "lg": "0.25rem",
+                        "xl": "0.5rem",
+                        "full": "0.75rem"
+                    },
+                    "spacing": {
+                        "margin-tablet": "24px",
+                        "xl": "32px",
+                        "xs": "4px",
+                        "base": "4px",
+                        "margin-mobile": "16px",
+                        "gutter": "16px",
+                        "lg": "24px",
+                        "md": "16px",
+                        "sm": "8px"
+                    },
+                    "fontFamily": {
+                        "numeric-data": ["Inter"],
+                        "headline-lg-mobile": ["Inter"],
+                        "headline-lg": ["Inter"],
+                        "body-lg": ["Inter"],
+                        "display-price": ["Inter"],
+                        "body-md": ["Inter"],
+                        "label-md": ["Inter"],
+                        "headline-md": ["Inter"]
+                    },
+                    "fontSize": {
+                        "numeric-data": ["16px", { "lineHeight": "24px", "fontWeight": "600" }],
+                        "headline-lg-mobile": ["20px", { "lineHeight": "28px", "fontWeight": "600" }],
+                        "headline-lg": ["24px", { "lineHeight": "32px", "fontWeight": "600" }],
+                        "body-lg": ["16px", { "lineHeight": "24px", "fontWeight": "400" }],
+                        "display-price": ["32px", { "lineHeight": "40px", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+                        "body-md": ["14px", { "lineHeight": "20px", "fontWeight": "400" }],
+                        "label-md": ["12px", { "lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "600" }],
+                        "headline-md": ["20px", { "lineHeight": "28px", "fontWeight": "600" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        body { font-family: 'Inter', sans-serif; }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .pull-to-refresh {
+            transition: transform 0.3s ease-out;
+        }
+        /* Custom scrollbar for webkit */
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #c5c5d4;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #757684;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background text-on-background h-screen flex flex-col md:flex-row overflow-hidden">
+<!-- Mobile Top App Bar -->
+<header class="md:hidden flex justify-between items-center px-margin-mobile w-full h-12 bg-surface shadow-sm docked full-width top-0 z-40 bg-surface-container-low border-b border-surface-container-high">
+<div class="flex items-center gap-2">
+<img alt="staff_member_avatar" class="w-8 h-8 rounded-full border border-outline-variant object-cover" data-alt="A small circular avatar placeholder showing a generic silhouette or subtle gradient suitable for a professional retail staff member in a modern corporate light-mode application interface." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBHTHK2D__opJ52biTdF_mTc7064PwmeN4mteQSZynKxiOHTcdXfLUnIXZGiV6Nm-6m9zucthayGM_RuSkY-zpL9vsIHHsqMchtVpa0JqYsPq7BTKoIr1UmHV9ZPgDkd0SCbax-MQzxxGNTVafnAcsXrGTJFf7mP4cHd5aXAMPd-IH7-_HZTqLyk4-DSH-bX1EPCor_ttrfrdg2mP00W6wQH1RijWPtS2hsdoRGjSPKzcwV9rXl8YKUodNuJJ2ZooUX8kypupsDau9D"/>
+<span class="font-headline-md-mobile text-headline-md-mobile font-bold text-primary">Enterprise POS</span>
+</div>
+<button class="text-on-surface-variant hover:bg-surface-container-highest transition-colors rounded-full p-1 active:scale-95 duration-100">
+<span class="material-symbols-outlined">notifications</span>
+</button>
+</header>
+<!-- Navigation Drawer (Desktop) -->
+<aside class="hidden md:flex flex-col h-full py-lg w-80 rounded-r-xl bg-surface shadow-xl z-30 bg-surface-container shadow-xl">
+<div class="px-xl mb-lg">
+<h1 class="font-headline-lg text-headline-lg font-black text-primary">Enterprise POS</h1>
+</div>
+<div class="px-lg flex items-center gap-md mb-xl">
+<img alt="manager_profile_picture" class="w-12 h-12 rounded-full border-2 border-outline-variant object-cover" data-alt="A professional headshot avatar for a store manager, well-lit, placed within a modern corporate light-mode application." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBYQPcypAQBU7GV2ImY0m2o19s5Ua8EELG9Pvg7NxpJBbcZpeG5kf4yawL8HI5cZFzYHhPWg_dukY3molDt8sAFLKORS4kNAKxA9l6UET-tfZeuMJZLwL4Tb8ma4oQi05oOm_-4N6g8J0iXEUAGpsZi7aOzn12HqwhYnJCrNSxv5vIBNgSxsX7LPJUABHB8-wdwbdZs_XR1Uck0aPRhhRLP73gYLXCIppLKSRr9XVf7qU--pNNpQWgJDz_LEKU5-8KwiRjueLpkaEdw"/>
+<div>
+<p class="font-headline-md text-headline-md text-on-surface">Store Manager</p>
+<p class="font-body-md text-body-md text-on-surface-variant">Terminal #01 • Admin Access</p>
+</div>
+</div>
+<nav class="flex-1 overflow-y-auto space-y-1">
+<a class="flex items-center gap-md mx-2 px-4 py-3 rounded-full text-on-surface-variant hover:bg-surface-container-highest transition-all duration-300 ease-in-out group" href="#">
+<span class="material-symbols-outlined group-hover:text-primary transition-colors">dashboard</span>
+<span class="font-body-md text-body-md group-hover:text-primary transition-colors">Dashboard</span>
+</a>
+<a class="flex items-center gap-md mx-2 px-4 py-3 rounded-full text-on-surface-variant hover:bg-surface-container-highest transition-all duration-300 ease-in-out group" href="#">
+<span class="material-symbols-outlined group-hover:text-primary transition-colors">payments</span>
+<span class="font-body-md text-body-md group-hover:text-primary transition-colors">Transactions</span>
+</a>
+<a class="flex items-center gap-md mx-2 px-4 py-3 rounded-full text-on-surface-variant hover:bg-surface-container-highest transition-all duration-300 ease-in-out group" href="#">
+<span class="material-symbols-outlined group-hover:text-primary transition-colors">restaurant_menu</span>
+<span class="font-body-md text-body-md group-hover:text-primary transition-colors">Menu Manager</span>
+</a>
+<a class="flex items-center gap-md mx-2 px-4 py-3 rounded-full bg-secondary-container text-on-secondary-container font-bold transition-all duration-300 ease-in-out shadow-sm border border-secondary-fixed-dim" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">inventory_2</span>
+<span class="font-body-md text-body-md">Inventory</span>
+</a>
+<a class="flex items-center gap-md mx-2 px-4 py-3 rounded-full text-on-surface-variant hover:bg-surface-container-highest transition-all duration-300 ease-in-out group" href="#">
+<span class="material-symbols-outlined group-hover:text-primary transition-colors">warning</span>
+<span class="font-body-md text-body-md group-hover:text-primary transition-colors">Stock Alerts</span>
+</a>
+<a class="flex items-center gap-md mx-2 px-4 py-3 rounded-full text-on-surface-variant hover:bg-surface-container-highest transition-all duration-300 ease-in-out group" href="#">
+<span class="material-symbols-outlined group-hover:text-primary transition-colors">assessment</span>
+<span class="font-body-md text-body-md group-hover:text-primary transition-colors">Reports</span>
+</a>
+<a class="flex items-center gap-md mx-2 px-4 py-3 rounded-full text-on-surface-variant hover:bg-surface-container-highest transition-all duration-300 ease-in-out group mt-auto" href="#">
+<span class="material-symbols-outlined group-hover:text-primary transition-colors">settings</span>
+<span class="font-body-md text-body-md group-hover:text-primary transition-colors">Settings</span>
+</a>
+</nav>
+</aside>
+<!-- Main Content Area -->
+<main class="flex-1 flex flex-col relative overflow-hidden bg-background">
+<!-- Pull to Refresh Indicator -->
+<div class="absolute top-0 left-0 right-0 flex justify-center items-center h-12 -translate-y-full transition-transform z-20 pointer-events-none" id="ptr-indicator">
+<div class="bg-surface shadow-md rounded-full p-2 flex items-center justify-center">
+<span class="material-symbols-outlined text-primary animate-spin">refresh</span>
+</div>
+</div>
+<div class="flex-1 overflow-y-auto px-margin-mobile md:px-margin-tablet py-lg" id="main-scroll-area">
+<!-- Header Section -->
+<div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-lg gap-md">
+<div>
+<h2 class="font-headline-lg-mobile md:font-headline-lg text-headline-lg-mobile md:text-headline-lg text-on-background">Inventory Management</h2>
+<p class="font-body-md text-body-md text-on-surface-variant mt-1">Manage ingredients, stock levels, and alerts.</p>
+</div>
+<button class="bg-primary text-on-primary font-label-md text-label-md px-6 py-3 rounded-DEFAULT hover:bg-on-primary-fixed-variant transition-colors shadow-sm active:scale-95 flex items-center gap-2 min-h-[48px]">
+<span class="material-symbols-outlined text-[20px]">add</span>
+                    Add Ingredient
+                </button>
+</div>
+<!-- Controls (Search & Sort) -->
+<div class="flex flex-col md:flex-row gap-md mb-lg">
+<div class="relative flex-1">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant pointer-events-none">search</span>
+<input class="w-full bg-surface border border-outline-variant text-on-surface rounded-DEFAULT pl-10 pr-4 py-3 min-h-[48px] focus:ring-2 focus:ring-primary focus:border-primary font-body-md text-body-md outline-none transition-all placeholder:text-outline-variant" placeholder="Search ingredients..." type="text"/>
+</div>
+<div class="flex items-center gap-md">
+<span class="font-label-md text-label-md text-on-surface-variant whitespace-nowrap">Sort by:</span>
+<div class="flex bg-surface border border-outline-variant rounded-DEFAULT p-1">
+<button class="px-4 py-2 bg-surface-container-high rounded-DEFAULT font-label-md text-label-md text-on-surface">Name</button>
+<button class="px-4 py-2 hover:bg-surface-container-low rounded-DEFAULT font-label-md text-label-md text-on-surface-variant transition-colors">Stock</button>
+<button class="px-4 py-2 hover:bg-surface-container-low rounded-DEFAULT font-label-md text-label-md text-on-surface-variant transition-colors">Created</button>
+</div>
+</div>
+</div>
+<!-- Inventory Grid -->
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-md pb-24 md:pb-0">
+<!-- Card 1: Normal Stock -->
+<div class="bg-surface rounded-lg border border-outline-variant p-4 flex flex-col gap-sm shadow-sm hover:shadow-md transition-shadow cursor-pointer group">
+<div class="flex justify-between items-start">
+<div class="w-16 h-16 rounded-DEFAULT bg-surface-container flex items-center justify-center overflow-hidden border border-surface-container-high">
+<img alt="Coffee Beans" class="w-full h-full object-cover" data-alt="Close up shot of roasted coffee beans in a clean, brightly lit setting. Professional product photography style, high contrast, sharp focus, fitting a premium corporate application interface." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCWQPGEbWLYLNicfrtvyrlLdHJqFAKj1xehSX7rbAEqSECAd6QER5yv8eHMhrOevd7Wljb34z7PIK9wYEs6UQITsiEYNZf2V0jqu7nGg5Zq10UUvWTLOUxJ8TfL4SMRHc8MmBEhYxIBrtxs7_FhF1-oMzKpDa-6K6NFlbISmzfqi6d_uE1r7p0B_KTZLbuXTj07JjXY4CVxflOJdISnWkLg7gFsVRB9yEowoRr-d8ga22-qCIFSD6O8B0LB_juV60AT-fqI99_g8pt3"/>
+</div>
+<span class="bg-secondary-container text-on-secondary-container font-label-md text-label-md px-2 py-1 rounded-DEFAULT">In Stock</span>
+</div>
+<div class="mt-2">
+<h3 class="font-body-lg text-body-lg font-bold text-on-surface group-hover:text-primary transition-colors">Arabica Coffee Beans</h3>
+<p class="font-body-md text-body-md text-on-surface-variant mt-1">SKU: CB-001</p>
+</div>
+<div class="mt-auto pt-2 flex justify-between items-end border-t border-surface-container-high">
+<div>
+<span class="font-label-md text-label-md text-on-surface-variant block mb-1">Stock Count</span>
+<span class="font-numeric-data text-numeric-data text-on-surface">45.5</span>
+</div>
+<div class="text-right">
+<span class="font-label-md text-label-md text-on-surface-variant block mb-1">Unit</span>
+<span class="font-body-md text-body-md font-medium text-on-surface">Kg</span>
+</div>
+</div>
+</div>
+<!-- Card 2: Low Stock (Alert) -->
+<div class="bg-surface rounded-lg border-2 border-[#f59e0b] p-4 flex flex-col gap-sm shadow-sm hover:shadow-md transition-shadow cursor-pointer group relative overflow-hidden">
+<div class="absolute top-0 right-0 w-16 h-16 bg-[#fef3c7] rounded-bl-full -z-10"></div>
+<div class="flex justify-between items-start">
+<div class="w-16 h-16 rounded-DEFAULT bg-surface-container flex items-center justify-center overflow-hidden border border-surface-container-high">
+<img alt="Milk" class="w-full h-full object-cover" data-alt="A clean, minimalist shot of fresh milk in a clear glass bottle against a pure white background. Bright, high-key lighting, professional product style for a modern inventory system." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCQ-puh4VJ3IoGxsJHGBK0yrnrZEQDAcz-vzcyORoXphwTwSZekDTonsGwMnluJE2dr_WU_qFqnOkt2_2SVECeNmztgC0pdo8DmVdy2Ue0kt5SyZpeR6-SudGCDLLGo-DOWrDpWiQEpTTawsVQlac94A8RiSVxAf60Zfj4oT5c_-n71dlNiZWKbbO54VdmD47W6eZX5uxZMAFWJaWCH3KBBlBleQe9SFgkETCpcAkmtVmjWN9fRACqHrPohnIsfLp6f9-46htUoBolT"/>
+</div>
+<span class="bg-[#fef3c7] text-[#d97706] font-label-md text-label-md px-2 py-1 rounded-DEFAULT flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]">warning</span> Low
+                        </span>
+</div>
+<div class="mt-2">
+<h3 class="font-body-lg text-body-lg font-bold text-on-surface group-hover:text-primary transition-colors">Whole Milk</h3>
+<p class="font-body-md text-body-md text-on-surface-variant mt-1">SKU: MLK-012</p>
+</div>
+<div class="mt-auto pt-2 flex justify-between items-end border-t border-surface-container-high">
+<div>
+<span class="font-label-md text-label-md text-on-surface-variant block mb-1">Stock Count</span>
+<span class="font-numeric-data text-numeric-data text-[#d97706]">2.0</span>
+</div>
+<div class="text-right">
+<span class="font-label-md text-label-md text-on-surface-variant block mb-1">Unit</span>
+<span class="font-body-md text-body-md font-medium text-on-surface">Liters</span>
+</div>
+</div>
+</div>
+<!-- Card 3: Out of Stock -->
+<div class="bg-surface rounded-lg border border-error p-4 flex flex-col gap-sm shadow-sm hover:shadow-md transition-shadow cursor-pointer group opacity-75">
+<div class="flex justify-between items-start">
+<div class="w-16 h-16 rounded-DEFAULT bg-surface-container flex items-center justify-center overflow-hidden border border-surface-container-high grayscale">
+<img alt="Vanilla Syrup" class="w-full h-full object-cover" data-alt="A premium glass bottle of vanilla syrup on a sterile white surface. Crisp, modern, utilitarian product photography suited for an enterprise management dashboard." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCwdzfxG4W9ONP8ktTsR5kTVqUxwGSyBIW41bK53qSO9IGhDayQSB_2_cYVY-PAuSpby3QKXmtxpve-3Wi5XXuDW8N4KEPvQsBy2O9A-F5CYAPTtyCuBXZzgm5ac2pRLyLRb8vxmZJH2kJFrehpzOJ5UQ9479Rdaz_TXwn6ccWfiadzcpOuUt4bU0FD8cJ5_A2_VbMlvF_RE8FQ3sNY6VQmUaW7juPGBT99lPRlFvvn0abPFdb5Rx48CZXYvG4EfVGghxOGbrqB14qQ"/>
+</div>
+<span class="bg-error-container text-on-error-container font-label-md text-label-md px-2 py-1 rounded-DEFAULT">Out of Stock</span>
+</div>
+<div class="mt-2">
+<h3 class="font-body-lg text-body-lg font-bold text-on-surface group-hover:text-primary transition-colors">Vanilla Syrup</h3>
+<p class="font-body-md text-body-md text-on-surface-variant mt-1">SKU: SYR-004</p>
+</div>
+<div class="mt-auto pt-2 flex justify-between items-end border-t border-surface-container-high">
+<div>
+<span class="font-label-md text-label-md text-on-surface-variant block mb-1">Stock Count</span>
+<span class="font-numeric-data text-numeric-data text-error">0.0</span>
+</div>
+<div class="text-right">
+<span class="font-label-md text-label-md text-on-surface-variant block mb-1">Unit</span>
+<span class="font-body-md text-body-md font-medium text-on-surface">ML</span>
+</div>
+</div>
+</div>
+<!-- Card 4: Normal Stock -->
+<div class="bg-surface rounded-lg border border-outline-variant p-4 flex flex-col gap-sm shadow-sm hover:shadow-md transition-shadow cursor-pointer group">
+<div class="flex justify-between items-start">
+<div class="w-16 h-16 rounded-DEFAULT bg-surface-container flex items-center justify-center overflow-hidden border border-surface-container-high">
+<span class="material-symbols-outlined text-outline text-[32px]">cookie</span>
+</div>
+<span class="bg-secondary-container text-on-secondary-container font-label-md text-label-md px-2 py-1 rounded-DEFAULT">In Stock</span>
+</div>
+<div class="mt-2">
+<h3 class="font-body-lg text-body-lg font-bold text-on-surface group-hover:text-primary transition-colors">Chocolate Chip Cookies</h3>
+<p class="font-body-md text-body-md text-on-surface-variant mt-1">SKU: BAK-101</p>
+</div>
+<div class="mt-auto pt-2 flex justify-between items-end border-t border-surface-container-high">
+<div>
+<span class="font-label-md text-label-md text-on-surface-variant block mb-1">Stock Count</span>
+<span class="font-numeric-data text-numeric-data text-on-surface">120</span>
+</div>
+<div class="text-right">
+<span class="font-label-md text-label-md text-on-surface-variant block mb-1">Unit</span>
+<span class="font-body-md text-body-md font-medium text-on-surface">PCS</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+</main>
+<!-- Mobile Bottom Navigation -->
+<nav class="md:hidden bg-surface shadow-md border-t border-outline-variant fixed bottom-0 w-full z-50 flex justify-around items-center px-xs py-sm">
+<button class="flex flex-col items-center justify-center text-on-surface-variant px-4 py-1 hover:bg-surface-container-high active:scale-90 transition-transform duration-200">
+<span class="material-symbols-outlined">point_of_sale</span>
+<span class="font-label-md text-label-md mt-1">POS</span>
+</button>
+<button class="flex flex-col items-center justify-center bg-primary-container text-on-primary-container rounded-full px-4 py-1 active:scale-90 transition-transform duration-200">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">inventory_2</span>
+<span class="font-label-md text-label-md mt-1">Inventory</span>
+</button>
+<button class="flex flex-col items-center justify-center text-on-surface-variant px-4 py-1 hover:bg-surface-container-high active:scale-90 transition-transform duration-200">
+<span class="material-symbols-outlined">receipt_long</span>
+<span class="font-label-md text-label-md mt-1">Orders</span>
+</button>
+<button class="flex flex-col items-center justify-center text-on-surface-variant px-4 py-1 hover:bg-surface-container-high active:scale-90 transition-transform duration-200">
+<span class="material-symbols-outlined">analytics</span>
+<span class="font-label-md text-label-md mt-1">Insights</span>
+</button>
+<button class="flex flex-col items-center justify-center text-on-surface-variant px-4 py-1 hover:bg-surface-container-high active:scale-90 transition-transform duration-200">
+<span class="material-symbols-outlined">group</span>
+<span class="font-label-md text-label-md mt-1">Staff</span>
+</button>
+</nav>
+<script>
+        // Simple Pull-to-Refresh visual simulation
+        const scrollArea = document.getElementById('main-scroll-area');
+        const ptrIndicator = document.getElementById('ptr-indicator');
+        let startY = 0;
+        let isPulling = false;
+
+        scrollArea.addEventListener('touchstart', e => {
+            if (scrollArea.scrollTop === 0) {
+                startY = e.touches[0].clientY;
+                isPulling = true;
+            }
+        }, { passive: true });
+
+        scrollArea.addEventListener('touchmove', e => {
+            if (!isPulling) return;
+            const y = e.touches[0].clientY;
+            const diff = y - startY;
+            if (diff > 0 && diff < 100) {
+                ptrIndicator.style.transform = `translateY(${diff - 48}px)`;
+            }
+        }, { passive: true });
+
+        scrollArea.addEventListener('touchend', () => {
+            isPulling = false;
+            ptrIndicator.style.transform = 'translateY(-100%)';
+            // Simulate refresh action
+            ptrIndicator.querySelector('.material-symbols-outlined').classList.add('animate-spin');
+            setTimeout(() => {
+                 ptrIndicator.querySelector('.material-symbols-outlined').classList.remove('animate-spin');
+            }, 1000);
+        });
+    </script>
+</body></html>

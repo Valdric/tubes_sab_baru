@@ -5,6 +5,7 @@ import 'package:gosir/shared/widgets/mobile_bottom_nav.dart';
 import 'package:gosir/core/services/api_service.dart';
 import 'package:intl/intl.dart';
 import 'package:gosir/core/utils/safe_parse.dart';
+import 'package:gosir/shared/widgets/animated_entry.dart';
 
 class CashesScreen extends StatefulWidget {
   const CashesScreen({super.key});
@@ -105,23 +106,38 @@ class _CashesScreenState extends State<CashesScreen> {
     final amountController = TextEditingController(text: item?['amount']?.toString() ?? '');
     String type = item?['type'] ?? 'INCOME';
     final bool isEdit = item != null;
+    String? amountErrorText;
+    String? descriptionErrorText;
 
-    showDialog(
+    showGeneralDialog(
       context: context,
-      builder: (context) => StatefulBuilder(
+      barrierDismissible: true,
+      barrierLabel: 'CashForm',
+      transitionDuration: const Duration(milliseconds: 300),
+      transitionBuilder: (context, anim1, anim2, child) {
+        final curve = CurvedAnimation(parent: anim1, curve: Curves.easeOutBack);
+        return Transform.scale(
+          scale: curve.value,
+          child: FadeTransition(
+            opacity: anim1,
+            child: child,
+          ),
+        );
+      },
+      pageBuilder: (context, anim1, anim2) => StatefulBuilder(
         builder: (context, setModalState) => AlertDialog(
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-          titlePadding: EdgeInsets.only(left: 24, right: 24, top: 24, bottom: 8),
-          contentPadding: EdgeInsets.symmetric(horizontal: 24, vertical: 8),
-          actionsPadding: EdgeInsets.all(16),
-          title: Text(isEdit ? 'Ubah Catatan Kas' : 'Tambah Catatan Kas', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
+          titlePadding: const EdgeInsets.only(left: 24, right: 24, top: 24, bottom: 8),
+          contentPadding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
+          actionsPadding: const EdgeInsets.all(16),
+          title: Text(isEdit ? 'Ubah Catatan Kas' : 'Tambah Catatan Kas', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
           content: SingleChildScrollView(
             child: Column(
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text('Tipe', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 13, color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.87))),
-                SizedBox(height: 8),
+                const SizedBox(height: 8),
                 DropdownButtonFormField<String>(
                   initialValue: type,
                   isExpanded: true,
@@ -131,25 +147,31 @@ class _CashesScreenState extends State<CashesScreen> {
                   ],
                   onChanged: (v) => setModalState(() => type = v!),
                   decoration: _inputDecoration(''),
-                  icon: Icon(Icons.keyboard_arrow_down, size: 20),
+                  icon: const Icon(Icons.keyboard_arrow_down, size: 20),
                 ),
-                SizedBox(height: 16),
+                const SizedBox(height: 16),
                 Text('Jumlah (Rp)', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 13, color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.87))),
-                SizedBox(height: 8),
+                const SizedBox(height: 8),
                 TextFormField(
                   controller: amountController,
-                  style: TextStyle(fontSize: 14),
-                  decoration: _inputDecoration('0'),
+                  style: const TextStyle(fontSize: 14),
+                  decoration: _inputDecoration('0', errorText: amountErrorText),
                   keyboardType: TextInputType.number,
+                  onChanged: (v) {
+                    if (amountErrorText != null) setModalState(() => amountErrorText = null);
+                  },
                 ),
-                SizedBox(height: 16),
+                const SizedBox(height: 16),
                 Text('Keterangan', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 13, color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.87))),
-                SizedBox(height: 8),
+                const SizedBox(height: 8),
                 TextFormField(
                   controller: descriptionController,
-                  style: TextStyle(fontSize: 14),
-                  decoration: _inputDecoration('Contoh: Beli bahan baku'),
+                  style: const TextStyle(fontSize: 14),
+                  decoration: _inputDecoration('Contoh: Beli bahan baku', errorText: descriptionErrorText),
                   maxLines: 2,
+                  onChanged: (v) {
+                    if (descriptionErrorText != null) setModalState(() => descriptionErrorText = null);
+                  },
                 ),
               ],
             ),
@@ -157,17 +179,34 @@ class _CashesScreenState extends State<CashesScreen> {
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(context), 
-              style: TextButton.styleFrom(padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12)),
+              style: TextButton.styleFrom(padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12)),
               child: Text('Batal', style: TextStyle(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.54), fontWeight: FontWeight.w600))
             ),
-            ElevatedButton(
-              onPressed: () async {
-                if (amountController.text.isEmpty) return;
+            ScaleOnTap(
+              onTap: () async {
+                bool hasError = false;
+                final amountTrimmed = amountController.text.trim();
+                final descriptionTrimmed = descriptionController.text.trim();
+                final parsedAmount = double.tryParse(amountTrimmed);
+
+                if (amountTrimmed.isEmpty) {
+                  setModalState(() => amountErrorText = 'Jumlah wajib diisi');
+                  hasError = true;
+                } else if (parsedAmount == null || parsedAmount <= 0) {
+                  setModalState(() => amountErrorText = 'Jumlah harus berupa angka lebih dari 0');
+                  hasError = true;
+                }
+                if (descriptionTrimmed.isEmpty) {
+                  setModalState(() => descriptionErrorText = 'Keterangan wajib diisi');
+                  hasError = true;
+                }
+                if (hasError) return;
+
                 try {
                   final data = {
                     'type': type,
-                    'amount': parseDouble(amountController.text),
-                    'description': descriptionController.text,
+                    'amount': parsedAmount,
+                    'description': descriptionTrimmed,
                   };
                   if (isEdit) {
                     await _api.put('/cashes/${item['id']}', data);
@@ -180,20 +219,21 @@ class _CashesScreenState extends State<CashesScreen> {
                   }
                 } catch (e) {
                   if (context.mounted) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text(e.toString()), backgroundColor: Theme.of(context).colorScheme.error),
-                    );
+                    setModalState(() => amountErrorText = e.toString());
                   }
                 }
               },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Theme.of(context).colorScheme.primary, 
-                foregroundColor: Theme.of(context).cardColor, 
-                elevation: 0,
-                padding: EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8))
+              child: ElevatedButton(
+                onPressed: null,
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Theme.of(context).colorScheme.primary, 
+                  foregroundColor: Theme.of(context).cardColor, 
+                  elevation: 0,
+                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8))
+                ),
+                child: const Text('Simpan', style: TextStyle(fontWeight: FontWeight.bold)),
               ),
-              child: Text('Simpan', style: TextStyle(fontWeight: FontWeight.bold)),
             ),
           ],
         ),
@@ -201,16 +241,19 @@ class _CashesScreenState extends State<CashesScreen> {
     );
   }
 
-  InputDecoration _inputDecoration(String hint) {
+  InputDecoration _inputDecoration(String hint, {String? errorText}) {
     return InputDecoration(
       hintText: hint,
+      errorText: errorText,
       hintStyle: TextStyle(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.38), fontSize: 14),
       filled: true,
       fillColor: Theme.of(context).cardColor,
-      contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       border: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: BorderSide(color: Theme.of(context).colorScheme.outline)),
       enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: BorderSide(color: Theme.of(context).colorScheme.outline)),
       focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: BorderSide(color: Theme.of(context).colorScheme.primary)),
+      errorBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: BorderSide(color: Theme.of(context).colorScheme.error)),
+      focusedErrorBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: BorderSide(color: Theme.of(context).colorScheme.error, width: 2)),
     );
   }
 
@@ -343,15 +386,18 @@ class _CashesScreenState extends State<CashesScreen> {
                   ),
                 ),
                 const SizedBox(width: 16),
-                ElevatedButton.icon(
-                  onPressed: () => _showFormModal(),
-                  icon: const Icon(Icons.add, size: 20),
-                  label: const Text('Tambah Catatan'),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: isDark ? const Color(0xFF10B981) : Theme.of(context).colorScheme.primary,
-                    foregroundColor: isDark ? const Color(0xFF0A0D0B) : const Color(0xFFFFFFFF),
-                    minimumSize: const Size(200, 48),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                ScaleOnTap(
+                  onTap: () => _showFormModal(),
+                  child: ElevatedButton.icon(
+                    onPressed: null,
+                    icon: const Icon(Icons.add, size: 20),
+                    label: const Text('Tambah Catatan'),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: isDark ? const Color(0xFF10B981) : Theme.of(context).colorScheme.primary,
+                      foregroundColor: isDark ? const Color(0xFF0A0D0B) : const Color(0xFFFFFFFF),
+                      minimumSize: const Size(200, 48),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                    ),
                   ),
                 ),
               ],
@@ -609,7 +655,10 @@ class _CashesScreenState extends State<CashesScreen> {
                               itemCount: _items.length,
                               itemBuilder: (context, index) {
                                 final item = _items[index];
-                                return _cashCard(item);
+                                return AnimateEntry(
+                                  delay: Duration(milliseconds: (index % 12) * 50),
+                                  child: _cashCard(item),
+                                );
                               },
                             ),
                 ),
@@ -619,17 +668,20 @@ class _CashesScreenState extends State<CashesScreen> {
         ],
       ),
       floatingActionButton: !isDesktop
-          ? FloatingActionButton(
-              onPressed: () => _showFormModal(),
-              backgroundColor: Theme.of(context).brightness == Brightness.dark
-                  ? const Color(0xFF10B981)
-                  : Theme.of(context).colorScheme.primary,
-              foregroundColor: Theme.of(context).brightness == Brightness.dark
-                  ? const Color(0xFF0A0D0B)
-                  : const Color(0xFFFFFFFF),
-              elevation: 4,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-              child: const Icon(Icons.add, size: 28),
+          ? ScaleOnTap(
+              onTap: () => _showFormModal(),
+              child: FloatingActionButton(
+                onPressed: null,
+                backgroundColor: Theme.of(context).brightness == Brightness.dark
+                    ? const Color(0xFF10B981)
+                    : Theme.of(context).colorScheme.primary,
+                foregroundColor: Theme.of(context).brightness == Brightness.dark
+                    ? const Color(0xFF0A0D0B)
+                    : const Color(0xFFFFFFFF),
+                elevation: 4,
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                child: const Icon(Icons.add, size: 28),
+              ),
             )
           : null,
       bottomNavigationBar: isDesktop ? null : const MobileBottomNav(currentIndex: 0),
@@ -640,50 +692,53 @@ class _CashesScreenState extends State<CashesScreen> {
     final bool isIncome = item['type'] == 'INCOME';
     final amount = parseDouble(item['amount']);
 
-    return Container(
-      margin: EdgeInsets.only(bottom: 12),
-      decoration: BoxDecoration(
-        color: Theme.of(context).cardColor,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: Theme.of(context).colorScheme.outlineVariant),
-        boxShadow: [
-          BoxShadow(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.02), blurRadius: 4, offset: const Offset(0, 2)),
-        ],
-      ),
-      child: ListTile(
-        contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-        leading: Container(
-          padding: EdgeInsets.all(10),
-          decoration: BoxDecoration(
-            color: (isIncome ? Colors.green : Colors.red).withValues(alpha: 0.1),
-            shape: BoxShape.circle,
+    return ScaleOnTap(
+      onTap: () => _showFormModal(item: item),
+      child: Container(
+        margin: const EdgeInsets.only(bottom: 12),
+        decoration: BoxDecoration(
+          color: Theme.of(context).cardColor,
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: Theme.of(context).colorScheme.outlineVariant),
+          boxShadow: [
+            BoxShadow(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.02), blurRadius: 4, offset: const Offset(0, 2)),
+          ],
+        ),
+        child: ListTile(
+          contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+          leading: Container(
+            padding: const EdgeInsets.all(10),
+            decoration: BoxDecoration(
+              color: (isIncome ? Colors.green : Colors.red).withValues(alpha: 0.1),
+              shape: BoxShape.circle,
+            ),
+            child: Icon(
+              isIncome ? Icons.arrow_downward : Icons.arrow_upward,
+              color: isIncome ? Colors.green : Colors.red,
+              size: 22,
+            ),
           ),
-          child: Icon(
-            isIncome ? Icons.arrow_downward : Icons.arrow_upward,
-            color: isIncome ? Colors.green : Colors.red,
-            size: 22,
+          title: Text(
+            isIncome ? 'Pemasukan' : 'Pengeluaran',
+            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15, color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.87)),
           ),
-        ),
-        title: Text(
-          isIncome ? 'Pemasukan' : 'Pengeluaran',
-          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15, color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.87)),
-        ),
-        subtitle: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            SizedBox(height: 4),
-            Text(item['description'] ?? '-', style: TextStyle(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.54), fontSize: 13)),
-          ]
-        ),
-        trailing: Text(
-          '${isIncome ? '+' : '-'}${currency.format(amount)}',
-          style: TextStyle(
-            fontWeight: FontWeight.bold,
-            fontSize: 15,
-            color: isIncome ? Colors.green : Colors.red,
+          subtitle: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const SizedBox(height: 4),
+              Text(item['description'] ?? '-', style: TextStyle(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.54), fontSize: 13)),
+            ]
           ),
+          trailing: Text(
+            '${isIncome ? '+' : '-'}${currency.format(amount)}',
+            style: TextStyle(
+              fontWeight: FontWeight.bold,
+              fontSize: 15,
+              color: isIncome ? Colors.green : Colors.red,
+            ),
+          ),
+          onTap: null, // Handled by ScaleOnTap wrapper
         ),
-        onTap: () => _showFormModal(item: item),
       ),
     );
   }

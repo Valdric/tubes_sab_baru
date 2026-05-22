@@ -3,6 +3,7 @@ import 'package:gosir/shared/widgets/sidebar.dart';
 import 'package:gosir/shared/widgets/mobile_bottom_nav.dart';
 import 'package:gosir/core/services/api_service.dart';
 import 'package:gosir/shared/widgets/profile_button.dart';
+import 'package:gosir/shared/widgets/animated_entry.dart';
 
 class CategoriesScreen extends StatefulWidget {
   const CategoriesScreen({super.key});
@@ -76,21 +77,34 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
     final bool isEdit = item != null;
     String? errorText;
 
-    showDialog(
+    showGeneralDialog(
       context: context,
-      builder: (context) => StatefulBuilder(
+      barrierDismissible: true,
+      barrierLabel: 'CategoryForm',
+      transitionDuration: const Duration(milliseconds: 300),
+      transitionBuilder: (context, anim1, anim2, child) {
+        final curve = CurvedAnimation(parent: anim1, curve: Curves.easeOutBack);
+        return Transform.scale(
+          scale: curve.value,
+          child: FadeTransition(
+            opacity: anim1,
+            child: child,
+          ),
+        );
+      },
+      pageBuilder: (context, anim1, anim2) => StatefulBuilder(
         builder: (context, setModalState) => AlertDialog(
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
           title: Text(
             isEdit ? 'Ubah Kategori' : 'Tambah Kategori',
-            style: TextStyle(fontWeight: FontWeight.bold),
+            style: const TextStyle(fontWeight: FontWeight.bold),
           ),
           content: Column(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text('Nama Kategori', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 13)),
-              SizedBox(height: 8),
+              const Text('Nama Kategori', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 13)),
+              const SizedBox(height: 8),
               TextFormField(
                 controller: nameController,
                 decoration: InputDecoration(
@@ -113,8 +127,8 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
               onPressed: () => Navigator.pop(context),
               child: Text('Batal', style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant)),
             ),
-            ElevatedButton(
-              onPressed: () async {
+            ScaleOnTap(
+              onTap: () async {
                 if (nameController.text.trim().isEmpty) {
                   setModalState(() => errorText = 'Nama kategori wajib diisi');
                   return;
@@ -133,12 +147,15 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
                   setModalState(() => errorText = e.toString());
                 }
               },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Theme.of(context).colorScheme.primary,
-                foregroundColor: Theme.of(context).cardColor,
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+              child: ElevatedButton(
+                onPressed: null,
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Theme.of(context).colorScheme.primary,
+                  foregroundColor: Theme.of(context).cardColor,
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                ),
+                child: const Text('Simpan'),
               ),
-              child: Text('Simpan'),
             ),
           ],
         ),
@@ -211,7 +228,10 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
                           itemCount: _items.length,
                           itemBuilder: (context, index) {
                             final item = _items[index];
-                            return _categoryCard(item, isAdmin);
+                            return AnimateEntry(
+                              delay: Duration(milliseconds: (index % 12) * 50),
+                              child: _categoryCard(item, isAdmin),
+                            );
                           },
                         ),
                 ),
@@ -221,17 +241,20 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
         ],
       ),
       floatingActionButton: (!isDesktop && isAdmin)
-          ? FloatingActionButton(
-              onPressed: () => _showFormModal(),
-              backgroundColor: Theme.of(context).brightness == Brightness.dark
-                  ? const Color(0xFF10B981)
-                  : Theme.of(context).colorScheme.primary,
-              foregroundColor: Theme.of(context).brightness == Brightness.dark
-                  ? const Color(0xFF0A0D0B)
-                  : const Color(0xFFFFFFFF),
-              elevation: 4,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-              child: const Icon(Icons.add, size: 28),
+          ? ScaleOnTap(
+              onTap: () => _showFormModal(),
+              child: FloatingActionButton(
+                onPressed: null, // Handled by ScaleOnTap
+                backgroundColor: Theme.of(context).brightness == Brightness.dark
+                    ? const Color(0xFF10B981)
+                    : Theme.of(context).colorScheme.primary,
+                foregroundColor: Theme.of(context).brightness == Brightness.dark
+                    ? const Color(0xFF0A0D0B)
+                    : const Color(0xFFFFFFFF),
+                elevation: 4,
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                child: const Icon(Icons.add, size: 28),
+              ),
             )
           : null,
       bottomNavigationBar: isDesktop ? null : const MobileBottomNav(currentIndex: 1),
@@ -239,77 +262,96 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
   }
 
   Widget _categoryCard(Map<String, dynamic> item, bool isAdmin) {
-    return Container(
-      decoration: BoxDecoration(
-        color: Theme.of(context).cardColor,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: Theme.of(context).colorScheme.outlineVariant),
-        boxShadow: [
-          BoxShadow(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.02), blurRadius: 10, offset: const Offset(0, 4)),
-        ],
-      ),
-      child: Stack(
-        children: [
-          Center(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Container(
-                  padding: EdgeInsets.all(16),
-                  decoration: BoxDecoration(
-                    color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.1),
-                    shape: BoxShape.circle,
+    return ScaleOnTap(
+      onTap: isAdmin ? () => _showFormModal(item: item) : null,
+      child: Container(
+        decoration: BoxDecoration(
+          color: Theme.of(context).cardColor,
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: Theme.of(context).colorScheme.outlineVariant),
+          boxShadow: [
+            BoxShadow(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.02), blurRadius: 10, offset: const Offset(0, 4)),
+          ],
+        ),
+        child: Stack(
+          children: [
+            Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(16),
+                    decoration: BoxDecoration(
+                      color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.1),
+                      shape: BoxShape.circle,
+                    ),
+                    child: Icon(Icons.category_outlined, color: Theme.of(context).colorScheme.primary, size: 32),
                   ),
-                  child: Icon(Icons.category_outlined, color: Theme.of(context).colorScheme.primary, size: 32),
-                ),
-                SizedBox(height: 16),
-                Text(
-                  item['name'] ?? '-',
-                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.87)),
-                  textAlign: TextAlign.center,
-                ),
-              ],
-            ),
-          ),
-          if (isAdmin)
-            Positioned(
-              top: 8,
-              right: 8,
-              child: PopupMenuButton<String>(
-                icon: Icon(Icons.more_vert, color: Theme.of(context).colorScheme.onSurfaceVariant, size: 20),
-                onSelected: (val) {
-                  if (val == 'edit') {
-                    _showFormModal(item: item);
-                  } else if (val == 'delete') {
-                    _showDeleteConfirm(item);
-                  }
-                },
-                itemBuilder: (context) => [
-                  const PopupMenuItem(value: 'edit', child: Text('Ubah')),
-                  const PopupMenuItem(value: 'delete', child: Text('Hapus', style: TextStyle(color: Colors.red))),
+                  const SizedBox(height: 16),
+                  Text(
+                    item['name'] ?? '-',
+                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.87)),
+                    textAlign: TextAlign.center,
+                  ),
                 ],
               ),
             ),
-        ],
+            if (isAdmin)
+              Positioned(
+                top: 8,
+                right: 8,
+                child: PopupMenuButton<String>(
+                  icon: Icon(Icons.more_vert, color: Theme.of(context).colorScheme.onSurfaceVariant, size: 20),
+                  onSelected: (val) {
+                    if (val == 'edit') {
+                      _showFormModal(item: item);
+                    } else if (val == 'delete') {
+                      _showDeleteConfirm(item);
+                    }
+                  },
+                  itemBuilder: (context) => [
+                    const PopupMenuItem(value: 'edit', child: Text('Ubah')),
+                    const PopupMenuItem(value: 'delete', child: Text('Hapus', style: TextStyle(color: Colors.red))),
+                  ],
+                ),
+              ),
+          ],
+        ),
       ),
     );
   }
 
   void _showDeleteConfirm(Map<String, dynamic> item) {
-    showDialog(
+    showGeneralDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        title: Text('Hapus Kategori'),
+      barrierDismissible: true,
+      barrierLabel: 'DeleteCategoryConfirm',
+      transitionDuration: const Duration(milliseconds: 300),
+      transitionBuilder: (context, anim1, anim2, child) {
+        final curve = CurvedAnimation(parent: anim1, curve: Curves.easeOutBack);
+        return Transform.scale(
+          scale: curve.value,
+          child: FadeTransition(
+            opacity: anim1,
+            child: child,
+          ),
+        );
+      },
+      pageBuilder: (context, anim1, anim2) => AlertDialog(
+        title: const Text('Hapus Kategori'),
         content: Text('Apakah Anda yakin ingin menghapus kategori "${item['name']}"? Tindakan ini tidak dapat dibatalkan.'),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(context), child: Text('Batal')),
-          ElevatedButton(
-            onPressed: () {
+          TextButton(onPressed: () => Navigator.pop(context), child: const Text('Batal')),
+          ScaleOnTap(
+            onTap: () {
               Navigator.pop(context);
               _deleteCategory(item['id']);
             },
-            style: ElevatedButton.styleFrom(backgroundColor: Colors.red, foregroundColor: Theme.of(context).cardColor),
-            child: Text('Hapus'),
+            child: ElevatedButton(
+              onPressed: null,
+              style: ElevatedButton.styleFrom(backgroundColor: Colors.red, foregroundColor: Theme.of(context).cardColor),
+              child: const Text('Hapus'),
+            ),
           ),
         ],
       ),
@@ -446,15 +488,18 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
                 ),
                 if (isAdmin) ...[
                   const SizedBox(width: 16),
-                  ElevatedButton.icon(
-                    onPressed: () => _showFormModal(),
-                    icon: const Icon(Icons.add, size: 20),
-                    label: const Text('Tambah Kategori'),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: isDark ? const Color(0xFF10B981) : Theme.of(context).colorScheme.primary,
-                      foregroundColor: isDark ? const Color(0xFF0A0D0B) : const Color(0xFFFFFFFF),
-                      minimumSize: const Size(200, 48),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                  ScaleOnTap(
+                    onTap: () => _showFormModal(),
+                    child: ElevatedButton.icon(
+                      onPressed: null, // Handled by ScaleOnTap
+                      icon: const Icon(Icons.add, size: 20),
+                      label: const Text('Tambah Kategori'),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: isDark ? const Color(0xFF10B981) : Theme.of(context).colorScheme.primary,
+                        foregroundColor: isDark ? const Color(0xFF0A0D0B) : const Color(0xFFFFFFFF),
+                        minimumSize: const Size(200, 48),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                      ),
                     ),
                   ),
                 ],

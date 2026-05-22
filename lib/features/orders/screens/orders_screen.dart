@@ -3,6 +3,7 @@ import 'package:gosir/shared/widgets/profile_button.dart';
 import 'package:gosir/shared/widgets/sidebar.dart';
 import 'package:gosir/shared/widgets/mobile_bottom_nav.dart';
 import 'package:gosir/core/services/api_service.dart';
+import 'package:gosir/shared/widgets/animated_entry.dart';
 import 'package:intl/intl.dart';
 import 'package:gosir/core/utils/safe_parse.dart';
 
@@ -272,7 +273,10 @@ class _OrdersScreenState extends State<OrdersScreen> {
                               itemCount: _items.length,
                               itemBuilder: (context, index) {
                                 final item = _items[index];
-                                return _orderCard(item);
+                                return AnimateEntry(
+                                  delay: Duration(milliseconds: (index % 12) * 50),
+                                  child: _orderCard(item),
+                                );
                               },
                             ),
                 ),

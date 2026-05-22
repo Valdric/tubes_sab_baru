@@ -1,0 +1,498 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>POS Terminal - Cashier View</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "on-secondary-fixed": "#00201b",
+                    "secondary-fixed-dim": "#7ad7c6",
+                    "surface-container-lowest": "#ffffff",
+                    "on-tertiary-fixed-variant": "#713700",
+                    "inverse-on-surface": "#f2eff9",
+                    "outline": "#757684",
+                    "secondary-container": "#94f0df",
+                    "surface-tint": "#4355b9",
+                    "on-primary": "#ffffff",
+                    "primary-fixed": "#dee0ff",
+                    "surface-container-highest": "#e3e1ea",
+                    "on-background": "#1a1b22",
+                    "surface": "#fbf8ff",
+                    "on-tertiary-container": "#ffc7a2",
+                    "surface-container": "#efedf6",
+                    "error-container": "#ffdad6",
+                    "surface-container-low": "#f4f2fc",
+                    "on-surface": "#1a1b22",
+                    "secondary-fixed": "#97f3e2",
+                    "primary-fixed-dim": "#bac3ff",
+                    "surface-bright": "#fbf8ff",
+                    "on-error": "#ffffff",
+                    "secondary": "#006b5e",
+                    "primary": "#24389c",
+                    "on-error-container": "#93000a",
+                    "inverse-surface": "#2f3037",
+                    "on-surface-variant": "#454652",
+                    "on-secondary-container": "#006f62",
+                    "inverse-primary": "#bac3ff",
+                    "primary-container": "#3f51b5",
+                    "on-primary-fixed": "#00105c",
+                    "on-secondary": "#ffffff",
+                    "outline-variant": "#c5c5d4",
+                    "tertiary": "#6c3400",
+                    "error": "#ba1a1a",
+                    "tertiary-fixed": "#ffdcc6",
+                    "tertiary-container": "#8f4700",
+                    "on-primary-fixed-variant": "#293ca0",
+                    "on-secondary-fixed-variant": "#005047",
+                    "tertiary-fixed-dim": "#ffb784",
+                    "on-primary-container": "#cacfff",
+                    "surface-dim": "#dbd9e2",
+                    "surface-variant": "#e3e1ea",
+                    "on-tertiary-fixed": "#301400",
+                    "background": "#fbf8ff",
+                    "on-tertiary": "#ffffff",
+                    "surface-container-high": "#e9e7f0"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.125rem",
+                    "lg": "0.25rem",
+                    "xl": "0.5rem",
+                    "full": "0.75rem"
+            },
+            "spacing": {
+                    "margin-tablet": "24px",
+                    "xl": "32px",
+                    "xs": "4px",
+                    "base": "4px",
+                    "margin-mobile": "16px",
+                    "gutter": "16px",
+                    "lg": "24px",
+                    "md": "16px",
+                    "sm": "8px"
+            },
+            "fontFamily": {
+                    "numeric-data": ["Inter"],
+                    "headline-lg-mobile": ["Inter"],
+                    "headline-lg": ["Inter"],
+                    "body-lg": ["Inter"],
+                    "display-price": ["Inter"],
+                    "body-md": ["Inter"],
+                    "label-md": ["Inter"],
+                    "headline-md": ["Inter"]
+            },
+            "fontSize": {
+                    "numeric-data": ["16px", {"lineHeight": "24px", "fontWeight": "600"}],
+                    "headline-lg-mobile": ["20px", {"lineHeight": "28px", "fontWeight": "600"}],
+                    "headline-lg": ["24px", {"lineHeight": "32px", "fontWeight": "600"}],
+                    "body-lg": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                    "display-price": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                    "body-md": ["14px", {"lineHeight": "20px", "fontWeight": "400"}],
+                    "label-md": ["12px", {"lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "600"}],
+                    "headline-md": ["20px", {"lineHeight": "28px", "fontWeight": "600"}]
+            }
+          }
+        }
+      }
+    </script>
+<style>
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+        .ripple {
+            position: relative;
+            overflow: hidden;
+            transform: translate3d(0, 0, 0);
+        }
+        .ripple:after {
+            content: "";
+            display: block;
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            pointer-events: none;
+            background-image: radial-gradient(circle, #000 10%, transparent 10.01%);
+            background-repeat: no-repeat;
+            background-position: 50%;
+            transform: scale(10, 10);
+            opacity: 0;
+            transition: transform .5s, opacity 1s;
+        }
+        .ripple:active:after {
+            transform: scale(0, 0);
+            opacity: .2;
+            transition: 0s;
+        }
+        .cart-pane-open {
+            transform: translateX(0);
+        }
+        .cart-pane-closed {
+            transform: translateX(100%);
+        }
+        @media (min-width: 1024px) {
+            .cart-pane-closed {
+                transform: translateX(0);
+            }
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background text-on-background h-screen overflow-hidden flex flex-col font-body-md selection:bg-primary-container selection:text-on-primary-container">
+<!-- TopAppBar -->
+<header class="bg-surface dark:bg-inverse-surface shadow-sm docked full-width top-0 bg-surface-container-low dark:bg-surface-container-lowest flex justify-between items-center px-margin-mobile w-full h-12 z-40 relative">
+<div class="flex items-center gap-sm">
+<button class="md:hidden text-on-surface-variant hover:bg-surface-container-highest transition-colors rounded-full p-1 active:scale-95 duration-100">
+<span class="material-symbols-outlined">menu</span>
+</button>
+<div class="h-8 w-8 rounded-full overflow-hidden bg-surface-variant flex-shrink-0">
+<img alt="Staff Avatar" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBhU-NLP30lN02RwOhrt-6vpOhxn0zWzB_gqszwpSkQ9aBBab2V2zmT_bc4HhQ7Vrni89vSujA46iv7oNoI4rr7HfeDoq4ydNZUII7QDrOM7vAoYQOtNmoBQBk4H9n4yhif0ww_kwaNQVupDuh8HJh-c9vc09t3061kqABtKvoj8MIdjSgm3QOLYjRFzXGJaPTwTdessUKIqydG7ulFpEhR-9mTVadwiPnspx2DUxirNW59hYapSZGa9swye8x9dawqkWEUjJulOb_B"/>
+</div>
+<h1 class="font-headline-md-mobile text-headline-md-mobile md:font-headline-md md:text-headline-md font-bold text-primary dark:text-inverse-primary hidden sm:block ml-sm">Enterprise POS</h1>
+</div>
+<div class="flex-1 max-w-md mx-md relative">
+<div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+<span class="material-symbols-outlined text-on-surface-variant">search</span>
+</div>
+<input class="block w-full pl-10 pr-3 py-1.5 border border-outline-variant rounded-full leading-5 bg-surface-container-lowest text-on-surface placeholder-on-surface-variant focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary sm:text-sm transition-all duration-200" id="searchInput" placeholder="Search menu..." type="text"/>
+</div>
+<div class="flex items-center gap-sm">
+<button class="text-on-surface-variant hover:bg-surface-container-highest transition-colors p-2 rounded-full active:scale-95 duration-100 relative">
+<span class="material-symbols-outlined">notifications</span>
+<span class="absolute top-1 right-1 w-2 h-2 bg-error rounded-full"></span>
+</button>
+<button class="lg:hidden text-on-surface-variant hover:bg-surface-container-highest transition-colors p-2 rounded-full active:scale-95 duration-100 relative" id="mobileCartToggle">
+<span class="material-symbols-outlined">shopping_cart</span>
+<span class="absolute -top-1 -right-1 bg-primary text-on-primary text-xs font-bold w-4 h-4 rounded-full flex items-center justify-center" id="mobileCartCount">0</span>
+</button>
+</div>
+</header>
+<!-- Main Content Area -->
+<main class="flex-1 flex overflow-hidden relative">
+<!-- Left Pane: Nav & Categories (Hidden on Mobile, Drawer behavior simulated via BottomNav logic below) -->
+<nav class="hidden md:flex flex-col w-24 lg:w-64 bg-surface-container dark:bg-surface-container-low shadow-xl h-full py-lg border-r border-outline-variant/30 flex-shrink-0 z-10 transition-all duration-300">
+<div class="flex flex-col gap-2 px-2">
+<a class="flex flex-col lg:flex-row items-center gap-3 bg-secondary-container dark:bg-secondary text-on-secondary-container dark:text-on-secondary font-bold rounded-full px-4 py-3 hover:bg-surface-container-highest dark:hover:bg-surface-variant transition-colors" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">point_of_sale</span>
+<span class="font-label-md text-label-md lg:font-body-md lg:text-body-md hidden lg:block">POS</span>
+<span class="font-label-md text-label-md lg:hidden mt-1">POS</span>
+</a>
+<a class="flex flex-col lg:flex-row items-center gap-3 text-on-surface-variant dark:text-outline-variant px-4 py-3 hover:bg-surface-container-highest dark:hover:bg-surface-variant transition-colors rounded-full" href="#">
+<span class="material-symbols-outlined">inventory_2</span>
+<span class="font-label-md text-label-md lg:font-body-md lg:text-body-md hidden lg:block">Inventory</span>
+<span class="font-label-md text-label-md lg:hidden mt-1">Inv</span>
+</a>
+<a class="flex flex-col lg:flex-row items-center gap-3 text-on-surface-variant dark:text-outline-variant px-4 py-3 hover:bg-surface-container-highest dark:hover:bg-surface-variant transition-colors rounded-full" href="#">
+<span class="material-symbols-outlined">receipt_long</span>
+<span class="font-label-md text-label-md lg:font-body-md lg:text-body-md hidden lg:block">Orders</span>
+<span class="font-label-md text-label-md lg:hidden mt-1">Orders</span>
+</a>
+<a class="flex flex-col lg:flex-row items-center gap-3 text-on-surface-variant dark:text-outline-variant px-4 py-3 hover:bg-surface-container-highest dark:hover:bg-surface-variant transition-colors rounded-full" href="#">
+<span class="material-symbols-outlined">analytics</span>
+<span class="font-label-md text-label-md lg:font-body-md lg:text-body-md hidden lg:block">Insights</span>
+<span class="font-label-md text-label-md lg:hidden mt-1">Data</span>
+</a>
+</div>
+</nav>
+<!-- Center Pane: Menu Area -->
+<section class="flex-1 flex flex-col overflow-hidden bg-surface-container-lowest">
+<!-- Category Tabs (Horizontal Scroll) -->
+<div class="px-margin-mobile py-sm border-b border-outline-variant/30 bg-surface-container-lowest z-10 flex-shrink-0">
+<div class="flex gap-2 overflow-x-auto no-scrollbar pb-1" id="categoryTabs">
+<button class="category-btn whitespace-nowrap px-4 py-2 rounded-full font-label-md text-label-md border border-primary bg-primary-container text-on-primary-container transition-colors" data-category="all">
+                        All Items
+                    </button>
+<button class="category-btn whitespace-nowrap px-4 py-2 rounded-full font-label-md text-label-md border border-outline text-on-surface-variant hover:bg-surface-container-high transition-colors" data-category="coffee">
+                        Coffee
+                    </button>
+<button class="category-btn whitespace-nowrap px-4 py-2 rounded-full font-label-md text-label-md border border-outline text-on-surface-variant hover:bg-surface-container-high transition-colors" data-category="tea">
+                        Tea
+                    </button>
+<button class="category-btn whitespace-nowrap px-4 py-2 rounded-full font-label-md text-label-md border border-outline text-on-surface-variant hover:bg-surface-container-high transition-colors" data-category="snacks">
+                        Snacks
+                    </button>
+<button class="category-btn whitespace-nowrap px-4 py-2 rounded-full font-label-md text-label-md border border-outline text-on-surface-variant hover:bg-surface-container-high transition-colors" data-category="meals">
+                        Meals
+                    </button>
+</div>
+</div>
+<!-- Menu Grid -->
+<div class="flex-1 overflow-y-auto p-margin-mobile">
+<div class="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-4 gap-md" id="menuGrid">
+<!-- Cards will be injected here via JS -->
+</div>
+</div>
+</section>
+<!-- Right Pane: Active Cart (Overlay on small screens, pane on large) -->
+<aside class="fixed inset-y-0 right-0 w-full sm:w-96 bg-surface-container-low shadow-[rgba(0,0,0,0.1)_0px_4px_12px] z-50 flex flex-col transition-transform duration-300 ease-in-out lg:static lg:w-1/3 lg:max-w-md lg:shadow-none lg:border-l lg:border-outline-variant/30 cart-pane-closed lg:translate-x-0" id="cartPane">
+<div class="flex items-center justify-between p-4 border-b border-outline-variant/30 bg-surface">
+<h2 class="font-headline-md text-headline-md font-bold text-on-surface">Current Order</h2>
+<button class="lg:hidden text-on-surface-variant p-2 rounded-full hover:bg-surface-container-highest transition-colors" id="closeCartBtn">
+<span class="material-symbols-outlined">close</span>
+</button>
+</div>
+<div class="flex-1 overflow-y-auto p-4" id="cartItemsContainer">
+<!-- Empty State -->
+<div class="h-full flex flex-col items-center justify-center text-on-surface-variant/50" id="emptyCartState">
+<span class="material-symbols-outlined text-[48px] mb-2">shopping_bag</span>
+<p class="font-body-md text-body-md">Cart is empty</p>
+</div>
+<!-- Cart items list (hidden initially) -->
+<ul class="flex flex-col gap-sm hidden" id="cartList"></ul>
+</div>
+<div class="p-4 bg-surface border-t border-outline-variant/30 flex-shrink-0">
+<div class="flex justify-between mb-2 font-body-md text-body-md text-on-surface-variant">
+<span>Subtotal</span>
+<span class="font-numeric-data text-numeric-data" id="cartSubtotal">$0.00</span>
+</div>
+<div class="flex justify-between mb-4 font-body-md text-body-md text-on-surface-variant">
+<span>Tax (8%)</span>
+<span class="font-numeric-data text-numeric-data" id="cartTax">$0.00</span>
+</div>
+<div class="flex justify-between mb-6 font-headline-md text-headline-md font-bold text-on-surface">
+<span>Total</span>
+<span class="font-display-price text-display-price" id="cartTotal">$0.00</span>
+</div>
+<button class="w-full bg-primary text-on-primary font-label-md text-label-md py-4 rounded-xl flex items-center justify-center gap-2 hover:bg-primary-fixed-variant transition-colors ripple active:scale-[0.98] shadow-md disabled:opacity-50 disabled:cursor-not-allowed" disabled="" id="checkoutBtn">
+<span class="material-symbols-outlined">payments</span>
+                    Charge
+                </button>
+</div>
+</aside>
+</main>
+<!-- BottomNavBar (Mobile Only) -->
+<nav class="md:hidden bg-surface dark:bg-inverse-surface border-t border-outline-variant dark:border-outline shadow-md docked full-width bottom-0 fixed w-full z-40 flex justify-around items-center px-xs py-sm">
+<a class="flex flex-col items-center justify-center bg-primary-container dark:bg-primary text-on-primary-container dark:text-on-primary rounded-full px-4 py-1 active:scale-90 transition-transform duration-200" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">point_of_sale</span>
+<span class="font-label-md text-label-md mt-1">POS</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant dark:text-outline-variant px-4 py-1 hover:bg-surface-container-high dark:hover:bg-surface-dim active:scale-90 transition-transform duration-200" href="#">
+<span class="material-symbols-outlined">inventory_2</span>
+<span class="font-label-md text-label-md mt-1">Inventory</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant dark:text-outline-variant px-4 py-1 hover:bg-surface-container-high dark:hover:bg-surface-dim active:scale-90 transition-transform duration-200" href="#">
+<span class="material-symbols-outlined">receipt_long</span>
+<span class="font-label-md text-label-md mt-1">Orders</span>
+</a>
+</nav>
+<!-- FAB (Mobile Only, triggers cart) -->
+<button class="md:hidden fixed bottom-20 right-4 w-14 h-14 bg-primary text-on-primary rounded-xl shadow-lg flex items-center justify-center z-30 ripple hover:bg-primary-fixed-variant transition-colors active:scale-90" id="fabCartToggle">
+<span class="material-symbols-outlined">shopping_cart_checkout</span>
+<span class="absolute -top-2 -right-2 bg-error text-on-error font-label-md text-label-md w-6 h-6 rounded-full flex items-center justify-center hidden border-2 border-surface" id="fabCartCount">0</span>
+</button>
+<script>
+        // Mock Data
+        const menuItems = [
+            { id: 'c1', name: 'Espresso', category: 'coffee', price: 3.50, stock: 50, image: 'https://images.unsplash.com/photo-1510591509098-f4fdc6d0ff04?ixlib=rb-1.2.1&auto=format&fit=crop&w=300&q=80', imgPrompt: 'Close up shot of a rich, dark espresso shot with golden crema in a minimalist white ceramic cup, sitting on a clean concrete counter. High key lighting, modern cafe aesthetic, sharp focus.' },
+            { id: 'c2', name: 'Latte', category: 'coffee', price: 4.50, stock: 30, image: 'https://images.unsplash.com/photo-1497935586351-b67a49e012bf?ixlib=rb-1.2.1&auto=format&fit=crop&w=300&q=80', imgPrompt: 'A smooth latte with delicate leaf latte art in a wide modern cup. Placed on a light oak wood table. Soft diffused lighting, bright and airy modern aesthetic.' },
+            { id: 'c3', name: 'Cold Brew', category: 'coffee', price: 4.00, stock: 15, image: 'https://images.unsplash.com/photo-1517701604599-bb29b565090c?ixlib=rb-1.2.1&auto=format&fit=crop&w=300&q=80', imgPrompt: 'Tall glass of cold brew coffee with swirling milk and ice cubes. Condensation on the glass. Bright minimalist background, clean commercial photography style.' },
+            { id: 't1', name: 'Matcha Latte', category: 'tea', price: 5.00, stock: 20, image: 'https://images.unsplash.com/photo-1515823662972-da6a2b4d3002?ixlib=rb-1.2.1&auto=format&fit=crop&w=300&q=80', imgPrompt: 'Vibrant green matcha latte in a clear glass mug, showing layers of milk and tea. Clean white studio background, highly detailed, soft natural lighting.' },
+            { id: 't2', name: 'Earl Grey', category: 'tea', price: 3.00, stock: 40, image: 'https://images.unsplash.com/photo-1594631252845-29fc4cea8aa0?ixlib=rb-1.2.1&auto=format&fit=crop&w=300&q=80', imgPrompt: 'Steaming cup of amber Earl Grey tea in a simple modern glass cup. Wisps of steam rising against a pale grey background. Minimalist, calming mood, crisp focus.' },
+            { id: 's1', name: 'Croissant', category: 'snacks', price: 3.50, stock: 12, image: 'https://images.unsplash.com/photo-1555507036-ab1e4006a8a0?ixlib=rb-1.2.1&auto=format&fit=crop&w=300&q=80', imgPrompt: 'Flaky, golden brown butter croissant on a small matte black slate plate. High contrast lighting highlighting the texture. Professional bakery photography style.' },
+            { id: 's2', name: 'Blueberry Muffin', category: 'snacks', price: 3.00, stock: 0, image: 'https://images.unsplash.com/photo-1607958996333-41aef7caefaa?ixlib=rb-1.2.1&auto=format&fit=crop&w=300&q=80', imgPrompt: 'A freshly baked blueberry muffin with a crumb topping, overflowing with berries. Clean, bright kitchen counter setting. Warm, appetizing lighting.' },
+            { id: 'm1', name: 'Avocado Toast', category: 'meals', price: 8.50, stock: 8, image: 'https://images.unsplash.com/photo-1603048297172-c92544798d5e?ixlib=rb-1.2.1&auto=format&fit=crop&w=300&q=80', imgPrompt: 'Artisanal avocado toast on thick sourdough bread, garnished with red pepper flakes and microgreens. Top-down view on a light marble surface. Bright, contemporary food styling.' }
+        ];
+
+        let cart = {};
+
+        // DOM Elements
+        const menuGrid = document.getElementById('menuGrid');
+        const categoryTabs = document.querySelectorAll('.category-btn');
+        const searchInput = document.getElementById('searchInput');
+        
+        // Render Menu Cards
+        function renderMenu(items) {
+            menuGrid.innerHTML = '';
+            items.forEach(item => {
+                const stockStatus = item.stock > 0 
+                    ? `<span class="bg-secondary-container text-on-secondary-container px-2 py-0.5 rounded-sm font-label-md text-[10px] uppercase">In Stock (${item.stock})</span>`
+                    : `<span class="bg-error-container text-on-error-container px-2 py-0.5 rounded-sm font-label-md text-[10px] uppercase">Out of Stock</span>`;
+                
+                const cardClass = item.stock > 0 
+                    ? 'cursor-pointer hover:shadow-[rgba(0,0,0,0.1)_0px_12px_24px] active:scale-[0.98]' 
+                    : 'opacity-60 grayscale cursor-not-allowed';
+
+                const card = document.createElement('div');
+                card.className = `bg-surface rounded-xl overflow-hidden shadow-[rgba(0,0,0,0.05)_0px_4px_12px] border border-outline-variant/30 flex flex-col h-full transition-all duration-200 ${cardClass}`;
+                if(item.stock > 0) {
+                    card.onclick = () => addToCart(item);
+                }
+
+                card.innerHTML = `
+                    <div class="h-32 bg-surface-variant relative overflow-hidden">
+                        <img src="${item.image}" alt="${item.name}" data-alt="${item.imgPrompt}" class="w-full h-full object-cover transition-transform duration-500 hover:scale-105">
+                        <div class="absolute bottom-2 right-2 flex flex-col gap-1 items-end">
+                            ${stockStatus}
+                        </div>
+                    </div>
+                    <div class="p-3 flex flex-col flex-1 justify-between">
+                        <div>
+                            <h3 class="font-body-lg text-body-lg font-bold text-on-surface line-clamp-2 leading-tight">${item.name}</h3>
+                        </div>
+                        <div class="mt-2 flex items-center justify-between">
+                            <span class="font-numeric-data text-numeric-data text-primary">$${item.price.toFixed(2)}</span>
+                            ${item.stock > 0 ? '<button class="w-8 h-8 rounded-full bg-primary-container text-on-primary-container flex items-center justify-center hover:bg-primary hover:text-on-primary transition-colors"><span class="material-symbols-outlined text-[20px]">add</span></button>' : ''}
+                        </div>
+                    </div>
+                `;
+                menuGrid.appendChild(card);
+            });
+        }
+
+        // Initial Render
+        renderMenu(menuItems);
+
+        // Category Filtering
+        categoryTabs.forEach(tab => {
+            tab.addEventListener('click', (e) => {
+                // Update active state
+                categoryTabs.forEach(t => {
+                    t.classList.remove('bg-primary-container', 'text-on-primary-container', 'border-primary');
+                    t.classList.add('border-outline', 'text-on-surface-variant');
+                });
+                e.target.classList.add('bg-primary-container', 'text-on-primary-container', 'border-primary');
+                e.target.classList.remove('border-outline', 'text-on-surface-variant');
+
+                const category = e.target.dataset.category;
+                const filtered = category === 'all' ? menuItems : menuItems.filter(i => i.category === category);
+                renderMenu(filtered);
+                searchInput.value = ''; // clear search on category change
+            });
+        });
+
+        // Search Filtering
+        searchInput.addEventListener('input', (e) => {
+            const query = e.target.value.toLowerCase();
+            const filtered = menuItems.filter(i => i.name.toLowerCase().includes(query));
+            renderMenu(filtered);
+            
+            // Reset category tabs visual state
+            categoryTabs.forEach(t => {
+                t.classList.remove('bg-primary-container', 'text-on-primary-container', 'border-primary');
+                t.classList.add('border-outline', 'text-on-surface-variant');
+            });
+            categoryTabs[0].classList.add('bg-primary-container', 'text-on-primary-container', 'border-primary');
+            categoryTabs[0].classList.remove('border-outline', 'text-on-surface-variant');
+        });
+
+        // Cart Logic
+        function addToCart(item) {
+            if (!cart[item.id]) {
+                cart[item.id] = { ...item, quantity: 1 };
+            } else {
+                if(cart[item.id].quantity < item.stock) {
+                    cart[item.id].quantity++;
+                }
+            }
+            updateCartUI();
+            
+            // Visual feedback on FAB
+            const fab = document.getElementById('fabCartToggle');
+            fab.classList.add('scale-110');
+            setTimeout(() => fab.classList.remove('scale-110'), 200);
+        }
+
+        function removeFromCart(itemId) {
+            delete cart[itemId];
+            updateCartUI();
+        }
+
+        function updateCartUI() {
+            const cartList = document.getElementById('cartList');
+            const emptyState = document.getElementById('emptyCartState');
+            const cartItems = Object.values(cart);
+            
+            let subtotal = 0;
+            let totalItems = 0;
+
+            if (cartItems.length === 0) {
+                cartList.classList.add('hidden');
+                emptyState.classList.remove('hidden');
+                document.getElementById('checkoutBtn').disabled = true;
+            } else {
+                cartList.classList.remove('hidden');
+                emptyState.classList.add('hidden');
+                document.getElementById('checkoutBtn').disabled = false;
+                
+                cartList.innerHTML = '';
+                cartItems.forEach(item => {
+                    subtotal += item.price * item.quantity;
+                    totalItems += item.quantity;
+                    
+                    const li = document.createElement('li');
+                    li.className = 'flex justify-between items-center bg-surface-container-lowest p-2 rounded-lg border border-outline-variant/30';
+                    li.innerHTML = `
+                        <div class="flex flex-col">
+                            <span class="font-body-md text-body-md font-bold text-on-surface">${item.name}</span>
+                            <span class="font-label-md text-label-md text-on-surface-variant">${item.quantity} x $${item.price.toFixed(2)}</span>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <span class="font-numeric-data text-numeric-data font-bold text-primary mr-2">$${(item.price * item.quantity).toFixed(2)}</span>
+                            <button onclick="removeFromCart('${item.id}')" class="text-error hover:bg-error-container p-1 rounded-full transition-colors">
+                                <span class="material-symbols-outlined text-[18px]">delete</span>
+                            </button>
+                        </div>
+                    `;
+                    cartList.appendChild(li);
+                });
+            }
+
+            const tax = subtotal * 0.08;
+            const total = subtotal + tax;
+
+            document.getElementById('cartSubtotal').textContent = `$${subtotal.toFixed(2)}`;
+            document.getElementById('cartTax').textContent = `$${tax.toFixed(2)}`;
+            document.getElementById('cartTotal').textContent = `$${total.toFixed(2)}`;
+            
+            // Update mobile badges
+            const mobBadge = document.getElementById('mobileCartCount');
+            const fabBadge = document.getElementById('fabCartCount');
+            
+            mobBadge.textContent = totalItems;
+            fabBadge.textContent = totalItems;
+            
+            if(totalItems > 0) {
+                mobBadge.classList.remove('hidden');
+                fabBadge.classList.remove('hidden');
+            } else {
+                mobBadge.classList.add('hidden');
+                fabBadge.classList.add('hidden');
+            }
+        }
+
+        // Mobile Cart Drawer Toggle
+        const cartPane = document.getElementById('cartPane');
+        const toggleBtns = [document.getElementById('mobileCartToggle'), document.getElementById('fabCartToggle')];
+        const closeBtn = document.getElementById('closeCartBtn');
+
+        toggleBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                cartPane.classList.remove('cart-pane-closed');
+                cartPane.classList.add('cart-pane-open');
+            });
+        });
+
+        closeBtn.addEventListener('click', () => {
+            cartPane.classList.add('cart-pane-closed');
+            cartPane.classList.remove('cart-pane-open');
+        });
+
+    </script>
+</body></html>

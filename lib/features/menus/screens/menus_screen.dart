@@ -7,6 +7,7 @@ import 'package:gosir/core/services/api_service.dart';
 import 'package:gosir/features/menus/screens/menu_form_screen.dart';
 import 'package:intl/intl.dart';
 import 'package:gosir/core/utils/safe_parse.dart';
+import 'package:gosir/shared/widgets/animated_entry.dart';
 
 class MenusScreen extends StatefulWidget {
   const MenusScreen({super.key});
@@ -145,7 +146,10 @@ class _MenusScreenState extends State<MenusScreen> {
                                       itemCount: _items.length,
                                       itemBuilder: (context, index) {
                                         final item = _items[index];
-                                        return _menuItemContainer(item, isAdmin, isDesktop);
+                                        return AnimateEntry(
+                                          delay: Duration(milliseconds: (index % 12) * 50),
+                                          child: _menuItemContainer(item, isAdmin, isDesktop),
+                                        );
                                       },
                                     ),
                             ),
@@ -159,20 +163,23 @@ class _MenusScreenState extends State<MenusScreen> {
         ],
       ),
       floatingActionButton: (!isDesktop && isAdmin)
-          ? FloatingActionButton(
-              onPressed: () => Navigator.push(
+          ? ScaleOnTap(
+              onTap: () => Navigator.push(
                 context,
                 MaterialPageRoute(builder: (context) => const MenuFormScreen()),
               ).then((v) => v == true ? _fetchData() : null),
-              backgroundColor: Theme.of(context).brightness == Brightness.dark
-                  ? const Color(0xFF10B981)
-                  : Theme.of(context).colorScheme.primary,
-              foregroundColor: Theme.of(context).brightness == Brightness.dark
-                  ? const Color(0xFF0A0D0B)
-                  : const Color(0xFFFFFFFF),
-              elevation: 4,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-              child: const Icon(Icons.add, size: 28),
+              child: FloatingActionButton(
+                onPressed: null, // Handled by ScaleOnTap
+                backgroundColor: Theme.of(context).brightness == Brightness.dark
+                    ? const Color(0xFF10B981)
+                    : Theme.of(context).colorScheme.primary,
+                foregroundColor: Theme.of(context).brightness == Brightness.dark
+                    ? const Color(0xFF0A0D0B)
+                    : const Color(0xFFFFFFFF),
+                elevation: 4,
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                child: const Icon(Icons.add, size: 28),
+              ),
             )
           : null,
       bottomNavigationBar: isDesktop ? null : const MobileBottomNav(currentIndex: 2),
@@ -196,118 +203,128 @@ class _MenusScreenState extends State<MenusScreen> {
     final String imageUrl = item['image_url'] ?? '';
     final bool isExpanded = _expandedItems[item['id']] ?? false;
 
-    return Container(
-      decoration: BoxDecoration(
-        color: Theme.of(context).cardColor,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: Theme.of(context).colorScheme.outline),
-      ),
-      child: IntrinsicHeight(
-        child: Row(
-          children: [
-            // Image
-            Container(
-              width: isDesktop ? 120 : 80,
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.only(
-                  topLeft: Radius.circular(12),
-                  bottomLeft: Radius.circular(12),
+    return ScaleOnTap(
+      onTap: isAdmin
+          ? () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => MenuFormScreen(menu: item)),
+              ).then((v) => v == true ? _fetchData() : null);
+            }
+          : null,
+      child: Container(
+        decoration: BoxDecoration(
+          color: Theme.of(context).cardColor,
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: Theme.of(context).colorScheme.outline),
+        ),
+        child: IntrinsicHeight(
+          child: Row(
+            children: [
+              // Image
+              Container(
+                width: isDesktop ? 120 : 80,
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.only(
+                    topLeft: Radius.circular(12),
+                    bottomLeft: Radius.circular(12),
+                  ),
+                  color: Theme.of(context).colorScheme.surfaceContainerLow,
                 ),
-                color: Theme.of(context).colorScheme.surfaceContainerLow,
+                child: imageUrl.isNotEmpty
+                    ? ClipRRect(
+                        borderRadius: BorderRadius.only(
+                          topLeft: Radius.circular(12),
+                          bottomLeft: Radius.circular(12),
+                        ),
+                        child: Image.network(imageUrl, fit: BoxFit.cover),
+                      )
+                    : Icon(Icons.restaurant, color: Theme.of(context).colorScheme.onSurfaceVariant),
               ),
-              child: imageUrl.isNotEmpty
-                  ? ClipRRect(
-                      borderRadius: BorderRadius.only(
-                        topLeft: Radius.circular(12),
-                        bottomLeft: Radius.circular(12),
+              // Info
+              Expanded(
+                child: Padding(
+                  padding: const EdgeInsets.all(12.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.min, // Fix vertical overflow
+                    children: [
+                      Row(
+                        children: [
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Text(
+                                  item['name'] ?? '-',
+                                  style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                                Text(
+                                  item['category']?['name'] ?? '-',
+                                  style: TextStyle(fontSize: 11, color: Theme.of(context).colorScheme.onSurfaceVariant),
+                                ),
+                              ],
+                            ),
+                          ),
+                          const SizedBox(width: 4),
+                          _statusChip(isActive),
+                          const SizedBox(width: 4),
+                          _divisionChip(item['division'] ?? 'KITCHEN'),
+                        ],
                       ),
-                      child: Image.network(imageUrl, fit: BoxFit.cover),
-                    )
-                  : Icon(Icons.restaurant, color: Theme.of(context).colorScheme.onSurfaceVariant),
-            ),
-            // Info
-            Expanded(
-              child: Padding(
-                padding: EdgeInsets.all(12.0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisSize: MainAxisSize.min, // Fix vertical overflow
-                  children: [
-                    Row(
-                      children: [
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Text(
-                                item['name'] ?? '-',
-                                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
-                              ),
-                              Text(
-                                item['category']?['name'] ?? '-',
-                                style: TextStyle(fontSize: 11, color: Theme.of(context).colorScheme.onSurfaceVariant),
-                              ),
-                            ],
+                      const SizedBox(height: 8),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            currency.format(parseDouble(item['price'])),
+                            style: TextStyle(
+                              fontWeight: FontWeight.w900,
+                              fontSize: 16,
+                              color: Theme.of(context).colorScheme.primary,
+                            ),
                           ),
-                        ),
-                        SizedBox(width: 4),
-                        _statusChip(isActive),
-                        SizedBox(width: 4),
-                        _divisionChip(item['division'] ?? 'KITCHEN'),
-                      ],
-                    ),
-                    SizedBox(height: 8),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(
-                          currency.format(parseDouble(item['price'])),
-                          style: TextStyle(
-                            fontWeight: FontWeight.w900,
-                            fontSize: 16,
-                            color: Theme.of(context).colorScheme.primary,
+                          TextButton.icon(
+                            onPressed: () {
+                              setState(() {
+                                _expandedItems[item['id']] = !isExpanded;
+                              });
+                            },
+                            icon: Icon(isExpanded ? Icons.expand_less : Icons.expand_more, size: 14),
+                            label: const Text('Detail', style: TextStyle(fontSize: 11)),
+                            style: TextButton.styleFrom(visualDensity: VisualDensity.compact, padding: EdgeInsets.zero),
                           ),
-                        ),
-                        TextButton.icon(
-                          onPressed: () {
-                            setState(() {
-                              _expandedItems[item['id']] = !isExpanded;
-                            });
-                          },
-                          icon: Icon(isExpanded ? Icons.expand_less : Icons.expand_more, size: 14),
-                          label: Text('Detail', style: TextStyle(fontSize: 11)),
-                          style: TextButton.styleFrom(visualDensity: VisualDensity.compact, padding: EdgeInsets.zero),
-                        ),
-                      ],
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              if (isAdmin)
+                PopupMenuButton<String>(
+                  onSelected: (val) {
+                    if (val == 'edit') {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => MenuFormScreen(menu: item)),
+                      ).then((v) => v == true ? _fetchData() : null);
+                    } else if (val == 'delete') {
+                      _showDeleteConfirm(item);
+                    }
+                  },
+                  itemBuilder: (context) => [
+                    const PopupMenuItem(value: 'edit', child: Row(children: [Icon(Icons.edit, size: 18), SizedBox(width: 8), Text('Ubah')])),
+                    PopupMenuItem(
+                      value: 'delete',
+                      child: Row(children: [Icon(Icons.delete, size: 18, color: Theme.of(context).colorScheme.error), SizedBox(width: 8), Text('Hapus', style: TextStyle(color: Theme.of(context).colorScheme.error))]),
                     ),
                   ],
                 ),
-              ),
-            ),
-            if (isAdmin)
-              PopupMenuButton<String>(
-                onSelected: (val) {
-                  if (val == 'edit') {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (context) => MenuFormScreen(menu: item)),
-                    ).then((v) => v == true ? _fetchData() : null);
-                  } else if (val == 'delete') {
-                    _showDeleteConfirm(item);
-                  }
-                },
-                itemBuilder: (context) => [
-                  const PopupMenuItem(value: 'edit', child: Row(children: [Icon(Icons.edit, size: 18), SizedBox(width: 8), Text('Ubah')])),
-                  PopupMenuItem(
-                    value: 'delete',
-                    child: Row(children: [Icon(Icons.delete, size: 18, color: Theme.of(context).colorScheme.error), SizedBox(width: 8), Text('Hapus', style: TextStyle(color: Theme.of(context).colorScheme.error))]),
-                  ),
-                ],
-              ),
-          ],
+            ],
+          ),
         ),
       ),
     );
@@ -460,20 +477,49 @@ class _MenusScreenState extends State<MenusScreen> {
   }
 
   void _showDeleteConfirm(Map<String, dynamic> item) {
-    showDialog(
+    showGeneralDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        title: Text('Hapus Menu'),
+      barrierDismissible: true,
+      barrierLabel: 'DeleteMenuConfirm',
+      transitionDuration: const Duration(milliseconds: 300),
+      transitionBuilder: (context, anim1, anim2, child) {
+        final curve = CurvedAnimation(parent: anim1, curve: Curves.easeOutBack);
+        return Transform.scale(
+          scale: curve.value,
+          child: FadeTransition(
+            opacity: anim1,
+            child: child,
+          ),
+        );
+      },
+      pageBuilder: (context, anim1, anim2) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        title: const Text('Hapus Menu', style: TextStyle(fontWeight: FontWeight.bold)),
         content: Text('Apakah Anda yakin ingin menghapus menu "${item['name']}"?'),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(context), child: Text('Batal')),
-          ElevatedButton(
-            onPressed: () {
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: Text('Batal', style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant)),
+          ),
+          ScaleOnTap(
+            onTap: () {
               Navigator.pop(context);
               _deleteMenu(item['id']);
             },
-            style: ElevatedButton.styleFrom(backgroundColor: Theme.of(context).colorScheme.error),
-            child: Text('Hapus'),
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+              decoration: BoxDecoration(
+                color: Theme.of(context).colorScheme.error,
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Text(
+                'Hapus',
+                style: TextStyle(
+                  color: Theme.of(context).cardColor,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
           ),
         ],
       ),
@@ -768,18 +814,32 @@ class _MenusScreenState extends State<MenusScreen> {
                 ),
                 if (isAdmin) ...[
                   const SizedBox(width: 16),
-                  ElevatedButton.icon(
-                    onPressed: () => Navigator.push(
+                  ScaleOnTap(
+                    onTap: () => Navigator.push(
                       context,
                       MaterialPageRoute(builder: (context) => const MenuFormScreen()),
                     ).then((v) => v == true ? _fetchData() : null),
-                    icon: const Icon(Icons.add, size: 20),
-                    label: const Text('Tambah Menu'),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: isDark ? const Color(0xFF10B981) : Theme.of(context).colorScheme.primary,
-                      foregroundColor: isDark ? const Color(0xFF0A0D0B) : const Color(0xFFFFFFFF),
-                      minimumSize: const Size(200, 48),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                    child: Container(
+                      height: 48,
+                      padding: const EdgeInsets.symmetric(horizontal: 20),
+                      decoration: BoxDecoration(
+                        color: isDark ? const Color(0xFF10B981) : Theme.of(context).colorScheme.primary,
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(Icons.add, size: 20, color: isDark ? const Color(0xFF0A0D0B) : const Color(0xFFFFFFFF)),
+                          const SizedBox(width: 8),
+                          Text(
+                            'Tambah Menu',
+                            style: TextStyle(
+                              color: isDark ? const Color(0xFF0A0D0B) : const Color(0xFFFFFFFF),
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
                   ),
                 ],

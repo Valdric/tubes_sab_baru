@@ -5,6 +5,7 @@ import 'package:gosir/shared/widgets/sidebar.dart';
 import 'package:gosir/core/services/api_service.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:gosir/shared/widgets/animated_entry.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -352,9 +353,15 @@ class _ProfileScreenState extends State<ProfileScreen> {
           flex: 4,
           child: Column(
             children: [
-              _buildAvatarCard(),
+              AnimateEntry(
+                delay: Duration.zero,
+                child: _buildAvatarCard(),
+              ),
               const SizedBox(height: 24),
-              _buildSettingsCard(),
+              AnimateEntry(
+                delay: const Duration(milliseconds: 100),
+                child: _buildSettingsCard(),
+              ),
             ],
           ),
         ),
@@ -364,9 +371,15 @@ class _ProfileScreenState extends State<ProfileScreen> {
           flex: 6,
           child: Column(
             children: [
-              _buildUpdateInfoCard(),
+              AnimateEntry(
+                delay: const Duration(milliseconds: 50),
+                child: _buildUpdateInfoCard(),
+              ),
               const SizedBox(height: 24),
-              _buildPasswordCard(),
+              AnimateEntry(
+                delay: const Duration(milliseconds: 150),
+                child: _buildPasswordCard(),
+              ),
             ],
           ),
         ),
@@ -378,13 +391,25 @@ class _ProfileScreenState extends State<ProfileScreen> {
   Widget _buildMobileLayout() {
     return Column(
       children: [
-        _buildAvatarCard(),
+        AnimateEntry(
+          delay: Duration.zero,
+          child: _buildAvatarCard(),
+        ),
         const SizedBox(height: 16),
-        _buildSettingsCard(),
+        AnimateEntry(
+          delay: const Duration(milliseconds: 50),
+          child: _buildSettingsCard(),
+        ),
         const SizedBox(height: 16),
-        _buildUpdateInfoCard(),
+        AnimateEntry(
+          delay: const Duration(milliseconds: 100),
+          child: _buildUpdateInfoCard(),
+        ),
         const SizedBox(height: 16),
-        _buildPasswordCard(),
+        AnimateEntry(
+          delay: const Duration(milliseconds: 150),
+          child: _buildPasswordCard(),
+        ),
       ],
     );
   }
@@ -408,7 +433,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
       child: Column(
         children: [
           // Elegant Interactive Avatar with Camera Badge
-          GestureDetector(
+          ScaleOnTap(
             onTap: _showPhotoOptions,
             child: Stack(
               children: [
@@ -610,6 +635,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
       ),
       child: Form(
         key: _infoFormKey,
+        autovalidateMode: AutovalidateMode.onUserInteraction,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -658,21 +684,24 @@ class _ProfileScreenState extends State<ProfileScreen> {
             // Action Button
             SizedBox(
               width: double.infinity,
-              child: ElevatedButton(
-                onPressed: _isUpdatingInfo ? null : _updateProfileInfo,
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Theme.of(context).colorScheme.primary,
-                  foregroundColor: Theme.of(context).cardColor,
-                  padding: const EdgeInsets.symmetric(vertical: 16),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+              child: ScaleOnTap(
+                onTap: _isUpdatingInfo ? null : _updateProfileInfo,
+                child: ElevatedButton(
+                  onPressed: null, // Handled by ScaleOnTap
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Theme.of(context).colorScheme.primary,
+                    foregroundColor: Theme.of(context).cardColor,
+                    padding: const EdgeInsets.symmetric(vertical: 16),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                  ),
+                  child: _isUpdatingInfo
+                      ? const SizedBox(
+                          height: 20,
+                          width: 20,
+                          child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
+                        )
+                      : const Text('Simpan Perubahan', style: TextStyle(fontWeight: FontWeight.bold)),
                 ),
-                child: _isUpdatingInfo
-                    ? const SizedBox(
-                        height: 20,
-                        width: 20,
-                        child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
-                      )
-                    : const Text('Simpan Perubahan', style: TextStyle(fontWeight: FontWeight.bold)),
               ),
             ),
           ],
@@ -692,6 +721,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
       ),
       child: Form(
         key: _passwordFormKey,
+        autovalidateMode: AutovalidateMode.onUserInteraction,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -767,21 +797,24 @@ class _ProfileScreenState extends State<ProfileScreen> {
             // Action Button
             SizedBox(
               width: double.infinity,
-              child: ElevatedButton(
-                onPressed: _isUpdatingPassword ? null : _updatePassword,
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Theme.of(context).colorScheme.primary,
-                  foregroundColor: Theme.of(context).cardColor,
-                  padding: const EdgeInsets.symmetric(vertical: 16),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+              child: ScaleOnTap(
+                onTap: _isUpdatingPassword ? null : _updatePassword,
+                child: ElevatedButton(
+                  onPressed: null, // Handled by ScaleOnTap
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Theme.of(context).colorScheme.primary,
+                    foregroundColor: Theme.of(context).cardColor,
+                    padding: const EdgeInsets.symmetric(vertical: 16),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                  ),
+                  child: _isUpdatingPassword
+                      ? const SizedBox(
+                          height: 20,
+                          width: 20,
+                          child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
+                        )
+                      : const Text('Perbarui Password', style: TextStyle(fontWeight: FontWeight.bold)),
                 ),
-                child: _isUpdatingPassword
-                    ? const SizedBox(
-                        height: 20,
-                        width: 20,
-                        child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
-                      )
-                    : const Text('Perbarui Password', style: TextStyle(fontWeight: FontWeight.bold)),
               ),
             ),
           ],

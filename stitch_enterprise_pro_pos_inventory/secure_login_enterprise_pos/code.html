@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Enterprise POS - Login</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "on-secondary-fixed": "#00201b",
+                        "secondary-fixed-dim": "#7ad7c6",
+                        "surface-container-lowest": "#ffffff",
+                        "on-tertiary-fixed-variant": "#713700",
+                        "inverse-on-surface": "#f2eff9",
+                        "outline": "#757684",
+                        "secondary-container": "#94f0df",
+                        "surface-tint": "#4355b9",
+                        "on-primary": "#ffffff",
+                        "primary-fixed": "#dee0ff",
+                        "surface-container-highest": "#e3e1ea",
+                        "on-background": "#1a1b22",
+                        "surface": "#fbf8ff",
+                        "on-tertiary-container": "#ffc7a2",
+                        "surface-container": "#efedf6",
+                        "error-container": "#ffdad6",
+                        "surface-container-low": "#f4f2fc",
+                        "on-surface": "#1a1b22",
+                        "secondary-fixed": "#97f3e2",
+                        "primary-fixed-dim": "#bac3ff",
+                        "surface-bright": "#fbf8ff",
+                        "on-error": "#ffffff",
+                        "secondary": "#006b5e",
+                        "primary": "#24389c",
+                        "on-error-container": "#93000a",
+                        "inverse-surface": "#2f3037",
+                        "on-surface-variant": "#454652",
+                        "on-secondary-container": "#006f62",
+                        "inverse-primary": "#bac3ff",
+                        "primary-container": "#3f51b5",
+                        "on-primary-fixed": "#00105c",
+                        "on-secondary": "#ffffff",
+                        "outline-variant": "#c5c5d4",
+                        "tertiary": "#6c3400",
+                        "error": "#ba1a1a",
+                        "tertiary-fixed": "#ffdcc6",
+                        "tertiary-container": "#8f4700",
+                        "on-primary-fixed-variant": "#293ca0",
+                        "on-secondary-fixed-variant": "#005047",
+                        "tertiary-fixed-dim": "#ffb784",
+                        "on-primary-container": "#cacfff",
+                        "surface-dim": "#dbd9e2",
+                        "surface-variant": "#e3e1ea",
+                        "on-tertiary-fixed": "#301400",
+                        "background": "#fbf8ff",
+                        "on-tertiary": "#ffffff",
+                        "surface-container-high": "#e9e7f0"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.125rem",
+                        "lg": "0.25rem",
+                        "xl": "0.5rem",
+                        "full": "0.75rem"
+                    },
+                    "spacing": {
+                        "margin-tablet": "24px",
+                        "xl": "32px",
+                        "xs": "4px",
+                        "base": "4px",
+                        "margin-mobile": "16px",
+                        "gutter": "16px",
+                        "lg": "24px",
+                        "md": "16px",
+                        "sm": "8px"
+                    },
+                    "fontFamily": {
+                        "numeric-data": ["Inter"],
+                        "headline-lg-mobile": ["Inter"],
+                        "headline-lg": ["Inter"],
+                        "body-lg": ["Inter"],
+                        "display-price": ["Inter"],
+                        "body-md": ["Inter"],
+                        "label-md": ["Inter"],
+                        "headline-md": ["Inter"]
+                    },
+                    "fontSize": {
+                        "numeric-data": ["16px", { "lineHeight": "24px", "fontWeight": "600" }],
+                        "headline-lg-mobile": ["20px", { "lineHeight": "28px", "fontWeight": "600" }],
+                        "headline-lg": ["24px", { "lineHeight": "32px", "fontWeight": "600" }],
+                        "body-lg": ["16px", { "lineHeight": "24px", "fontWeight": "400" }],
+                        "display-price": ["32px", { "lineHeight": "40px", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+                        "body-md": ["14px", { "lineHeight": "20px", "fontWeight": "400" }],
+                        "label-md": ["12px", { "lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "600" }],
+                        "headline-md": ["20px", { "lineHeight": "28px", "fontWeight": "600" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .material-symbols-outlined.fill {
+            font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background text-on-background min-h-screen flex items-center justify-center p-md antialiased">
+<!-- Login Container -->
+<main class="w-full max-w-md bg-surface rounded-xl shadow-[0_12px_24px_-4px_rgba(0,0,0,0.1)] border border-outline-variant overflow-hidden flex flex-col">
+<!-- Header / Brand -->
+<header class="bg-surface-container-low px-lg py-xl flex flex-col items-center justify-center border-b border-surface-variant">
+<div class="w-16 h-16 bg-primary-container text-on-primary-container rounded-full flex items-center justify-center mb-md shadow-sm">
+<span class="material-symbols-outlined text-4xl fill">point_of_sale</span>
+</div>
+<h1 class="font-headline-lg text-headline-lg text-primary text-center">Enterprise POS</h1>
+<p class="font-body-md text-body-md text-on-surface-variant mt-xs text-center">Secure Access Gateway</p>
+</header>
+<!-- Form Area -->
+<section class="p-lg flex flex-col gap-lg bg-surface">
+<!-- Error Banner (Hidden by default) -->
+<div class="hidden bg-error-container text-on-error-container p-md rounded-lg flex items-start gap-md border border-error/20" id="errorBanner">
+<span class="material-symbols-outlined text-error shrink-0">error</span>
+<div class="flex flex-col">
+<span class="font-label-md text-label-md text-error">Authentication Failed</span>
+<span class="font-body-md text-body-md">401 Unauthorized. Invalid credentials provided.</span>
+</div>
+</div>
+<!-- Role Selector (Simulation purposes) -->
+<div class="flex flex-col gap-xs">
+<label class="font-label-md text-label-md text-on-surface-variant">System Role</label>
+<select class="w-full h-12 bg-surface-container px-md rounded-lg border-none focus:ring-2 focus:ring-primary font-body-lg text-body-lg text-on-surface appearance-none outline-none" id="roleSelect">
+<option value="CASHIER">Cashier Terminal</option>
+<option value="KITCHEN">Kitchen Display</option>
+<option value="ADMIN">Store Admin</option>
+<option value="SUPERADMIN">System Superadmin</option>
+</select>
+<div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-lg text-on-surface-variant mt-[1.75rem]">
+<span class="material-symbols-outlined">expand_more</span>
+</div>
+</div>
+<form class="flex flex-col gap-md relative" id="loginForm">
+<!-- Username Input -->
+<div class="flex flex-col gap-xs relative">
+<label class="font-label-md text-label-md text-on-surface-variant" for="username">Username</label>
+<div class="relative flex items-center">
+<span class="material-symbols-outlined absolute left-md text-on-surface-variant">person</span>
+<input autocomplete="username" class="w-full h-12 bg-surface-container pl-[48px] pr-md rounded-lg border-2 border-transparent focus:border-primary focus:bg-surface focus:ring-0 transition-colors font-body-lg text-body-lg text-on-surface placeholder:text-outline outline-none" id="username" placeholder="Enter username" type="text"/>
+</div>
+</div>
+<!-- Password Input -->
+<div class="flex flex-col gap-xs relative">
+<label class="font-label-md text-label-md text-on-surface-variant" for="password">Password</label>
+<div class="relative flex items-center">
+<span class="material-symbols-outlined absolute left-md text-on-surface-variant">lock</span>
+<input autocomplete="current-password" class="w-full h-12 bg-surface-container pl-[48px] pr-[48px] rounded-lg border-2 border-transparent focus:border-primary focus:bg-surface focus:ring-0 transition-colors font-body-lg text-body-lg text-on-surface placeholder:text-outline outline-none" id="password" placeholder="Enter password" type="password"/>
+<button class="absolute right-md text-on-surface-variant hover:text-on-surface transition-colors focus:outline-none flex items-center justify-center" id="togglePassword" type="button">
+<span class="material-symbols-outlined" id="visibilityIcon">visibility</span>
+</button>
+</div>
+</div>
+<!-- Action Bar -->
+<div class="flex items-center justify-between mt-sm">
+<label class="flex items-center gap-sm cursor-pointer group">
+<input class="w-4 h-4 rounded border-outline-variant text-primary focus:ring-primary focus:ring-offset-surface bg-surface-container" type="checkbox"/>
+<span class="font-body-md text-body-md text-on-surface-variant group-hover:text-on-surface transition-colors">Remember me</span>
+</label>
+<button class="font-label-md text-label-md text-primary hover:text-on-primary-fixed-variant transition-colors focus:outline-none" type="button">Forgot Password?</button>
+</div>
+<!-- Login Button -->
+<button class="mt-lg w-full h-12 bg-primary text-on-primary font-headline-md text-headline-md rounded-lg flex items-center justify-center gap-sm disabled:opacity-50 disabled:cursor-not-allowed hover:bg-on-primary-fixed-variant active:scale-[0.98] transition-all duration-200" disabled="" id="loginBtn" type="submit">
+<span>Sign In</span>
+<span class="material-symbols-outlined">arrow_forward</span>
+</button>
+</form>
+</section>
+<!-- Footer Info -->
+<footer class="bg-surface-container-lowest p-md border-t border-surface-variant flex justify-center items-center">
+<span class="font-label-md text-label-md text-outline">v2.4.1 (Stable) • Terminal Connection Secure</span>
+</footer>
+</main>
+<script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const usernameInput = document.getElementById('username');
+            const passwordInput = document.getElementById('password');
+            const loginBtn = document.getElementById('loginBtn');
+            const loginForm = document.getElementById('loginForm');
+            const togglePasswordBtn = document.getElementById('togglePassword');
+            const visibilityIcon = document.getElementById('visibilityIcon');
+            const errorBanner = document.getElementById('errorBanner');
+            const roleSelect = document.getElementById('roleSelect');
+
+            // Validation Logic
+            const validateForm = () => {
+                const isUsernameValid = usernameInput.value.length >= 3;
+                const isPasswordValid = passwordInput.value.length >= 6;
+                
+                if (isUsernameValid && isPasswordValid) {
+                    loginBtn.disabled = false;
+                } else {
+                    loginBtn.disabled = true;
+                }
+                
+                // Hide error on typing if it was shown
+                if(!errorBanner.classList.contains('hidden')){
+                    errorBanner.classList.add('hidden');
+                }
+            };
+
+            usernameInput.addEventListener('input', validateForm);
+            passwordInput.addEventListener('input', validateForm);
+
+            // Password Visibility Toggle
+            togglePasswordBtn.addEventListener('click', () => {
+                const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+                passwordInput.setAttribute('type', type);
+                visibilityIcon.textContent = type === 'password' ? 'visibility' : 'visibility_off';
+            });
+
+            // Form Submit Simulation
+            loginForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+                
+                // Simulate loading state
+                const originalText = loginBtn.innerHTML;
+                loginBtn.innerHTML = '<span class="material-symbols-outlined animate-spin">progress_activity</span><span>Authenticating...</span>';
+                loginBtn.disabled = true;
+                usernameInput.disabled = true;
+                passwordInput.disabled = true;
+                roleSelect.disabled = true;
+
+                // Simulate network request
+                setTimeout(() => {
+                    // Simulation: 401 Error if username is 'error'
+                    if(usernameInput.value.toLowerCase() === 'error') {
+                        errorBanner.classList.remove('hidden');
+                        loginBtn.innerHTML = originalText;
+                        usernameInput.disabled = false;
+                        passwordInput.disabled = false;
+                        roleSelect.disabled = false;
+                        validateForm(); // Re-evaluate button state
+                    } else {
+                         loginBtn.innerHTML = '<span class="material-symbols-outlined">check_circle</span><span>Success</span>';
+                         loginBtn.classList.remove('bg-primary');
+                         loginBtn.classList.add('bg-secondary', 'text-on-secondary');
+                         
+                         // Normally you'd redirect here. 
+                         setTimeout(()=>{
+                             alert(`Logged in as ${roleSelect.value}`);
+                             // Reset for demo purposes
+                             loginBtn.innerHTML = originalText;
+                             loginBtn.classList.add('bg-primary');
+                             loginBtn.classList.remove('bg-secondary', 'text-on-secondary');
+                             usernameInput.disabled = false;
+                             passwordInput.disabled = false;
+                             roleSelect.disabled = false;
+                             usernameInput.value = '';
+                             passwordInput.value = '';
+                             validateForm();
+                         }, 1000);
+                    }
+                }, 1500);
+            });
+        });
+    </script>
+</body></html>

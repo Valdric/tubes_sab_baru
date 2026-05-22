@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:gosir/core/services/api_service.dart';
+import 'package:gosir/shared/widgets/animated_entry.dart';
 
 class MenuFormScreen extends StatefulWidget {
   final Map<String, dynamic>? menu;
@@ -125,44 +126,103 @@ class _MenuFormScreenState extends State<MenuFormScreen> {
     return Scaffold(
       backgroundColor: Theme.of(context).cardColor,
       appBar: AppBar(title: Text(widget.menu == null ? 'Tambah Menu' : 'Edit Menu'), actions: [const ProfileButton()]),
-      body: SingleChildScrollView(
-        padding: EdgeInsets.all(24),
-        child: Form(
-          key: _formKey,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              _buildImagePicker(),
-              SizedBox(height: 24),
-              _buildLabel('Nama Menu'),
-              TextFormField(controller: _nameController, decoration: InputDecoration(hintText: 'Nama')),
-              SizedBox(height: 16),
-              Row(children: [
-                Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [_buildLabel('Harga'), TextFormField(controller: _priceController, keyboardType: TextInputType.number)])),
-                SizedBox(width: 16),
-                Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [_buildLabel('HPP'), TextFormField(controller: _hppController, keyboardType: TextInputType.number)])),
-              ]),
-              SizedBox(height: 16),
-              _buildLabel('Kategori'),
-              DropdownButtonFormField<String>(
-                initialValue: _selectedCategoryId,
-                items: _categories.map((c) => DropdownMenuItem(value: c['id'].toString(), child: Text(c['name']))).toList(),
-                onChanged: (v) => setState(() => _selectedCategoryId = v),
-              ),
-              SizedBox(height: 16),
-              _buildLabel('Divisi'),
-              DropdownButtonFormField<String>(
-                initialValue: _selectedDivision,
-                items: ['BAR', 'KITCHEN'].map((s) => DropdownMenuItem(value: s, child: Text(s))).toList(),
-                onChanged: (v) => setState(() => _selectedDivision = v!),
-              ),
-              SizedBox(height: 16),
-              SwitchListTile(title: Text('Status Aktif'), value: _isActive, onChanged: (v) => setState(() => _isActive = v)),
-              Divider(height: 40),
-              _buildRecipes(),
-              SizedBox(height: 40),
-              ElevatedButton(onPressed: _isLoading ? null : _save, child: _isLoading ? const CircularProgressIndicator() : Text('Simpan')),
-            ],
+      body: AnimateEntry(
+        child: SingleChildScrollView(
+          padding: EdgeInsets.all(24),
+          child: Form(
+            key: _formKey,
+            autovalidateMode: AutovalidateMode.onUserInteraction,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                _buildImagePicker(),
+                const SizedBox(height: 24),
+                _buildLabel('Nama Menu'),
+                TextFormField(
+                  controller: _nameController,
+                  decoration: const InputDecoration(hintText: 'Nama'),
+                  validator: (v) {
+                    if (v == null || v.trim().isEmpty) return 'Nama menu wajib diisi';
+                    return null;
+                  },
+                ),
+                const SizedBox(height: 16),
+                Row(children: [
+                  Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                    _buildLabel('Harga'),
+                    TextFormField(
+                      controller: _priceController,
+                      keyboardType: TextInputType.number,
+                      validator: (v) {
+                        if (v == null || v.trim().isEmpty) return 'Harga wajib diisi';
+                        final parsed = double.tryParse(v.trim());
+                        if (parsed == null || parsed < 0) return 'Harga harus berupa angka yang valid';
+                        return null;
+                      },
+                    ),
+                  ])),
+                  const SizedBox(width: 16),
+                  Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                    _buildLabel('HPP'),
+                    TextFormField(
+                      controller: _hppController,
+                      keyboardType: TextInputType.number,
+                      validator: (v) {
+                        if (v == null || v.trim().isEmpty) return 'HPP wajib diisi';
+                        final parsed = double.tryParse(v.trim());
+                        if (parsed == null || parsed < 0) return 'HPP harus berupa angka yang valid';
+                        return null;
+                      },
+                    ),
+                  ])),
+                ]),
+                const SizedBox(height: 16),
+                _buildLabel('Kategori'),
+                DropdownButtonFormField<String>(
+                  initialValue: _selectedCategoryId,
+                  items: _categories.map((c) => DropdownMenuItem(value: c['id'].toString(), child: Text(c['name']))).toList(),
+                  onChanged: (v) => setState(() => _selectedCategoryId = v),
+                  validator: (v) => (v == null || v.isEmpty) ? 'Kategori wajib dipilih' : null,
+                ),
+                const SizedBox(height: 16),
+                _buildLabel('Divisi'),
+                DropdownButtonFormField<String>(
+                  initialValue: _selectedDivision,
+                  items: ['BAR', 'KITCHEN'].map((s) => DropdownMenuItem(value: s, child: Text(s))).toList(),
+                  onChanged: (v) => setState(() => _selectedDivision = v!),
+                ),
+                const SizedBox(height: 16),
+                SwitchListTile(title: const Text('Status Aktif'), value: _isActive, onChanged: (v) => setState(() => _isActive = v)),
+                const Divider(height: 40),
+                _buildRecipes(),
+                const SizedBox(height: 40),
+                ScaleOnTap(
+                  onTap: _isLoading ? null : _save,
+                  child: Container(
+                    width: double.infinity,
+                    alignment: Alignment.center,
+                    padding: const EdgeInsets.symmetric(vertical: 14),
+                    decoration: BoxDecoration(
+                      color: Theme.of(context).colorScheme.primary,
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: _isLoading 
+                        ? const SizedBox(
+                            height: 20, 
+                            width: 20, 
+                            child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2),
+                          )
+                        : Text(
+                            'Simpan',
+                            style: TextStyle(
+                              color: Theme.of(context).cardColor,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
       ),
@@ -171,7 +231,7 @@ class _MenuFormScreenState extends State<MenuFormScreen> {
 
   Widget _buildImagePicker() {
     return Center(
-      child: InkWell(
+      child: ScaleOnTap(
         onTap: () async {
           final XFile? img = await _picker.pickImage(source: ImageSource.gallery);
           if (img != null) setState(() => _pickedImage = img);
@@ -195,13 +255,47 @@ class _MenuFormScreenState extends State<MenuFormScreen> {
   Widget _buildRecipes() {
     return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
       Text('Resep / Komposisi', style: TextStyle(fontWeight: FontWeight.bold)),
-      ...List.generate(_recipeRows.length, (i) => Row(children: [
-        Expanded(child: DropdownButtonFormField<String>(initialValue: _recipeRows[i]['ingredient_id'], items: _ingredients.map((ing) => DropdownMenuItem(value: ing['id'].toString(), child: Text(ing['name']))).toList(), onChanged: (v) => setState(() => _recipeRows[i]['ingredient_id'] = v))),
-        SizedBox(width: 8),
-        Expanded(child: TextFormField(initialValue: _recipeRows[i]['quantity'], onChanged: (v) => _recipeRows[i]['quantity'] = v, keyboardType: TextInputType.number)),
-        IconButton(icon: Icon(Icons.remove_circle_outline, color: Colors.red), onPressed: () => setState(() => _recipeRows.removeAt(i))),
-      ])),
-      TextButton.icon(onPressed: () => setState(() => _recipeRows.add({'ingredient_id': null, 'quantity': '0'})), icon: Icon(Icons.add), label: Text('Tambah Bahan')),
+      ...List.generate(_recipeRows.length, (i) => Padding(
+        padding: const EdgeInsets.only(bottom: 8.0),
+        child: Row(children: [
+          Expanded(child: DropdownButtonFormField<String>(initialValue: _recipeRows[i]['ingredient_id'], items: _ingredients.map((ing) => DropdownMenuItem(value: ing['id'].toString(), child: Text(ing['name']))).toList(), onChanged: (v) => setState(() => _recipeRows[i]['ingredient_id'] = v))),
+          SizedBox(width: 8),
+          Expanded(child: TextFormField(initialValue: _recipeRows[i]['quantity'], onChanged: (v) => _recipeRows[i]['quantity'] = v, keyboardType: TextInputType.number)),
+          ScaleOnTap(
+            onTap: () => setState(() => _recipeRows.removeAt(i)),
+            child: const Padding(
+              padding: EdgeInsets.all(8.0),
+              child: Icon(Icons.remove_circle_outline, color: Colors.red),
+            ),
+          ),
+        ]),
+      )),
+      const SizedBox(height: 8),
+      ScaleOnTap(
+        onTap: () => setState(() => _recipeRows.add({'ingredient_id': null, 'quantity': '0'})),
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+          decoration: BoxDecoration(
+            border: Border.all(color: Theme.of(context).colorScheme.primary),
+            borderRadius: BorderRadius.circular(8),
+          ),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(Icons.add, size: 18, color: Theme.of(context).colorScheme.primary),
+              const SizedBox(width: 6),
+              Text(
+                'Tambah Bahan',
+                style: TextStyle(
+                  color: Theme.of(context).colorScheme.primary,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 13,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
     ]);
   }
 

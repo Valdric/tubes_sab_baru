@@ -4,7 +4,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http_parser/http_parser.dart';
 
 class ApiService {
-  static const String baseUrl = "https://bemobilepos-production.up.railway.app/api/v1";
+  static const String baseUrl = "https://lightyellow-squirrel-660728.hostingersite.com/api/v1";
 
   Future<void> saveToken(String token) async {
     final prefs = await SharedPreferences.getInstance();
